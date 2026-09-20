@@ -1,0 +1,21 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin | The Present Need Group</title><style>
+body{background:#090909;color:#f5f3ef;font-family:Arial;margin:0}.wrap{width:min(800px,92%);margin:40px auto}.panel{background:#171717;border:1px solid #333;padding:25px;margin-bottom:20px;border-radius:8px}
+input{display:block;width:100%;box-sizing:border-box;padding:12px;margin:8px 0 15px;background:#0d0d0d;border:1px solid #333;color:#fff}button{padding:12px 18px;margin:5px 0;background:#d8d6d1;border:0;border-radius:4px;font-weight:bold}.danger{background:#351818;color:#fff}.item{display:flex;align-items:center;gap:15px;border-top:1px solid #333;padding:15px 0}.item img{width:100px;height:70px;object-fit:cover}.item div{flex:1}.muted{color:#aaa}.hide{display:none}
+</style></head><body><div class="wrap"><h1>Administración</h1>
+<div id="login" class="panel"><h2>Acceso</h2><input id="email" type="email" placeholder="Email"><input id="pass" type="password" placeholder="Contraseña"><button onclick="login()">Entrar</button><p id="msg" class="muted"></p></div>
+<div id="app" class="hide"><div class="panel"><button onclick="logout()">Cerrar sesión</button><h2>Agregar fotografía</h2><input id="title" placeholder="Título"><input id="file" type="file" accept="image/jpeg,image/png,image/webp"><button onclick="upload()">Subir fotografía</button><p id="status" class="muted"></p></div><div class="panel"><h2>Galería</h2><div id="list">Cargando...</div></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script>
+const c=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY),$=x=>document.getElementById(x);
+async function login(){let r=await c.auth.signInWithPassword({email:$('email').value,password:$('pass').value});$('msg').textContent=r.error?r.error.message:''}
+async function logout(){await c.auth.signOut()}
+async function refresh(){let r=await c.from('gallery').select('*').order('created_at',{ascending:false});$('list').innerHTML=r.data?.map(x=>'<div class="item"><img src="'+x.image_url+'"><div>'+x.title+'</div><button class="danger" onclick="removeItem(\''+x.id+'\',\''+x.storage_path+'\')">Eliminar</button></div>').join('')||'<p class="muted">No hay fotografías.</p>'}
+async function upload(){let f=$('file').files[0];if(!f){$('status').textContent='Selecciona una foto.';return}if(f.size>6*1024*1024){$('status').textContent='Usa una foto de 6 MB o menos.';return}
+let path=crypto.randomUUID()+'-'+f.name.toLowerCase().replace(/[^a-z0-9._-]/g,'-');$('status').textContent='Subiendo...';
+let u=await c.storage.from('gallery').upload(path,f,{contentType:f.type});if(u.error){$('status').textContent=u.error.message;return}
+let url=c.storage.from('gallery').getPublicUrl(path).data.publicUrl;
+let d=await c.from('gallery').insert({title:$('title').value||'Trabajo',image_url:url,storage_path:path});if(d.error){$('status').textContent=d.error.message;return}
+$('status').textContent='Publicada.';$('title').value='';$('file').value='';refresh()}
+async function removeItem(id,path){if(!confirm('¿Eliminar esta fotografía?'))return;await c.storage.from('gallery').remove([path]);await c.from('gallery').delete().eq('id',id);refresh()}
+c.auth.onAuthStateChange((e,s)=>{ $('login').classList.toggle('hide',!!s);$('app').classList.toggle('hide',!s);if(s)refresh()});
+</script></body></html>
