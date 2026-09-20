@@ -18,8 +18,33 @@ input{display:block;width:100%;box-sizing:border-box;padding:12px;margin:8px 0 1
 <div class="panel"><h2>Solicitudes de cotización</h2><p class="muted">Aquí aparecerán las solicitudes enviadas desde el formulario de contacto.</p><div id="requests">Cargando...</div></div>
 </div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script>
-const c=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY),$=x=>document.getElementById(x);
-async function login(){let r=await c.auth.signInWithPassword({email:$('email').value,password:$('pass').value});$('msg').textContent=r.error?r.error.message:''}
+const $=x=>document.getElementById(x);
+let c=null;
+try{
+  if(!window.supabase) throw new Error('No se pudo cargar Supabase.');
+  if(!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) throw new Error('Falta configurar Supabase en config.js');
+  c=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
+}catch(err){
+  console.error(err);
+  $('msg').textContent=err.message;
+}
+async function login(){
+  const msg=$('msg');
+  msg.textContent='Iniciando sesión...';
+  try{
+    if(!c) throw new Error('Supabase no está configurado correctamente. Revisa config.js.');
+    if(!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) throw new Error('Falta configurar Supabase en config.js');
+    const email=$('email').value.trim();
+    const password=$('pass').value;
+    if(!email || !password){msg.textContent='Escribe tu correo y contraseña.';return}
+    const r=await c.auth.signInWithPassword({email,password});
+    if(r.error){msg.textContent=r.error.message;return}
+    msg.textContent='';
+  }catch(err){
+    console.error(err);
+    msg.textContent=err.message||'No se pudo iniciar sesión.';
+  }
+}
 async function logout(){await c.auth.signOut()}
 async function refresh(){
   let r=await c.from('gallery').select('*').order('created_at',{ascending:false});
