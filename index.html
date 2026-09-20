@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="The Present Need Group — fotografía, video y contenido multimedia en New York, New Jersey y Pennsylvania.">
+  <title>The Present Need Group</title>
+  <style>
+    :root{
+      --bg:#111111;
+      --bg2:#191919;
+      --card:#222222;
+      --text:#f3f1ed;
+      --muted:#aaa59d;
+      --line:#383838;
+      --accent:#d8d1c5;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      font-family:Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.6;
+    }
+    a{color:inherit;text-decoration:none}
+    .container{width:min(1120px,92%);margin:auto}
+    header{
+      position:fixed;top:0;left:0;right:0;z-index:10;
+      background:rgba(17,17,17,.92);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    nav{
+      min-height:72px;display:flex;align-items:center;justify-content:space-between;
+    }
+    .logo{font-weight:700;letter-spacing:1.5px;font-size:18px}
+    .navlinks{display:flex;gap:28px;color:var(--muted);font-size:14px}
+    .navlinks a:hover{color:var(--text)}
+    .hero{
+      min-height:100vh;display:grid;place-items:center;text-align:center;
+      padding:120px 0 80px;
+      background:
+        radial-gradient(circle at 50% 20%,#303030 0%,#181818 35%,#111 70%);
+    }
+    .hero h1{font-size:clamp(42px,8vw,82px);line-height:1.02;letter-spacing:-2px;max-width:900px;margin:auto}
+    .hero p{color:var(--muted);max-width:650px;margin:25px auto 35px;font-size:18px}
+    .btn{
+      display:inline-block;padding:14px 24px;border:1px solid var(--accent);
+      background:var(--accent);color:#111;border-radius:3px;font-weight:700;
+    }
+    .btn.secondary{background:transparent;color:var(--text);border-color:var(--line);margin-left:10px}
+    section{padding:95px 0;border-bottom:1px solid var(--line)}
+    .eyebrow{text-transform:uppercase;letter-spacing:3px;color:var(--muted);font-size:12px;margin-bottom:12px}
+    h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
+    .services{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .card{background:var(--card);border:1px solid var(--line);padding:32px;min-height:210px}
+    .number{color:var(--muted);font-size:13px}
+    .card h3{font-size:25px;margin:35px 0 10px}
+    .card p{color:var(--muted)}
+    .about{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+    .about p{color:var(--muted);font-size:18px}
+    .locations{display:flex;flex-wrap:wrap;gap:12px;margin-top:25px}
+    .tag{border:1px solid var(--line);padding:10px 16px;color:var(--muted)}
+    .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .placeholder{aspect-ratio:4/3;background:linear-gradient(135deg,#252525,#151515);border:1px solid var(--line);display:grid;place-items:center;color:#777}
+    .contact{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+    .contactbox{border:1px solid var(--line);padding:30px;background:var(--bg2)}
+    .contactbox p{margin:10px 0;color:var(--muted)}
+    footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
+    @media(max-width:750px){
+      .navlinks{display:none}
+      .services,.about,.contact{grid-template-columns:1fr}
+      .gallery{grid-template-columns:1fr 1fr}
+      .btn.secondary{margin:12px 0 0}
+      .hero h1{letter-spacing:-1px}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="container">
+    <nav>
+      <a class="logo" href="#inicio">THE PRESENT NEED GROUP</a>
+      <div class="navlinks">
+        <a href="#servicios">Servicios</a>
+        <a href="#nosotros">Nosotros</a>
+        <a href="#galeria">Galería</a>
+        <a href="#contacto">Contacto</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero" id="inicio">
+    <div class="container">
+      <p class="eyebrow">Photography • Video • Multimedia</p>
+      <h1>We create content that captures the present.</h1>
+      <p>Servicios de fotografía, video y contenido multimedia para personas, marcas y proyectos en New York, New Jersey y Pennsylvania.</p>
+      <a class="btn" href="#contacto">Solicitar cotización</a>
+      <a class="btn secondary" href="#galeria">Ver trabajos</a>
+    </div>
+  </section>
+
+  <section id="servicios">
+    <div class="container">
+      <p class="eyebrow">Qué hacemos</p>
+      <h2>Nuestros servicios</h2>
+      <div class="services">
+        <article class="card">
+          <span class="number">01</span>
+          <h3>Fotografía</h3>
+          <p>Sesiones, eventos, retratos, productos y contenido visual para diferentes proyectos.</p>
+        </article>
+        <article class="card">
+          <span class="number">02</span>
+          <h3>Video</h3>
+          <p>Grabación y producción de videos para eventos, negocios, redes sociales y proyectos personales.</p>
+        </article>
+        <article class="card">
+          <span class="number">03</span>
+          <h3>Contenido multimedia</h3>
+          <p>Contenido visual pensado para redes sociales, marcas y presencia digital.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="nosotros">
+    <div class="container about">
+      <div>
+        <p class="eyebrow">The Present Need Group</p>
+        <h2>Tu idea. Nuestra cámara. El momento presente.</h2>
+      </div>
+      <div>
+        <p>Somos un equipo enfocado en crear fotografía, video y contenido multimedia con una estética limpia, moderna y profesional.</p>
+        <div class="locations">
+          <span class="tag">New York</span>
+          <span class="tag">New Jersey</span>
+          <span class="tag">Pennsylvania</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="galeria">
+    <div class="container">
+      <p class="eyebrow">Portfolio</p>
+      <h2>Trabajos recientes</h2>
+      <div class="gallery">
+        <div class="placeholder">Añadir foto 01</div>
+        <div class="placeholder">Añadir foto 02</div>
+        <div class="placeholder">Añadir foto 03</div>
+        <div class="placeholder">Añadir foto 04</div>
+        <div class="placeholder">Añadir foto 05</div>
+        <div class="placeholder">Añadir foto 06</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contacto">
+    <div class="container">
+      <p class="eyebrow">Hablemos</p>
+      <h2>¿Tienes un proyecto?</h2>
+      <div class="contact">
+        <div class="contactbox">
+          <h3>Contacto</h3>
+          <p>📞 <a href="tel:+19178623320">917-862-3320</a></p>
+          <p>📧 Email: correoprovicional01@gmail.com</p>
+          <p>📍 New York • New Jersey • Pennsylvania</p>
+        </div>
+        <div class="contactbox">
+          <h3>Solicita una cotización</h3>
+          <p>Cuéntanos qué necesitas y nos pondremos en contacto contigo.</p>
+          <a class="btn" href="mailto:correoprovicional01@gmail.com?subject=Solicitud%20de%20cotización">Enviar mensaje</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  © 2026 The Present Need Group. All rights reserved.
+</footer>
+</body>
+</html>
