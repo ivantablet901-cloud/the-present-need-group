@@ -49,6 +49,25 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
 .status{color:var(--muted);font-size:14px;margin-bottom:20px}
 
+.contact-form{display:grid;gap:14px;margin-top:22px}
+.contact-form label{display:grid;gap:7px;color:var(--muted);font-size:13px}
+.contact-form input,.contact-form select,.contact-form textarea{
+  width:100%;padding:13px 14px;border:1px solid var(--line);background:#0d0d0d;
+  color:var(--text);border-radius:3px;font:inherit;outline:none
+}
+.contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{border-color:var(--silver)}
+.contact-form textarea{min-height:130px;resize:vertical}
+.contact-form .btn{border:none;cursor:pointer;width:100%}
+.form-status{font-size:14px;color:var(--muted);min-height:22px}
+.form-status.success{color:#d8d6d1}
+.form-status.error{color:#f0aaa3}
+.contact-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.contact-actions .btn.secondary{margin-left:0}
+@media(max-width:750px){
+  .contact-actions{flex-direction:column}
+  .contact-actions .btn{width:100%;text-align:center}
+}
+
 @media(max-width:750px){
 .navlinks{display:none}.services,.about,.contact{grid-template-columns:1fr}
 .gallery{grid-template-columns:1fr}
@@ -102,7 +121,43 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
 <section id="contacto"><div class="container"><p class="eyebrow">Hablemos</p><h2>¿Tienes un proyecto?</h2>
 <div class="contact">
 <div class="contactbox"><h3>Contacto</h3><p>📞 <a href="tel:+19178623320">917-862-3320</a></p><p>📧 <a href="mailto:correoprovicional01@gmail.com">correoprovicional01@gmail.com</a></p><p>📍 New York • New Jersey • Pennsylvania</p></div>
-<div class="contactbox"><h3>Solicita una cotización</h3><p>Cuéntanos qué necesitas y nos pondremos en contacto contigo.</p><br><a class="btn" href="mailto:correoprovicional01@gmail.com?subject=Solicitud%20de%20cotización">Enviar mensaje</a></div>
+<div class="contactbox">
+<h3>Solicita una cotización</h3>
+<p>Cuéntanos qué necesitas y nos pondremos en contacto contigo.</p>
+<form id="quoteForm" class="contact-form">
+  <label>Nombre
+    <input type="text" name="name" autocomplete="name" required>
+  </label>
+  <label>Teléfono
+    <input type="tel" name="phone" autocomplete="tel">
+  </label>
+  <label>Email
+    <input type="email" name="email" autocomplete="email" required>
+  </label>
+  <label>Servicio
+    <select name="service" required>
+      <option value="">Selecciona un servicio</option>
+      <option value="Fotografía">Fotografía</option>
+      <option value="Video">Video</option>
+      <option value="Contenido multimedia">Contenido multimedia</option>
+      <option value="Fotografía + Video">Fotografía + Video</option>
+      <option value="Otro">Otro</option>
+    </select>
+  </label>
+  <label>Fecha del evento/proyecto
+    <input type="date" name="project_date">
+  </label>
+  <label>Mensaje
+    <textarea name="message" placeholder="Cuéntanos sobre tu proyecto..." required></textarea>
+  </label>
+  <button class="btn" type="submit">Enviar solicitud</button>
+  <div id="quoteStatus" class="form-status" aria-live="polite"></div>
+</form>
+<div class="contact-actions">
+  <a class="btn secondary" href="https://wa.me/19178623320" target="_blank" rel="noopener">WhatsApp</a>
+  <a class="btn secondary" href="mailto:correoprovicional01@gmail.com?subject=Solicitud%20de%20cotización">Email directo</a>
+</div>
+</div>
 </div></div></section>
 </main>
 
@@ -186,6 +241,52 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
     }
   }
   loadGallery();
+
+  const quoteForm = document.getElementById('quoteForm');
+  const quoteStatus = document.getElementById('quoteStatus');
+
+  if (quoteForm) {
+    quoteForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      quoteStatus.className = 'form-status';
+      quoteStatus.textContent = 'Enviando solicitud...';
+
+      try {
+        if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
+          throw new Error('Falta configurar Supabase en config.js');
+        }
+
+        const client = window.supabase.createClient(
+          window.SUPABASE_URL,
+          window.SUPABASE_ANON_KEY
+        );
+
+        const formData = new FormData(quoteForm);
+        const payload = {
+          name: String(formData.get('name') || '').trim(),
+          phone: String(formData.get('phone') || '').trim() || null,
+          email: String(formData.get('email') || '').trim(),
+          service: String(formData.get('service') || '').trim() || null,
+          project_date: String(formData.get('project_date') || '').trim() || null,
+          message: String(formData.get('message') || '').trim()
+        };
+
+        const { error } = await client
+          .from('contact_requests')
+          .insert([payload]);
+
+        if (error) throw error;
+
+        quoteForm.reset();
+        quoteStatus.className = 'form-status success';
+        quoteStatus.textContent = '¡Solicitud enviada! Nos pondremos en contacto contigo pronto.';
+      } catch (err) {
+        console.error(err);
+        quoteStatus.className = 'form-status error';
+        quoteStatus.textContent = 'No se pudo enviar la solicitud. Puedes contactarnos por WhatsApp o email.';
+      }
+    });
+  }
 })();
 </script>
 </body>
