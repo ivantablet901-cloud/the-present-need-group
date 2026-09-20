@@ -1,41 +1,192 @@
-<!doctype html><html lang="es"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="The Present Need Group - Fotografía, video y contenido multimedia.">
 <title>The Present Need Group</title>
 <style>
-body{margin:0;background:#080808;color:#f5f3ef;font-family:Arial,sans-serif}a{color:inherit;text-decoration:none}
-.container{width:min(1120px,92%);margin:auto}header{position:fixed;top:0;width:100%;background:#080808e8;border-bottom:1px solid #303030;z-index:5}
-nav{height:78px;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:12px}.brand img{width:50px;height:50px;object-fit:contain}.brand span{font-size:13px;letter-spacing:2px;font-weight:bold}
-.links{display:flex;gap:25px;color:#aaa}.hero{min-height:100vh;text-align:center;display:grid;place-items:center;padding:90px 0 40px;background:radial-gradient(circle,#292929,#111 40%,#050505 75%)}
-.hero img{width:min(330px,70vw);filter:drop-shadow(0 0 25px #fff2)}h1{font-size:clamp(40px,7vw,78px);line-height:1;margin:25px auto;max-width:900px}
-.hero p{color:#aaa;max-width:680px;margin:20px auto 30px;font-size:18px}.btn{display:inline-block;padding:14px 23px;background:#d8d6d1;color:#111;margin:5px;border-radius:3px;font-weight:bold}
-section{padding:90px 0;border-bottom:1px solid #303030}h2{font-size:45px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:#191919;border:1px solid #303030;padding:30px;min-height:170px}.card p,.about p{color:#aaa}
-.about{display:grid;grid-template-columns:1fr 1fr;gap:50px}.tags span{display:inline-block;border:1px solid #333;padding:8px 14px;margin:5px;color:#aaa}
-.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.photo{background:#191919;border:1px solid #303030}.photo img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}.photo div{padding:12px;color:#aaa}
-.contact{display:grid;grid-template-columns:1fr 1fr;gap:25px}.box{background:#121212;border:1px solid #303030;padding:25px}.box p{color:#aaa}
-footer{text-align:center;color:#777;padding:35px}
-@media(max-width:700px){.links{display:none}.grid,.about,.contact{grid-template-columns:1fr}.gallery{grid-template-columns:1fr 1fr}.brand span{display:none}}
-</style></head><body>
-<header><div class="container"><nav><a class="brand" href="#inicio"><img src="logo.png"><span>THE PRESENT NEED GROUP</span></a>
-<div class="links"><a href="#servicios">Servicios</a><a href="#nosotros">Nosotros</a><a href="#galeria">Galería</a><a href="#contacto">Contacto</a></div></nav></div></header>
-<section class="hero" id="inicio"><div class="container"><img src="logo.png"><p>PHOTOGRAPHY • VIDEO • MULTIMEDIA</p>
-<h1>We create content that captures the present.</h1><p>Fotografía, video y contenido multimedia en New York, New Jersey y Pennsylvania.</p>
-<a class="btn" href="#contacto">Solicitar cotización</a><a class="btn" href="#galeria">Ver trabajos</a></div></section>
-<section id="servicios"><div class="container"><p>QUÉ HACEMOS</p><h2>Nuestros servicios</h2><div class="grid">
-<div class="card"><h3>Fotografía</h3><p>Sesiones, eventos, retratos, productos y contenido visual.</p></div>
-<div class="card"><h3>Video</h3><p>Grabación y producción para eventos, negocios y redes.</p></div>
-<div class="card"><h3>Contenido multimedia</h3><p>Contenido visual para marcas y presencia digital.</p></div></div></div></section>
-<section id="nosotros"><div class="container about"><div><p>THE PRESENT NEED GROUP</p><h2>Tu idea. Nuestra cámara. El momento presente.</h2></div>
-<div><p>Un equipo enfocado en crear fotografía, video y contenido multimedia con una estética limpia, moderna y profesional.</p><div class="tags"><span>New York</span><span>New Jersey</span><span>Pennsylvania</span></div></div></div></section>
-<section id="galeria"><div class="container"><p>PORTFOLIO</p><h2>Trabajos recientes</h2><div id="gallery" class="gallery"><p>Cargando galería...</p></div></div></section>
-<section id="contacto"><div class="container"><p>HABLEMOS</p><h2>¿Tienes un proyecto?</h2><div class="contact">
-<div class="box"><h3>Contacto</h3><p>917-862-3320</p><p>correoprovicional01@gmail.com</p><p>New York • New Jersey • Pennsylvania</p></div>
-<div class="box"><h3>Solicita una cotización</h3><p>Cuéntanos qué necesitas y nos pondremos en contacto.</p><a class="btn" href="mailto:correoprovicional01@gmail.com?subject=Solicitud%20de%20cotización">Enviar mensaje</a></div></div></div></section>
-<footer>© 2026 The Present Need Group</footer>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script>
+:root{--bg:#080808;--surface:#121212;--card:#1a1a1a;--text:#f5f3ef;--muted:#aaa7a1;--line:#303030;--silver:#d8d6d1}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+a{color:inherit;text-decoration:none}
+.container{width:min(1120px,92%);margin:auto}
+header{position:fixed;top:0;left:0;right:0;z-index:20;background:rgba(8,8,8,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav{min-height:78px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:14px}.brand img{width:52px;height:52px;object-fit:contain}.brand span{font-size:13px;letter-spacing:2px;font-weight:700}
+.navlinks{display:flex;gap:28px;color:var(--muted);font-size:14px}.navlinks a:hover{color:#fff}
+.hero{min-height:100vh;display:grid;place-items:center;text-align:center;padding:125px 0 80px;background:radial-gradient(circle at 50% 25%,#292929 0,#111 38%,#050505 75%)}
+.hero-logo{width:min(330px,62vw);height:auto;display:block;margin:0 auto 34px;filter:drop-shadow(0 0 28px rgba(255,255,255,.08))}
+.eyebrow{text-transform:uppercase;letter-spacing:3px;color:var(--muted);font-size:11px;margin-bottom:14px}
+h1{font-size:clamp(40px,7vw,78px);line-height:1.02;letter-spacing:-2px;max-width:900px;margin:auto}
+.hero p{color:var(--muted);max-width:680px;margin:24px auto 34px;font-size:18px}
+.btn{display:inline-block;padding:14px 24px;border:1px solid var(--silver);background:var(--silver);color:#111;border-radius:3px;font-weight:700}
+.btn.secondary{background:transparent;color:var(--text);border-color:var(--line);margin-left:10px}
+section{padding:95px 0;border-bottom:1px solid var(--line)}
+h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
+.services{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{background:var(--card);border:1px solid var(--line);padding:32px;min-height:220px}
+.number{color:var(--muted);font-size:13px}.card h3{font-size:25px;margin:35px 0 10px}.card p,.about p,.contactbox p{color:var(--muted)}
+.about{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}.about p{font-size:18px}
+.locations{display:flex;flex-wrap:wrap;gap:12px;margin-top:25px}.tag{border:1px solid var(--line);padding:10px 16px;color:var(--muted)}
+
+/* Galería: conserva la proporción original de cada fotografía */
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start}
+.gallery-card{background:var(--surface);border:1px solid var(--line);overflow:hidden;cursor:pointer}
+.gallery-card img{width:100%;height:auto;display:block;object-fit:contain;background:#0b0b0b}
+.gallery-card .caption{padding:12px 14px;color:var(--text);font-size:14px}
+.gallery-empty{border:1px dashed var(--line);padding:50px 20px;text-align:center;color:var(--muted)}
+
+/* Visor de fotografía */
+.lightbox{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.94);display:none;align-items:center;justify-content:center;padding:24px}
+.lightbox.open{display:flex}
+.lightbox img{max-width:95vw;max-height:90vh;width:auto;height:auto;object-fit:contain}
+.lightbox button{position:absolute;top:18px;right:20px;width:44px;height:44px;border:1px solid #555;background:#111;color:#fff;border-radius:50%;font-size:26px;cursor:pointer}
+.lightbox-title{position:absolute;left:20px;bottom:18px;right:20px;text-align:center;color:#ddd;font-size:14px}
+
+.contact{display:grid;grid-template-columns:1fr 1fr;gap:40px}.contactbox{border:1px solid var(--line);padding:30px;background:var(--surface)}.contactbox h3{margin-bottom:12px}
+footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
+.status{color:var(--muted);font-size:14px;margin-bottom:20px}
+
+@media(max-width:750px){
+.navlinks{display:none}.services,.about,.contact{grid-template-columns:1fr}
+.gallery{grid-template-columns:1fr}
+.btn.secondary{margin:12px 0 0}
+.brand span{display:none}
+.hero-logo{width:min(280px,72vw)}
+}
+</style>
+</head>
+<body>
+
+<header><div class="container"><nav>
+<a class="brand" href="#inicio">
+<img src="logo.png" alt="The Present Need Group logo">
+<span>THE PRESENT NEED GROUP</span>
+</a>
+<div class="navlinks">
+<a href="#servicios">Servicios</a><a href="#nosotros">Nosotros</a><a href="#galeria">Galería</a><a href="#contacto">Contacto</a>
+</div>
+</nav></div></header>
+
+<main>
+<section class="hero" id="inicio"><div class="container">
+<img class="hero-logo" src="logo.png" alt="Logo de The Present Need Group">
+<p class="eyebrow">Photography • Video • Multimedia</p>
+<h1>We create content that captures the present.</h1>
+<p>Fotografía, video y contenido multimedia para personas, marcas y proyectos en New York, New Jersey y Pennsylvania.</p>
+<a class="btn" href="#contacto">Solicitar cotización</a>
+<a class="btn secondary" href="#galeria">Ver trabajos</a>
+</div></section>
+
+<section id="servicios"><div class="container"><p class="eyebrow">Qué hacemos</p><h2>Nuestros servicios</h2>
+<div class="services">
+<article class="card"><span class="number">01</span><h3>Fotografía</h3><p>Sesiones, eventos, retratos, productos y contenido visual para diferentes proyectos.</p></article>
+<article class="card"><span class="number">02</span><h3>Video</h3><p>Grabación y producción de videos para eventos, negocios, redes sociales y proyectos personales.</p></article>
+<article class="card"><span class="number">03</span><h3>Contenido multimedia</h3><p>Contenido visual pensado para redes sociales, marcas y presencia digital.</p></article>
+</div></div></section>
+
+<section id="nosotros"><div class="container about">
+<div><p class="eyebrow">The Present Need Group</p><h2>Tu idea. Nuestra cámara. El momento presente.</h2></div>
+<div><p>Somos un equipo enfocado en crear fotografía, video y contenido multimedia con una estética limpia, moderna y profesional.</p>
+<div class="locations"><span class="tag">New York</span><span class="tag">New Jersey</span><span class="tag">Pennsylvania</span></div></div>
+</div></section>
+
+<section id="galeria"><div class="container">
+<p class="eyebrow">Portfolio</p><h2>Trabajos recientes</h2>
+<div id="galleryStatus" class="status">Cargando fotografías...</div>
+<div id="gallery" class="gallery"></div>
+</div></section>
+
+<section id="contacto"><div class="container"><p class="eyebrow">Hablemos</p><h2>¿Tienes un proyecto?</h2>
+<div class="contact">
+<div class="contactbox"><h3>Contacto</h3><p>📞 <a href="tel:+19178623320">917-862-3320</a></p><p>📧 <a href="mailto:correoprovicional01@gmail.com">correoprovicional01@gmail.com</a></p><p>📍 New York • New Jersey • Pennsylvania</p></div>
+<div class="contactbox"><h3>Solicita una cotización</h3><p>Cuéntanos qué necesitas y nos pondremos en contacto contigo.</p><br><a class="btn" href="mailto:correoprovicional01@gmail.com?subject=Solicitud%20de%20cotización">Enviar mensaje</a></div>
+</div></div></section>
+</main>
+
+<footer>© 2026 The Present Need Group. All rights reserved.</footer>
+
+<div id="lightbox" class="lightbox" aria-hidden="true">
+<button id="closeLightbox" aria-label="Cerrar">×</button>
+<img id="lightboxImage" src="" alt="">
+<div id="lightboxTitle" class="lightbox-title"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
 <script>
-async function load(){const g=document.getElementById('gallery');if(!window.SUPABASE_URL||window.SUPABASE_URL.startsWith('PEGA_')){g.innerHTML='<p>Galería en preparación.</p>';return}
-const c=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);const r=await c.from('gallery').select('*').order('created_at',{ascending:false});
-if(r.error||!r.data.length){g.innerHTML='<p>Próximamente: nuevos trabajos.</p>';return}
-g.innerHTML=r.data.map(x=>'<article class="photo"><img src="'+x.image_url+'" loading="lazy"><div>'+x.title+'</div></article>').join('')}
-load();
-</script></body></html>
+(function(){
+  const gallery = document.getElementById('gallery');
+  const status = document.getElementById('galleryStatus');
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImage = document.getElementById('lightboxImage');
+  const lightboxTitle = document.getElementById('lightboxTitle');
+  const closeLightbox = document.getElementById('closeLightbox');
+
+  function openLightbox(url,title){
+    lightboxImage.src = url;
+    lightboxImage.alt = title || 'Fotografía';
+    lightboxTitle.textContent = title || '';
+    lightbox.classList.add('open');
+    lightbox.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+  }
+  function close(){
+    lightbox.classList.remove('open');
+    lightbox.setAttribute('aria-hidden','true');
+    lightboxImage.src='';
+    document.body.style.overflow='';
+  }
+  closeLightbox.addEventListener('click',close);
+  lightbox.addEventListener('click',e=>{if(e.target===lightbox)close();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+
+  async function loadGallery(){
+    try{
+      if(!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY){
+        throw new Error('Falta configurar Supabase en config.js');
+      }
+      const client = window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
+      const {data,error}=await client.from('gallery').select('id,title,image_url,storage_path,created_at').order('created_at',{ascending:false});
+      if(error) throw error;
+
+      gallery.innerHTML='';
+      if(!data || !data.length){
+        status.textContent='Aún no hay fotografías publicadas.';
+        return;
+      }
+
+      status.textContent='';
+      data.forEach(item=>{
+        let url=item.image_url;
+        if(!url && item.storage_path){
+          url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
+        }
+        if(!url) return;
+
+        const card=document.createElement('article');
+        card.className='gallery-card';
+        const img=document.createElement('img');
+        img.src=url;
+        img.alt=item.title || 'Fotografía de The Present Need Group';
+        img.loading='lazy';
+        const caption=document.createElement('div');
+        caption.className='caption';
+        caption.textContent=item.title || '';
+        card.appendChild(img);
+        if(item.title) card.appendChild(caption);
+        card.addEventListener('click',()=>openLightbox(url,item.title||''));
+        gallery.appendChild(card);
+      });
+    }catch(err){
+      console.error(err);
+      status.textContent='No se pudieron cargar las fotografías. Revisa la configuración de Supabase.';
+    }
+  }
+  loadGallery();
+})();
+</script>
+</body>
+</html>
