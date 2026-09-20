@@ -47,7 +47,7 @@ async function refreshRequests(){
 }
 
 function escapeHtml(value){return String(value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
-function escapeAttr(value){return String(value).replace(/[^0-9+()\\- .@]/g,'')}
+function escapeAttr(value){return String(value).replace(/[^0-9+()\- .@]/g,'')}
 async function removeRequest(id){if(!confirm('¿Eliminar esta solicitud?'))return;let r=await c.from('contact_requests').delete().eq('id',id);if(r.error){alert(r.error.message);return}refreshRequests()}
 
 async function upload(){let f=$('file').files[0];if(!f){$('status').textContent='Selecciona una foto.';return}if(f.size>6*1024*1024){$('status').textContent='Usa una foto de 6 MB o menos.';return}
