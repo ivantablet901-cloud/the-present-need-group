@@ -78,8 +78,20 @@ nav{min-height:82px;display:flex;align-items:center;gap:28px}
 .language-switcher{display:flex;align-items:center;gap:5px;margin-left:4px;padding:4px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.025)}
 .lang-btn{border:0;background:transparent;color:var(--muted);font:700 10px 'Manrope',sans-serif;letter-spacing:1px;padding:7px 9px;border-radius:999px;cursor:pointer;transition:all .25s ease}.lang-btn:hover{color:#fff}.lang-btn.active{color:#111;background:var(--silver)}.language-switcher>span{color:var(--muted2);font-size:9px}
 
-.hero{min-height:100svh;display:grid;place-items:center;text-align:center;position:relative;overflow:hidden;padding:150px 0 105px;background:radial-gradient(ellipse at 50% 27%,rgba(255,255,255,.13) 0%,rgba(255,255,255,.045) 18%,transparent 48%),radial-gradient(ellipse at 50% 100%,rgba(255,255,255,.04),transparent 45%),#050505}
-.hero:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px);background-size:80px 80px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.5),transparent 65%)}
+.hero{min-height:100svh;display:grid;place-items:center;text-align:left;position:relative;overflow:hidden;padding:145px 0 95px;background:#050505}
+.hero:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 72% 42%,rgba(255,255,255,.14) 0%,rgba(255,255,255,.055) 20%,transparent 52%),linear-gradient(90deg,rgba(0,0,0,.98) 0%,rgba(0,0,0,.78) 38%,rgba(0,0,0,.25) 72%,rgba(0,0,0,.72) 100%),linear-gradient(180deg,rgba(255,255,255,.025),transparent 65%)}
+.hero:after{content:"TPNG";position:absolute;right:-4vw;bottom:-10vw;font:700 clamp(180px,31vw,520px)/.8 'Manrope',sans-serif;letter-spacing:-.08em;color:rgba(255,255,255,.025);pointer-events:none}
+.hero .container{max-width:1180px}
+.hero-content{position:relative;z-index:2;max-width:850px}
+.hero-logo{width:min(190px,34vw);margin:0 0 28px;filter:drop-shadow(0 0 38px rgba(255,255,255,.13))}
+.hero h1{max-width:820px}
+.hero p:not(.eyebrow){max-width:650px;margin:25px 0 34px}
+.hero .hero-meta{display:flex;align-items:center;gap:14px;margin-top:32px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:2px}
+.hero .hero-meta span{width:5px;height:5px;border-radius:50%;background:var(--silver);opacity:.7}
+.hero .btns{display:flex;flex-wrap:wrap;gap:10px}
+.hero .btn.secondary{margin-left:0}
+.hero-badge{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line);background:rgba(255,255,255,.035);padding:8px 12px;border-radius:999px;color:var(--muted);font-size:11px;margin-bottom:20px}
+.hero-badge i{width:6px;height:6px;border-radius:50%;background:#e2dfd7;box-shadow:0 0 12px rgba(255,255,255,.5)}
 .hero .container{position:relative;z-index:1}.hero-logo{width:min(310px,58vw);height:auto;display:block;margin:0 auto 35px;filter:drop-shadow(0 0 34px rgba(255,255,255,.10));animation:heroLogoIn .9s ease both}
 .eyebrow{text-transform:uppercase;letter-spacing:3.5px;color:var(--muted);font:600 10px 'Manrope',sans-serif;margin-bottom:17px}
 h1{font-family:'Manrope',sans-serif;font-size:clamp(44px,7vw,84px);line-height:.99;letter-spacing:-3.8px;font-weight:600;max-width:950px;margin:auto}
@@ -108,7 +120,7 @@ footer{padding:38px 0;color:#666;font-size:12px;text-align:center;letter-spacing
 
 .reveal-ready .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}.reveal-ready .reveal.visible{opacity:1;transform:none}
 @media(max-width:900px){.navlinks{gap:18px}.services,.gallery{grid-template-columns:repeat(2,1fr)}.about{gap:55px}.contact{grid-template-columns:1fr}}
-@media(max-width:750px){nav{min-height:72px;gap:10px}.brand img{width:44px;height:44px}.brand span,.navlinks{display:none}.language-switcher{margin-left:auto}.hero{padding:125px 0 85px}.hero-logo{width:min(275px,72vw);margin-bottom:30px}h1{letter-spacing:-2.6px}.hero p:not(.eyebrow){font-size:15px;line-height:1.75}.btn{width:100%;max-width:340px}.btn.secondary{margin:10px 0 0}section{padding:88px 0}h2{margin-bottom:32px}.services,.gallery,.about,.contact{grid-template-columns:1fr}.card{min-height:240px}.card h3{margin-top:52px}.about>div:last-child{border-left:0;border-top:1px solid var(--line);padding:28px 0 0}.gallery{gap:12px}.contactbox{padding:27px}.contact-actions{flex-direction:column}.contact-actions .btn{max-width:none}}
+@media(max-width:750px){nav{min-height:72px;gap:10px}.brand img{width:44px;height:44px}.brand span,.navlinks{display:none}.language-switcher{margin-left:auto}.hero{padding:120px 0 78px;text-align:left}.hero-content{max-width:100%}.hero-logo{width:min(165px,48vw);margin-bottom:25px}.hero-badge{font-size:9px;letter-spacing:.2px}.hero h1{letter-spacing:-2.6px}.hero p:not(.eyebrow){font-size:15px;line-height:1.75;margin:20px 0 28px}.hero-meta{flex-wrap:wrap;gap:8px!important}.hero-meta span{display:inline-block}.hero-meta span:not(:empty){font-size:9px}.hero:after{font-size:42vw;right:-8vw;bottom:2vw}.btn{width:100%;max-width:340px}.btn.secondary{margin:10px 0 0}section{padding:88px 0}h2{margin-bottom:32px}.services,.gallery,.about,.contact{grid-template-columns:1fr}.card{min-height:240px}.card h3{margin-top:52px}.about>div:last-child{border-left:0;border-top:1px solid var(--line);padding:28px 0 0}.gallery{gap:12px}.contactbox{padding:27px}.contact-actions{flex-direction:column}.contact-actions .btn{max-width:none}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
 @keyframes heroLogoIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:none}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 </style>
@@ -135,12 +147,18 @@ footer{padding:38px 0;color:#666;font-size:12px;text-align:center;letter-spacing
 
 <main>
 <section class="hero" id="inicio"><div class="container">
+<div class="hero-content">
+<div class="hero-badge"><i></i><span data-i18n="heroBadge">Now booking projects in NY • NJ • PA</span></div>
 <img class="hero-logo" src="logo.png" alt="The Present Need Group logo" width="330" height="330">
 <p class="eyebrow" data-i18n="heroEyebrow">Photography • Video • Multimedia</p>
 <h1 data-i18n="heroTitle">We create content that captures the present.</h1>
 <p data-i18n="heroText">Photography, video and multimedia content for people, brands and projects in New York, New Jersey and Pennsylvania.</p>
+<div class="btns">
 <a class="btn" href="#contacto" data-i18n="quoteButton">Request a quote</a>
 <a class="btn secondary" href="#galeria" data-i18n="viewWork">View our work</a>
+</div>
+<div class="hero-meta"><span data-i18n="heroMetaOne">Creative production</span><span></span><span data-i18n="heroMetaTwo">Tri-State Area</span><span></span><span data-i18n="heroMetaThree">Professional content</span></div>
+</div>
 </div></section>
 
 <section id="servicios"><div class="container reveal"><p class="eyebrow" data-i18n="servicesEyebrow">What we do</p><h2 data-i18n="servicesTitle">Our services</h2>
@@ -221,6 +239,7 @@ footer{padding:38px 0;color:#666;font-size:12px;text-align:center;letter-spacing
   const translations = {
     en: {
       navServices:"Services", navAbout:"About", navGallery:"Gallery", navContact:"Contact",
+      heroBadge:"Now booking projects in NY • NJ • PA", heroMetaOne:"Creative production", heroMetaTwo:"Tri-State Area", heroMetaThree:"Professional content",
       heroEyebrow:"Photography • Video • Multimedia",
       heroTitle:"We create content that captures the present.",
       heroText:"Photography, video and multimedia content for people, brands and projects in New York, New Jersey and Pennsylvania.",
@@ -251,6 +270,7 @@ footer{padding:38px 0;color:#666;font-size:12px;text-align:center;letter-spacing
     },
     es: {
       navServices:"Servicios", navAbout:"Nosotros", navGallery:"Galería", navContact:"Contacto",
+      heroBadge:"Reservando proyectos en NY • NJ • PA", heroMetaOne:"Producción creativa", heroMetaTwo:"Área Tri-State", heroMetaThree:"Contenido profesional",
       heroEyebrow:"Fotografía • Video • Multimedia",
       heroTitle:"Creamos contenido que captura el presente.",
       heroText:"Fotografía, video y contenido multimedia para personas, marcas y proyectos en New York, New Jersey y Pennsylvania.",
