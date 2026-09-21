@@ -9,6 +9,8 @@ input{display:block;width:100%;box-sizing:border-box;padding:12px;margin:8px 0 1
 .request p{margin:5px 0}
 .request .message{margin-top:12px;padding:12px;background:#0d0d0d;border:1px solid #2b2b2b;border-radius:4px;white-space:pre-wrap}
 .request .danger{margin-top:12px}
+.request-status{margin:10px 0;padding:10px;background:#0d0d0d;border:1px solid #333;color:#fff;border-radius:4px;width:100%;box-sizing:border-box}
+.request-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 @media(max-width:600px){.request-head{flex-direction:column}}
 </style></head><body><div class="wrap"><h1>Administración</h1>
 <div id="login" class="panel"><h2>Acceso</h2><input id="email" type="email" placeholder="Email"><input id="pass" type="password" placeholder="Contraseña"><button onclick="login()">Entrar</button><p id="msg" class="muted"></p></div>
@@ -42,13 +44,25 @@ async function refreshRequests(){
     let date=x.created_at?new Date(x.created_at).toLocaleString('es-US',{dateStyle:'medium',timeStyle:'short'}):'';
     let project=x.project_date?new Date(x.project_date+'T00:00:00').toLocaleDateString('es-US',{dateStyle:'long'}):'No indicada';
     let phone=x.phone||'No indicado', email=x.email||'No indicado', service=x.service||'No indicado';
-    return '<div class="request"><div class="request-head"><div><h3>'+escapeHtml(x.name||'Sin nombre')+'</h3><p class="muted">'+escapeHtml(date)+'</p></div><button class="danger" onclick="removeRequest('+x.id+')">Eliminar</button></div><p>📞 <a href="tel:'+escapeAttr(phone)+'">'+escapeHtml(phone)+'</a></p><p>📧 <a href="mailto:'+escapeAttr(email)+'">'+escapeHtml(email)+'</a></p><p>🎥 Servicio: '+escapeHtml(service)+'</p><p>📅 Fecha del proyecto: '+escapeHtml(project)+'</p><div class="message">'+escapeHtml(x.message||'Sin mensaje')+'</div></div>';
+    let currentStatus=x.status||'Nueva';
+    return '<div class="request"><div class="request-head"><div><h3>'+escapeHtml(x.name||'Sin nombre')+'</h3><p class="muted">'+escapeHtml(date)+'</p></div><button class="danger" onclick="removeRequest('+x.id+')">Eliminar</button></div><p>📞 <a href="tel:'+escapeAttr(phone)+'">'+escapeHtml(phone)+'</a></p><p>📧 <a href="mailto:'+escapeAttr(email)+'">'+escapeHtml(email)+'</a></p><p>🎥 Servicio: '+escapeHtml(service)+'</p><p>📅 Fecha del proyecto: '+escapeHtml(project)+'</p><label>Estado<select class="request-status" onchange="updateRequestStatus('+x.id+',this.value)"><option value="Nueva" '+(currentStatus==='Nueva'?'selected':'')+'>Nueva</option><option value="En proceso" '+(currentStatus==='En proceso'?'selected':'')+'>En proceso</option><option value="Contactado" '+(currentStatus==='Contactado'?'selected':'')+'>Contactado</option><option value="Completada" '+(currentStatus==='Completada'?'selected':'')+'>Completada</option></select></label><div class="message">'+escapeHtml(x.message||'Sin mensaje')+'</div></div>';
   }).join('');
 }
 
 function escapeHtml(value){return String(value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
 function escapeAttr(value){return String(value).replace(/[^0-9+()\- .@]/g,'')}
-async function removeRequest(id){if(!confirm('¿Eliminar esta solicitud?'))return;let r=await c.from('contact_requests').delete().eq('id',id);if(r.error){alert(r.error.message);return}refreshRequests()}
+async function removeRequest(id){
+  if(!confirm('¿Eliminar esta solicitud?'))return;
+  let r=await c.from('contact_requests').delete().eq('id',id);
+  if(r.error){alert('No se pudo eliminar la solicitud: '+r.error.message);return}
+  await refreshRequests();
+}
+
+async function updateRequestStatus(id,status){
+  let r=await c.from('contact_requests').update({status:status}).eq('id',id);
+  if(r.error){alert('No se pudo actualizar el estado: '+r.error.message);return}
+  await refreshRequests();
+}
 
 async function upload(){let f=$('file').files[0];if(!f){$('status').textContent='Selecciona una foto.';return}if(f.size>6*1024*1024){$('status').textContent='Usa una foto de 6 MB o menos.';return}
 let path=crypto.randomUUID()+'-'+f.name.toLowerCase().replace(/[^a-z0-9._-]/g,'-');$('status').textContent='Subiendo...';
