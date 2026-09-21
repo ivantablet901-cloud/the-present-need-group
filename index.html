@@ -276,6 +276,17 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
           .insert([payload]);
 
         if (error) throw error;
+        
+        const { error: emailError } = await client.functions.invoke(
+  'send-quote-email',
+  {
+    body: payload
+  }
+);
+
+if (emailError) {
+  console.error('La solicitud se guardó, pero el email no pudo enviarse:', emailError);
+}
 
         quoteForm.reset();
         quoteStatus.className = 'form-status success';
