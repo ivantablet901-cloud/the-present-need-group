@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ivantablet901-cloud.github.io/the-present-need-group/sitemap.xml
