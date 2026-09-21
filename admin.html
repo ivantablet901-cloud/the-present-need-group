@@ -374,9 +374,6 @@ h2{font-size:24px;letter-spacing:-.8px}
       <div style="height:22px"></div>
       <div class="panel-head"><div><p class="eyebrow">Published</p><h2>Gallery</h2></div></div>
       <div id="list" class="gallery-list">Loading...</div>
-
-</div>
-
     </section>
 
     <section class="panel">
@@ -536,7 +533,7 @@ async function upload(){let f=$('file').files[0];if(!f){$('status').textContent=
 let path=crypto.randomUUID()+'-'+f.name.toLowerCase().replace(/[^a-z0-9._-]/g,'-');$('status').textContent='Subiendo...';
 let u=await c.storage.from('gallery').upload(path,f,{contentType:f.type});if(u.error){$('status').textContent=u.error.message;return}
 let url=c.storage.from('gallery').getPublicUrl(path).data.publicUrl;
-let d=await c.from('gallery').insert({title:$('title').value||'Trabajo',image_url:url,storage_path:path});if(d.error){$('status').textContent=d.error.message;return}
+let d=await c.from('gallery').insert({title:$('title').value.trim(),image_url:url,storage_path:path});if(d.error){$('status').textContent=d.error.message;return}
 $('status').textContent='Publicada.';$('title').value='';$('file').value='';refresh()}
 
 async function removeItem(id,path){
