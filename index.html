@@ -148,33 +148,28 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 .gallery-empty{border:1px dashed var(--line);padding:50px 20px;text-align:center;color:var(--muted)}
 
 
-/* Efecto premium: brillo de borde que recorre suavemente el contorno */
+/* Efecto premium: brillo de borde sutil y elegante, sin movimiento */
 .card, .contactbox, .tag, .gallery-card, .btn.secondary, .lightbox button {
   position:relative;
-  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease, color .25s ease, background .25s ease;
+  transition: transform .35s ease, border-color .45s ease, box-shadow .45s ease, color .35s ease, background .35s ease;
 }
 .card::before, .contactbox::before, .tag::before, .gallery-card::before, .btn.secondary::before, .lightbox button::before {
   content:"";
   position:absolute;
-  inset:-1.5px;
-  padding:1.5px;
+  inset:-1px;
+  padding:1px;
   border-radius:inherit;
-  background:conic-gradient(from 0deg, transparent 0deg, transparent 285deg, rgba(255,255,255,0) 305deg, rgba(255,255,255,.95) 330deg, rgba(255,255,255,0) 350deg, transparent 360deg);
+  background:linear-gradient(135deg, rgba(255,255,255,.55), rgba(255,255,255,.08) 42%, rgba(255,255,255,.28) 72%, rgba(255,255,255,.04));
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
   -webkit-mask-composite:xor;
   mask-composite:exclude;
   opacity:0;
   pointer-events:none;
   z-index:3;
-  transition:opacity .25s ease;
+  transition:opacity .55s ease;
 }
 .card:hover::before, .contactbox:hover::before, .tag:hover::before, .gallery-card:hover::before, .btn.secondary:hover::before, .lightbox button:hover::before {
-  opacity:1;
-  animation:borderSweep 2.8s linear infinite;
-}
-@keyframes borderSweep {
-  from { transform:rotate(0deg); }
-  to { transform:rotate(360deg); }
+  opacity:.8;
 }
 .card:hover, .contactbox:hover {
   border-color:rgba(255,255,255,.38);
