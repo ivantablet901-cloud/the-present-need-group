@@ -366,7 +366,7 @@ h2{font-size:24px;letter-spacing:-.8px}
       <div class="upload-zone">
         <div class="upload-grid">
           <div class="field"><label for="title">Title</label><input id="title" placeholder="e.g. Wedding Session"></div>
-          <div class="field"><label for="file">Image</label><input id="file" type="file" accept="image/jpeg,image/png,image/webp"></div>
+          <div class="field"><label for="file">Image</label><input id="file" type="file" accept="image/jpeg,image/png,image/webp" multiple></div>
         </div>
         <button class="btn" onclick="upload()">Publish photo</button>
         <div id="status" class="status"></div>
@@ -529,12 +529,45 @@ async function updateRequestStatus(id,status){
   renderRequestDashboard();
 }
 
-async function upload(){let f=$('file').files[0];if(!f){$('status').textContent='Selecciona una foto.';return}if(f.size>6*1024*1024){$('status').textContent='Usa una foto de 6 MB o menos.';return}
-let path=crypto.randomUUID()+'-'+f.name.toLowerCase().replace(/[^a-z0-9._-]/g,'-');$('status').textContent='Subiendo...';
-let u=await c.storage.from('gallery').upload(path,f,{contentType:f.type});if(u.error){$('status').textContent=u.error.message;return}
-let url=c.storage.from('gallery').getPublicUrl(path).data.publicUrl;
-let d=await c.from('gallery').insert({title:$('title').value.trim(),image_url:url,storage_path:path});if(d.error){$('status').textContent=d.error.message;return}
-$('status').textContent='Publicada.';$('title').value='';$('file').value='';refresh()}
+async function upload(){
+  const files=Array.from($('file').files||[]);
+  if(!files.length){$('status').textContent='Selecciona una o más fotos.';return}
+
+  const title=$('title').value.trim();
+  for(const f of files){
+    if(f.size>6*1024*1024){
+      $('status').textContent='La foto "'+f.name+'" supera el límite de 6 MB.';
+      return;
+    }
+    if(!['image/jpeg','image/png','image/webp'].includes(f.type)){
+      $('status').textContent='La foto "'+f.name+'" no es un formato permitido.';
+      return;
+    }
+  }
+
+  let uploaded=0;
+  for(const f of files){
+    const path=crypto.randomUUID()+'-'+f.name.toLowerCase().replace(/[^a-z0-9._-]/g,'-');
+    $('status').textContent='Subiendo '+(uploaded+1)+' de '+files.length+'...';
+
+    const u=await c.storage.from('gallery').upload(path,f,{contentType:f.type});
+    if(u.error){$('status').textContent=u.error.message;return}
+
+    const url=c.storage.from('gallery').getPublicUrl(path).data.publicUrl;
+    const d=await c.from('gallery').insert({title:title,image_url:url,storage_path:path});
+    if(d.error){
+      await c.storage.from('gallery').remove([path]);
+      $('status').textContent=d.error.message;
+      return;
+    }
+    uploaded++;
+  }
+
+  $('status').textContent=uploaded===1?'Publicada.':uploaded+' fotos publicadas.';
+  $('title').value='';
+  $('file').value='';
+  refresh();
+}
 
 async function removeItem(id,path){
   if(!confirm('¿Eliminar esta fotografía?'))return;
