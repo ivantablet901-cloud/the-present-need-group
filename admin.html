@@ -544,70 +544,45 @@ async function removeItem(id,path){
   if(!confirm('¿Eliminar esta fotografía?'))return;
 
   const btn=document.querySelector('#list .danger[data-photo-id="'+id+'"]');
-  if(btn){btn.disabled=true;btn.textContent='Comprobando...';}
+  if(btn){
+    btn.disabled=true;
+    btn.textContent='Eliminando...';
+  }
 
   try{
-    // Diagnostic: show the exact Storage path and the raw response from remove().
-    const storage=c.storage.from('gallery');
+    const storageResult=await c.storage.from('gallery').remove([path]);
 
-    if(btn)btn.textContent='Eliminando archivo...';
-
-    const result=await storage.remove([path]);
-
-    const dataText=JSON.stringify(result.data,null,2);
-    const errorText=result.error
-      ? JSON.stringify({
-          name:result.error.name,
-          message:result.error.message,
-          statusCode:result.error.statusCode,
-          status:result.error.status
-        },null,2)
-      : 'null';
-
-    // Check whether the exact object is still present.
-    const folder=path.includes('/')
-      ? path.substring(0,path.lastIndexOf('/'))
-      : '';
-    const fileName=path.includes('/')
-      ? path.substring(path.lastIndexOf('/')+1)
-      : path;
-
-    const listResult=await storage.list(folder,{
-      search:fileName,
-      limit:100
-    });
-
-    const stillExists=Array.isArray(listResult.data)
-      ? listResult.data.some(x=>x.name===fileName)
-      : 'No se pudo comprobar';
-
-    const diagnostic=
-      'DIAGNÓSTICO DE STORAGE\\n\\n'+
-      'Bucket: gallery\\n'+
-      'Ruta enviada a remove():\\n'+path+'\\n\\n'+
-      'Respuesta data:\\n'+dataText+'\\n\\n'+
-      'Respuesta error:\\n'+errorText+'\\n\\n'+
-      '¿El archivo sigue en Storage?: '+stillExists;
-
-    alert(diagnostic);
-
-    // Only continue with the database record after we have shown the Storage result.
-    // The database behavior itself is unchanged.
-    if(result.error){
-      if(btn){btn.disabled=false;btn.textContent='Eliminar';}
+    if(storageResult.error){
+      console.error('Storage delete error:',storageResult.error);
+      alert('No se pudo eliminar el archivo de Storage: '+storageResult.error.message);
+      if(btn){
+        btn.disabled=false;
+        btn.textContent='Eliminar';
+      }
       return;
     }
 
-    await c.from('gallery').delete().eq('id',id);
+    const dbResult=await c.from('gallery').delete().eq('id',id);
+
+    if(dbResult.error){
+      console.error('Database delete error:',dbResult.error);
+      alert('El archivo fue eliminado de Storage, pero no se pudo eliminar el registro de Gallery: '+dbResult.error.message);
+      if(btn){
+        btn.disabled=false;
+        btn.textContent='Eliminar';
+      }
+      return;
+    }
+
     await refresh();
 
   }catch(e){
-    console.error(e);
-    alert(
-      'DIAGNÓSTICO DE STORAGE — Error inesperado\\n\\n'+
-      'Mensaje: '+(e.message||String(e))
-    );
-    if(btn){btn.disabled=false;btn.textContent='Eliminar';}
+    console.error('Delete error:',e);
+    alert('Ocurrió un error al eliminar la fotografía: '+(e.message||String(e)));
+    if(btn){
+      btn.disabled=false;
+      btn.textContent='Eliminar';
+    }
   }
 }
 
