@@ -556,10 +556,9 @@ async function removeItem(id,path){
     const { data: userData, error: userError } = await c.auth.getUser();
 
 alert(
-  'USUARIO DE LA SESIÓN:\n' +
-  JSON.stringify(userData?.user?.email) +
-  '\n\nERROR DE USUARIO:\n' +
-  JSON.stringify(userError)
+  'EMAIL: ' + userData.user?.email +
+  '\n\nUSER ID: ' + userData.user?.id +
+  '\n\nERROR: ' + (userError?.message || 'null')
 );
    const storageResult=await c.storage.from('gallery').remove([path]);
 
