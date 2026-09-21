@@ -11,6 +11,14 @@ input{display:block;width:100%;box-sizing:border-box;padding:12px;margin:8px 0 1
 .request .danger{margin-top:12px}
 .request-status{margin:10px 0;padding:10px;background:#0d0d0d;border:1px solid #333;color:#fff;border-radius:4px;width:100%;box-sizing:border-box}
 .request-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.request-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}
+.summary-card{background:#0d0d0d;border:1px solid #333;border-radius:6px;padding:12px;text-align:center}
+.summary-card strong{display:block;font-size:20px;color:#f5f3ef}.summary-card span{font-size:12px;color:#aaa}
+.request-filters{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 20px}
+.filter-btn{background:#0d0d0d;color:#f5f3ef;border:1px solid #444;cursor:pointer}
+.filter-btn.active{background:#d8d6d1;color:#090909}
+.empty-filter{padding:18px 0;color:#aaa}
+@media(max-width:600px){.request-summary{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.request-head{flex-direction:column}}
 </style></head><body><div class="wrap"><h1>Administración</h1>
 <div id="login" class="panel"><h2>Acceso</h2><input id="email" type="email" placeholder="Email"><input id="pass" type="password" placeholder="Contraseña"><button onclick="login()">Entrar</button><p id="msg" class="muted"></p></div>
@@ -36,18 +44,61 @@ async function refresh(){
   await refreshRequests();
 }
 
+let allRequests=[];
+let activeRequestFilter='Todas';
+
 async function refreshRequests(){
   let r=await c.from('contact_requests').select('*').order('created_at',{ascending:false});
   if(r.error){$('requests').innerHTML='<p class="muted">No se pudieron cargar las solicitudes: '+escapeHtml(r.error.message)+'</p>';return}
-  if(!r.data?.length){$('requests').innerHTML='<p class="muted">No hay solicitudes todavía.</p>';return}
-  $('requests').innerHTML=r.data.map(x=>{
+  allRequests=r.data||[];
+  renderRequestDashboard();
+}
+
+function renderRequestDashboard(){
+  const counts={
+    'Nueva':allRequests.filter(x=>(x.status||'Nueva')==='Nueva').length,
+    'En proceso':allRequests.filter(x=>(x.status||'Nueva')==='En proceso').length,
+    'Contactado':allRequests.filter(x=>(x.status||'Nueva')==='Contactado').length,
+    'Completada':allRequests.filter(x=>(x.status||'Nueva')==='Completada').length
+  };
+
+  let filtered=activeRequestFilter==='Todas'
+    ? allRequests
+    : allRequests.filter(x=>(x.status||'Nueva')===activeRequestFilter);
+
+  let summary='<div class="request-summary">'
+    +'<div class="summary-card"><strong>'+allRequests.length+'</strong><span>Total</span></div>'
+    +'<div class="summary-card"><strong>'+counts['Nueva']+'</strong><span>Nuevas</span></div>'
+    +'<div class="summary-card"><strong>'+counts['En proceso']+'</strong><span>En proceso</span></div>'
+    +'<div class="summary-card"><strong>'+counts['Contactado']+'</strong><span>Contactados</span></div>'
+    +'<div class="summary-card"><strong>'+counts['Completada']+'</strong><span>Completadas</span></div>'
+    +'</div>';
+
+  let filters='<div class="request-filters">'
+    +['Todas','Nueva','En proceso','Contactado','Completada'].map(s=>'<button class="filter-btn '+(activeRequestFilter===s?'active':'')+'" onclick="setRequestFilter(\''+s+'\')">'+s+'</button>').join('')
+    +'</div>';
+
+  if(!filtered.length){
+    $('requests').innerHTML=summary+filters+'<p class="empty-filter">No hay solicitudes en este estado.</p>';
+    return;
+  }
+
+  let cards=filtered.map(x=>{
     let date=x.created_at?new Date(x.created_at).toLocaleString('es-US',{dateStyle:'medium',timeStyle:'short'}):'';
     let project=x.project_date?new Date(x.project_date+'T00:00:00').toLocaleDateString('es-US',{dateStyle:'long'}):'No indicada';
     let phone=x.phone||'No indicado', email=x.email||'No indicado', service=x.service||'No indicado';
     let currentStatus=x.status||'Nueva';
     return '<div class="request"><div class="request-head"><div><h3>'+escapeHtml(x.name||'Sin nombre')+'</h3><p class="muted">'+escapeHtml(date)+'</p></div><button class="danger" onclick="removeRequest('+x.id+')">Eliminar</button></div><p>📞 <a href="tel:'+escapeAttr(phone)+'">'+escapeHtml(phone)+'</a></p><p>📧 <a href="mailto:'+escapeAttr(email)+'">'+escapeHtml(email)+'</a></p><p>🎥 Servicio: '+escapeHtml(service)+'</p><p>📅 Fecha del proyecto: '+escapeHtml(project)+'</p><label>Estado<select class="request-status" onchange="updateRequestStatus('+x.id+',this.value)"><option value="Nueva" '+(currentStatus==='Nueva'?'selected':'')+'>Nueva</option><option value="En proceso" '+(currentStatus==='En proceso'?'selected':'')+'>En proceso</option><option value="Contactado" '+(currentStatus==='Contactado'?'selected':'')+'>Contactado</option><option value="Completada" '+(currentStatus==='Completada'?'selected':'')+'>Completada</option></select></label><div class="message">'+escapeHtml(x.message||'Sin mensaje')+'</div></div>';
   }).join('');
+
+  $('requests').innerHTML=summary+filters+cards;
 }
+
+function setRequestFilter(filter){
+  activeRequestFilter=filter;
+  renderRequestDashboard();
+}
+
 
 function escapeHtml(value){return String(value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
 function escapeAttr(value){return String(value).replace(/[^0-9+()\- .@]/g,'')}
@@ -61,7 +112,9 @@ async function removeRequest(id){
 async function updateRequestStatus(id,status){
   let r=await c.from('contact_requests').update({status:status}).eq('id',id);
   if(r.error){alert('No se pudo actualizar el estado: '+r.error.message);return}
-  await refreshRequests();
+  const item=allRequests.find(x=>x.id===id);
+  if(item)item.status=status;
+  renderRequestDashboard();
 }
 
 async function upload(){let f=$('file').files[0];if(!f){$('status').textContent='Selecciona una foto.';return}if(f.size>6*1024*1024){$('status').textContent='Usa una foto de 6 MB o menos.';return}
