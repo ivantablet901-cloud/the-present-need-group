@@ -553,7 +553,13 @@ async function removeItem(id,path){
 
   try{
     // 1) Delete the physical file from Supabase Storage first.
-    const storageResult=await c.storage.from('gallery').remove([path]);
+   const storageResult=await c.storage.from('gallery').remove([path]);
+
+alert(
+  'RUTA ENVIADA A STORAGE:\n' + path +
+  '\n\nDATA:\n' + JSON.stringify(storageResult.data) +
+  '\n\nERROR:\n' + JSON.stringify(storageResult.error)
+);
     if(storageResult.error){
       console.error('Storage delete error:',storageResult.error);
       alert('No se pudo eliminar la imagen de Supabase Storage:\n\n'+storageResult.error.message);
