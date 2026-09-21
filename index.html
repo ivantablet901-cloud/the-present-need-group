@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -60,75 +60,57 @@
 }
 </script>
 <style>
-:root{--bg:#080808;--surface:#121212;--card:#1a1a1a;--text:#f5f3ef;--muted:#aaa7a1;--line:#303030;--silver:#d8d6d1}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
-a{color:inherit;text-decoration:none}
-.container{width:min(1120px,92%);margin:auto}
-header{position:fixed;top:0;left:0;right:0;z-index:20;background:rgba(8,8,8,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-nav{min-height:78px;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:14px}.brand img{width:52px;height:52px;object-fit:contain}.brand span{font-size:13px;letter-spacing:2px;font-weight:700}
-.navlinks{display:flex;gap:28px;color:var(--muted);font-size:14px}.navlinks a:hover{color:#fff}
-.hero{min-height:100vh;display:grid;place-items:center;text-align:center;padding:125px 0 80px;background:radial-gradient(circle at 50% 25%,#292929 0,#111 38%,#050505 75%)}
-.hero-logo{width:min(330px,62vw);height:auto;display:block;margin:0 auto 34px;filter:drop-shadow(0 0 28px rgba(255,255,255,.08));mix-blend-mode:screen}
-.eyebrow{text-transform:uppercase;letter-spacing:3px;color:var(--muted);font-size:11px;margin-bottom:14px}
-h1{font-size:clamp(40px,7vw,78px);line-height:1.02;letter-spacing:-2px;max-width:900px;margin:auto}
-.hero p{color:var(--muted);max-width:680px;margin:24px auto 34px;font-size:18px}
-.btn{display:inline-block;padding:14px 24px;border:1px solid var(--silver);background:var(--silver);color:#111;border-radius:3px;font-weight:700}
-.btn.secondary{background:transparent;color:var(--text);border-color:var(--line);margin-left:10px}
-section{padding:95px 0;border-bottom:1px solid var(--line)}
-h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
-.services{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.card{background:var(--card);border:1px solid var(--line);padding:32px;min-height:220px}
-.number{color:var(--muted);font-size:13px}.card h3{font-size:25px;margin:35px 0 10px}.card p,.about p,.contactbox p{color:var(--muted)}
-.about{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}.about p{font-size:18px}
-.locations{display:flex;flex-wrap:wrap;gap:12px;margin-top:25px}.tag{border:1px solid var(--line);padding:10px 16px;color:var(--muted)}
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
 
-/* Galería: conserva la proporción original de cada fotografía */
-.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start}
-.gallery-card{background:var(--surface);border:1px solid var(--line);overflow:hidden;cursor:pointer}
-.gallery-card img{width:100%;height:auto;display:block;object-fit:contain;background:#0b0b0b}
-.gallery-card .caption{padding:12px 14px;color:var(--text);font-size:14px}
+:root{--bg:#070707;--surface:#111;--card:#121212;--text:#f4f2ed;--muted:#a6a39d;--muted2:#77746e;--line:rgba(255,255,255,.11);--line2:rgba(255,255,255,.065);--silver:#e2dfd7;--max:1180px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:92px}
+body{font-family:'DM Sans',Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 15% 10%,rgba(255,255,255,.035),transparent 28%),radial-gradient(circle at 85% 35%,rgba(255,255,255,.025),transparent 30%)}
+a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}.container{width:min(var(--max),92%);margin:auto}
+
+header{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(7,7,7,.78);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--line2)}
+nav{min-height:82px;display:flex;align-items:center;gap:28px}
+.brand{display:flex;align-items:center;gap:12px;min-width:max-content}.brand img{width:48px;height:48px;object-fit:contain;filter:drop-shadow(0 4px 16px rgba(255,255,255,.07))}
+.brand span{font-family:'Manrope',sans-serif;font-size:11px;letter-spacing:2.4px;font-weight:700}
+.navlinks{display:flex;align-items:center;justify-content:center;gap:30px;color:var(--muted);font-size:13px;margin-left:auto}
+.navlinks a{position:relative;transition:color .25s ease}.navlinks a:after{content:"";position:absolute;left:0;right:0;bottom:-9px;height:1px;background:var(--silver);transform:scaleX(0);transform-origin:center;transition:transform .25s ease}.navlinks a:hover{color:#fff}.navlinks a:hover:after{transform:scaleX(1)}
+.language-switcher{display:flex;align-items:center;gap:5px;margin-left:4px;padding:4px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.025)}
+.lang-btn{border:0;background:transparent;color:var(--muted);font:700 10px 'Manrope',sans-serif;letter-spacing:1px;padding:7px 9px;border-radius:999px;cursor:pointer;transition:all .25s ease}.lang-btn:hover{color:#fff}.lang-btn.active{color:#111;background:var(--silver)}.language-switcher>span{color:var(--muted2);font-size:9px}
+
+.hero{min-height:100svh;display:grid;place-items:center;text-align:center;position:relative;overflow:hidden;padding:150px 0 105px;background:radial-gradient(ellipse at 50% 27%,rgba(255,255,255,.13) 0%,rgba(255,255,255,.045) 18%,transparent 48%),radial-gradient(ellipse at 50% 100%,rgba(255,255,255,.04),transparent 45%),#050505}
+.hero:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px);background-size:80px 80px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.5),transparent 65%)}
+.hero .container{position:relative;z-index:1}.hero-logo{width:min(310px,58vw);height:auto;display:block;margin:0 auto 35px;filter:drop-shadow(0 0 34px rgba(255,255,255,.10));animation:heroLogoIn .9s ease both}
+.eyebrow{text-transform:uppercase;letter-spacing:3.5px;color:var(--muted);font:600 10px 'Manrope',sans-serif;margin-bottom:17px}
+h1{font-family:'Manrope',sans-serif;font-size:clamp(44px,7vw,84px);line-height:.99;letter-spacing:-3.8px;font-weight:600;max-width:950px;margin:auto}
+.hero p:not(.eyebrow){color:var(--muted);max-width:680px;margin:25px auto 36px;font-size:17px;line-height:1.8}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 23px;border:1px solid var(--silver);background:var(--silver);color:#111;border-radius:999px;font-weight:700;font-size:13px;transition:transform .25s ease,background .25s ease,box-shadow .25s ease}
+.btn:hover{transform:translateY(-2px);background:#fff;border-color:#fff;box-shadow:0 10px 35px rgba(255,255,255,.08)}
+.btn.secondary{background:transparent;color:var(--text);border-color:var(--line);margin-left:8px}.btn.secondary:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.25)}
+
+section{padding:120px 0;border-bottom:1px solid var(--line2);position:relative}section:nth-of-type(even){background:linear-gradient(180deg,rgba(255,255,255,.012),transparent)}
+h2{font-family:'Manrope',sans-serif;font-size:clamp(34px,5vw,58px);line-height:1.04;letter-spacing:-2.4px;font-weight:600;margin-bottom:44px}
+.services{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{position:relative;overflow:hidden;background:linear-gradient(145deg,#151515,#0e0e0e);border:1px solid var(--line);padding:34px;min-height:285px;transition:transform .3s ease,border-color .3s ease}
+.card:before{content:"";position:absolute;left:0;top:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--silver),transparent);transform:translateX(-100%);transition:transform .5s ease}.card:hover{transform:translateY(-7px);border-color:rgba(255,255,255,.22)}.card:hover:before{transform:translateX(100%)}
+.number{color:var(--muted2);font:600 11px 'Manrope',sans-serif;letter-spacing:1px}.card h3{font-family:'Manrope',sans-serif;font-size:26px;line-height:1.15;margin:64px 0 13px;font-weight:600}.card p,.about p,.contactbox p{color:var(--muted);font-size:15px;line-height:1.8}
+
+.about{display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}.about h2{max-width:560px}.about>div:last-child{border-left:1px solid var(--line);padding-left:55px}.about p{font-size:17px}.locations{display:flex;flex-wrap:wrap;gap:9px;margin-top:28px}.tag{border:1px solid var(--line);padding:9px 14px;color:var(--muted);border-radius:999px;font-size:12px;transition:all .25s ease}.tag:hover{color:var(--text);border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.04)}
+
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}.gallery-card{position:relative;background:var(--surface);border:1px solid var(--line2);overflow:hidden;cursor:pointer;border-radius:2px;transition:transform .35s ease,border-color .35s ease}.gallery-card:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.58));opacity:0;transition:opacity .3s ease;pointer-events:none}.gallery-card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.22)}.gallery-card:hover:after{opacity:1}.gallery-card img{width:100%;height:auto;display:block;object-fit:contain;background:#090909;transition:transform .55s ease}.gallery-card:hover img{transform:scale(1.025)}.gallery-card .caption{position:relative;z-index:2;padding:13px 15px;color:var(--text);font-size:13px;background:#101010}
 .gallery-empty{border:1px dashed var(--line);padding:50px 20px;text-align:center;color:var(--muted)}
 
-/* Visor de fotografía */
-.lightbox{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.94);display:none;align-items:center;justify-content:center;padding:24px}
-.lightbox.open{display:flex}
-.lightbox img{max-width:95vw;max-height:90vh;width:auto;height:auto;object-fit:contain}
-.lightbox button{position:absolute;top:18px;right:20px;width:44px;height:44px;border:1px solid #555;background:#111;color:#fff;border-radius:50%;font-size:26px;cursor:pointer}
-.lightbox-title{position:absolute;left:20px;bottom:18px;right:20px;text-align:center;color:#ddd;font-size:14px}
+.lightbox{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.96);display:none;align-items:center;justify-content:center;padding:24px;animation:fadeIn .2s ease}.lightbox.open{display:flex}.lightbox img{max-width:95vw;max-height:90vh;width:auto;height:auto;object-fit:contain}.lightbox button{position:absolute;top:20px;right:22px;width:46px;height:46px;border:1px solid #444;background:#111;color:#fff;border-radius:50%;font-size:25px;cursor:pointer;transition:all .2s ease}.lightbox button:hover{background:#fff;color:#111}.lightbox-title{position:absolute;left:20px;bottom:18px;right:20px;text-align:center;color:#ddd;font-size:13px}
 
-.contact{display:grid;grid-template-columns:1fr 1fr;gap:40px}.contactbox{border:1px solid var(--line);padding:30px;background:var(--surface)}.contactbox h3{margin-bottom:12px}
-footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
-.status{color:var(--muted);font-size:14px;margin-bottom:20px}
+.contact{display:grid;grid-template-columns:.82fr 1.18fr;gap:16px}.contactbox{border:1px solid var(--line);padding:36px;background:linear-gradient(145deg,#141414,#0e0e0e)}.contactbox h3{font-family:'Manrope',sans-serif;font-size:25px;font-weight:600;margin-bottom:15px}.contactbox p{margin:7px 0}.contactbox a{transition:color .2s ease}.contactbox a:hover{color:#fff}
+.contact-form{display:grid;gap:15px;margin-top:24px}.contact-form label{display:grid;gap:8px;color:var(--muted);font-size:12px}.contact-form input,.contact-form select,.contact-form textarea{width:100%;padding:14px 15px;border:1px solid var(--line);background:#0a0a0a;color:var(--text);border-radius:6px;font:inherit;outline:none;transition:border-color .2s ease,background .2s ease}.contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{border-color:rgba(255,255,255,.4);background:#0d0d0d}.contact-form textarea{min-height:145px;resize:vertical}.contact-form .btn{border:none;cursor:pointer;width:100%}.form-status{font-size:13px;color:var(--muted);min-height:22px}.form-status.success{color:#ddd}.form-status.error{color:#f0aaa3}.contact-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px}.contact-actions .btn.secondary{margin-left:0}
+footer{padding:38px 0;color:#666;font-size:12px;text-align:center;letter-spacing:.2px}
 
-.contact-form{display:grid;gap:14px;margin-top:22px}
-.contact-form label{display:grid;gap:7px;color:var(--muted);font-size:13px}
-.contact-form input,.contact-form select,.contact-form textarea{
-  width:100%;padding:13px 14px;border:1px solid var(--line);background:#0d0d0d;
-  color:var(--text);border-radius:3px;font:inherit;outline:none
-}
-.contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{border-color:var(--silver)}
-.contact-form textarea{min-height:130px;resize:vertical}
-.contact-form .btn{border:none;cursor:pointer;width:100%}
-.form-status{font-size:14px;color:var(--muted);min-height:22px}
-.form-status.success{color:#d8d6d1}
-.form-status.error{color:#f0aaa3}
-.contact-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
-.contact-actions .btn.secondary{margin-left:0}
-@media(max-width:750px){
-  .contact-actions{flex-direction:column}
-  .contact-actions .btn{width:100%;text-align:center}
-}
-
-@media(max-width:750px){
-.navlinks{display:none}.services,.about,.contact{grid-template-columns:1fr}
-.gallery{grid-template-columns:1fr}
-.btn.secondary{margin:12px 0 0}
-.brand span{display:none}
-.hero-logo{width:min(280px,72vw)}
-}
+.reveal-ready .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}.reveal-ready .reveal.visible{opacity:1;transform:none}
+@media(max-width:900px){.navlinks{gap:18px}.services,.gallery{grid-template-columns:repeat(2,1fr)}.about{gap:55px}.contact{grid-template-columns:1fr}}
+@media(max-width:750px){nav{min-height:72px;gap:10px}.brand img{width:44px;height:44px}.brand span,.navlinks{display:none}.language-switcher{margin-left:auto}.hero{padding:125px 0 85px}.hero-logo{width:min(275px,72vw);margin-bottom:30px}h1{letter-spacing:-2.6px}.hero p:not(.eyebrow){font-size:15px;line-height:1.75}.btn{width:100%;max-width:340px}.btn.secondary{margin:10px 0 0}section{padding:88px 0}h2{margin-bottom:32px}.services,.gallery,.about,.contact{grid-template-columns:1fr}.card{min-height:240px}.card h3{margin-top:52px}.about>div:last-child{border-left:0;border-top:1px solid var(--line);padding:28px 0 0}.gallery{gap:12px}.contactbox{padding:27px}.contact-actions{flex-direction:column}.contact-actions .btn{max-width:none}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
+@keyframes heroLogoIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:none}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 </style>
 </head>
 <body>
@@ -139,77 +121,85 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
 <span>THE PRESENT NEED GROUP</span>
 </a>
 <div class="navlinks">
-<a href="#servicios">Servicios</a><a href="#nosotros">Nosotros</a><a href="#galeria">Galería</a><a href="#contacto">Contacto</a>
+<a href="#servicios" data-i18n="navServices">Services</a>
+<a href="#nosotros" data-i18n="navAbout">About</a>
+<a href="#galeria" data-i18n="navGallery">Gallery</a>
+<a href="#contacto" data-i18n="navContact">Contact</a>
+</div>
+<div class="language-switcher" aria-label="Language selector">
+<button type="button" class="lang-btn active" data-lang="en">EN</button>
+<span>•</span>
+<button type="button" class="lang-btn" data-lang="es">ES</button>
 </div>
 </nav></div></header>
 
 <main>
 <section class="hero" id="inicio"><div class="container">
-<img class="hero-logo" src="logo.png" alt="Logo de The Present Need Group" width="330" height="330">
-<p class="eyebrow">Photography • Video • Multimedia</p>
-<h1>We create content that captures the present.</h1>
-<p>Fotografía, video y contenido multimedia para personas, marcas y proyectos en New York, New Jersey y Pennsylvania.</p>
-<a class="btn" href="#contacto">Solicitar cotización</a>
-<a class="btn secondary" href="#galeria">Ver trabajos</a>
+<img class="hero-logo" src="logo.png" alt="The Present Need Group logo" width="330" height="330">
+<p class="eyebrow" data-i18n="heroEyebrow">Photography • Video • Multimedia</p>
+<h1 data-i18n="heroTitle">We create content that captures the present.</h1>
+<p data-i18n="heroText">Photography, video and multimedia content for people, brands and projects in New York, New Jersey and Pennsylvania.</p>
+<a class="btn" href="#contacto" data-i18n="quoteButton">Request a quote</a>
+<a class="btn secondary" href="#galeria" data-i18n="viewWork">View our work</a>
 </div></section>
 
-<section id="servicios"><div class="container"><p class="eyebrow">Qué hacemos</p><h2>Nuestros servicios</h2>
+<section id="servicios"><div class="container reveal"><p class="eyebrow" data-i18n="servicesEyebrow">What we do</p><h2 data-i18n="servicesTitle">Our services</h2>
 <div class="services">
-<article class="card"><span class="number">01</span><h3>Fotografía</h3><p>Sesiones, eventos, retratos, productos y contenido visual para diferentes proyectos.</p></article>
-<article class="card"><span class="number">02</span><h3>Video</h3><p>Grabación y producción de videos para eventos, negocios, redes sociales y proyectos personales.</p></article>
-<article class="card"><span class="number">03</span><h3>Contenido multimedia</h3><p>Contenido visual pensado para redes sociales, marcas y presencia digital.</p></article>
+<article class="card"><span class="number">01</span><h3 data-i18n="photoTitle">Photography</h3><p data-i18n="photoText">Sessions, events, portraits, products and visual content for different projects.</p></article>
+<article class="card"><span class="number">02</span><h3 data-i18n="videoTitle">Video</h3><p data-i18n="videoText">Video recording and production for events, businesses, social media and personal projects.</p></article>
+<article class="card"><span class="number">03</span><h3 data-i18n="mediaTitle">Multimedia Content</h3><p data-i18n="mediaText">Visual content designed for social media, brands and digital presence.</p></article>
 </div></div></section>
 
-<section id="nosotros"><div class="container about">
-<div><p class="eyebrow">The Present Need Group</p><h2>Tu idea. Nuestra cámara. El momento presente.</h2></div>
-<div><p>Somos un equipo enfocado en crear fotografía, video y contenido multimedia con una estética limpia, moderna y profesional.</p>
+<section id="nosotros"><div class="container about reveal">
+<div><p class="eyebrow" data-i18n="aboutEyebrow">The Present Need Group</p><h2 data-i18n="aboutTitle">Your idea. Our camera. The present moment.</h2></div>
+<div><p data-i18n="aboutText">We are a team focused on creating photography, video and multimedia content with a clean, modern and professional aesthetic.</p>
 <div class="locations"><span class="tag">New York</span><span class="tag">New Jersey</span><span class="tag">Pennsylvania</span></div></div>
 </div></section>
 
-<section id="galeria"><div class="container">
-<p class="eyebrow">Portfolio</p><h2>Trabajos recientes</h2>
-<div id="galleryStatus" class="status">Cargando fotografías...</div>
+<section id="galeria"><div class="container reveal">
+<p class="eyebrow" data-i18n="galleryEyebrow">Portfolio</p><h2 data-i18n="galleryTitle">Recent work</h2>
+<div id="galleryStatus" class="status">Loading photographs...</div>
 <div id="gallery" class="gallery"></div>
 </div></section>
 
-<section id="contacto"><div class="container"><p class="eyebrow">Hablemos</p><h2>¿Tienes un proyecto?</h2>
+<section id="contacto"><div class="container reveal"><p class="eyebrow" data-i18n="contactEyebrow">Let’s talk</p><h2 data-i18n="contactTitle">Do you have a project?</h2>
 <div class="contact">
-<div class="contactbox"><h3>Contacto</h3><p>📞 <a href="tel:+19295053399">929-505-3399</a></p><p>📧 <a href="mailto:ivantablet901@gmail.com">ivantablet901@gmail.com</a></p><p>📍 New York • New Jersey • Pennsylvania</p></div>
+<div class="contactbox"><h3 data-i18n="contactBoxTitle">Contact</h3><p>📞 <a href="tel:+19295053399">929-505-3399</a></p><p>📧 <a href="mailto:ivantablet901@gmail.com">ivantablet901@gmail.com</a></p><p>📍 New York • New Jersey • Pennsylvania</p></div>
 <div class="contactbox">
-<h3>Solicita una cotización</h3>
-<p>Cuéntanos qué necesitas y nos pondremos en contacto contigo.</p>
-<form id="quoteForm" class="contact-form" aria-label="Formulario de solicitud de cotización">
-  <label>Nombre
+<h3 data-i18n="quoteTitle">Request a quote</h3>
+<p data-i18n="quoteText">Tell us what you need and we’ll get in touch with you.</p>
+<form id="quoteForm" class="contact-form" aria-label="Quote request form">
+  <label data-i18n-label="nameLabel">Name
     <input type="text" name="name" autocomplete="name" required>
   </label>
-  <label>Teléfono
+  <label data-i18n-label="phoneLabel">Phone
     <input type="tel" name="phone" autocomplete="tel">
   </label>
-  <label>Email
+  <label data-i18n-label="emailLabel">Email
     <input type="email" name="email" autocomplete="email" required>
   </label>
-  <label>Servicio
+  <label data-i18n-label="serviceLabel">Service
     <select name="service" required>
-      <option value="">Selecciona un servicio</option>
-      <option value="Fotografía">Fotografía</option>
+      <option value="">Select a service</option>
+      <option value="Photography">Photography</option>
       <option value="Video">Video</option>
-      <option value="Contenido multimedia">Contenido multimedia</option>
-      <option value="Fotografía + Video">Fotografía + Video</option>
-      <option value="Otro">Otro</option>
+      <option value="Multimedia Content">Multimedia Content</option>
+      <option value="Photography + Video">Photography + Video</option>
+      <option value="Other">Other</option>
     </select>
   </label>
-  <label>Fecha del evento/proyecto
+  <label data-i18n-label="dateLabel">Event/project date
     <input type="date" name="project_date">
   </label>
-  <label>Mensaje
-    <textarea name="message" placeholder="Cuéntanos sobre tu proyecto..." required></textarea>
+  <label data-i18n-label="messageLabel">Message
+    <textarea name="message" placeholder="Tell us about your project..." required></textarea>
   </label>
-  <button class="btn" type="submit">Enviar solicitud</button>
+  <button class="btn" type="submit" data-i18n="sendButton">Send request</button>
   <div id="quoteStatus" class="form-status" aria-live="polite"></div>
 </form>
 <div class="contact-actions">
   <a class="btn secondary" href="https://wa.me/19295053399" target="_blank" rel="noopener">WhatsApp</a>
-  <a class="btn secondary" href="mailto:ivantablet901@gmail.com?subject=Solicitud%20de%20cotización">Email directo</a>
+  <a class="btn secondary" href="mailto:ivantablet901@gmail.com?subject=Solicitud%20de%20cotización"><span data-i18n="directEmail">Direct email</span></a>
 </div>
 </div>
 </div></div></section>
@@ -227,6 +217,131 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
 <script src="config.js"></script>
 <script>
 (function(){
+  const translations = {
+    en: {
+      navServices:"Services", navAbout:"About", navGallery:"Gallery", navContact:"Contact",
+      heroEyebrow:"Photography • Video • Multimedia",
+      heroTitle:"We create content that captures the present.",
+      heroText:"Photography, video and multimedia content for people, brands and projects in New York, New Jersey and Pennsylvania.",
+      quoteButton:"Request a quote", viewWork:"View our work",
+      servicesEyebrow:"What we do", servicesTitle:"Our services",
+      photoTitle:"Photography", photoText:"Sessions, events, portraits, products and visual content for different projects.",
+      videoTitle:"Video", videoText:"Video recording and production for events, businesses, social media and personal projects.",
+      mediaTitle:"Multimedia Content", mediaText:"Visual content designed for social media, brands and digital presence.",
+      aboutEyebrow:"The Present Need Group", aboutTitle:"Your idea. Our camera. The present moment.",
+      aboutText:"We are a team focused on creating photography, video and multimedia content with a clean, modern and professional aesthetic.",
+      galleryEyebrow:"Portfolio", galleryTitle:"Recent work",
+      contactEyebrow:"Let’s talk", contactTitle:"Do you have a project?",
+      contactBoxTitle:"Contact", quoteTitle:"Request a quote",
+      quoteText:"Tell us what you need and we’ll get in touch with you.",
+      sendButton:"Send request",
+      directEmail:"Direct email",
+      nameLabel:"Name", phoneLabel:"Phone", emailLabel:"Email",
+      serviceLabel:"Service", dateLabel:"Event/project date", messageLabel:"Message",
+      selectService:"Select a service",
+      messagePlaceholder:"Tell us about your project...",
+      galleryLoading:"Loading photographs...",
+      galleryEmpty:"No photographs have been published yet.",
+      galleryError:"The photographs could not be loaded. Please check the Supabase configuration.",
+      sending:"Sending request...",
+      success:"Request sent! We’ll get in touch with you soon.",
+      formError:"The request could not be sent. You can contact us by WhatsApp or email.",
+      close:"Close", photoAlt:"Photograph", photoFallback:"The Present Need Group photograph"
+    },
+    es: {
+      navServices:"Servicios", navAbout:"Nosotros", navGallery:"Galería", navContact:"Contacto",
+      heroEyebrow:"Fotografía • Video • Multimedia",
+      heroTitle:"Creamos contenido que captura el presente.",
+      heroText:"Fotografía, video y contenido multimedia para personas, marcas y proyectos en New York, New Jersey y Pennsylvania.",
+      quoteButton:"Solicitar cotización", viewWork:"Ver trabajos",
+      servicesEyebrow:"Qué hacemos", servicesTitle:"Nuestros servicios",
+      photoTitle:"Fotografía", photoText:"Sesiones, eventos, retratos, productos y contenido visual para diferentes proyectos.",
+      videoTitle:"Video", videoText:"Grabación y producción de videos para eventos, negocios, redes sociales y proyectos personales.",
+      mediaTitle:"Contenido multimedia", mediaText:"Contenido visual pensado para redes sociales, marcas y presencia digital.",
+      aboutEyebrow:"The Present Need Group", aboutTitle:"Tu idea. Nuestra cámara. El momento presente.",
+      aboutText:"Somos un equipo enfocado en crear fotografía, video y contenido multimedia con una estética limpia, moderna y profesional.",
+      galleryEyebrow:"Portafolio", galleryTitle:"Trabajos recientes",
+      contactEyebrow:"Hablemos", contactTitle:"¿Tienes un proyecto?",
+      contactBoxTitle:"Contacto", quoteTitle:"Solicita una cotización",
+      quoteText:"Cuéntanos qué necesitas y nos pondremos en contacto contigo.",
+      sendButton:"Enviar solicitud",
+      directEmail:"Email directo",
+      nameLabel:"Nombre", phoneLabel:"Teléfono", emailLabel:"Email",
+      serviceLabel:"Servicio", dateLabel:"Fecha del evento/proyecto", messageLabel:"Mensaje",
+      selectService:"Selecciona un servicio",
+      messagePlaceholder:"Cuéntanos sobre tu proyecto...",
+      galleryLoading:"Cargando fotografías...",
+      galleryEmpty:"Aún no hay fotografías publicadas.",
+      galleryError:"No se pudieron cargar las fotografías. Revisa la configuración de Supabase.",
+      sending:"Enviando solicitud...",
+      success:"¡Solicitud enviada! Nos pondremos en contacto contigo pronto.",
+      formError:"No se pudo enviar la solicitud. Puedes contactarnos por WhatsApp o email.",
+      close:"Cerrar", photoAlt:"Fotografía", photoFallback:"Fotografía de The Present Need Group"
+    }
+  };
+
+  let currentLang = localStorage.getItem('tpng-language') || 'en';
+
+  function applyLanguage(lang){
+    currentLang = lang === 'es' ? 'es' : 'en';
+    localStorage.setItem('tpng-language', currentLang);
+    document.documentElement.lang = currentLang;
+
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const key = el.getAttribute('data-i18n');
+      if(translations[currentLang][key]) el.textContent = translations[currentLang][key];
+    });
+
+    document.querySelectorAll('[data-i18n-label]').forEach(label=>{
+      const key = label.getAttribute('data-i18n-label');
+      const text = translations[currentLang][key];
+      if(!text) return;
+      const input = label.querySelector('input,select,textarea');
+      label.childNodes[0].nodeValue = text + '\\n    ';
+    });
+
+    const serviceSelect = document.querySelector('select[name="service"]');
+    if(serviceSelect){
+      const options = currentLang === 'es'
+        ? [["","Selecciona un servicio"],["Photography","Fotografía"],["Video","Video"],["Multimedia Content","Contenido multimedia"],["Photography + Video","Fotografía + Video"],["Other","Otro"]]
+        : [["","Select a service"],["Photography","Photography"],["Video","Video"],["Multimedia Content","Multimedia Content"],["Photography + Video","Photography + Video"],["Other","Other"]];
+      options.forEach((item,i)=>{
+        if(serviceSelect.options[i]){
+          serviceSelect.options[i].value = item[0];
+          serviceSelect.options[i].textContent = item[1];
+        }
+      });
+    }
+
+    const message = document.querySelector('textarea[name="message"]');
+    if(message) message.placeholder = translations[currentLang].messagePlaceholder;
+
+    const form = document.getElementById('quoteForm');
+    if(form) form.setAttribute('aria-label', currentLang === 'es' ? 'Formulario de solicitud de cotización' : 'Quote request form');
+
+    document.querySelectorAll('.lang-btn').forEach(btn=>{
+      btn.classList.toggle('active', btn.dataset.lang === currentLang);
+      btn.setAttribute('aria-pressed', btn.dataset.lang === currentLang ? 'true' : 'false');
+    });
+
+    const closeBtn = document.getElementById('closeLightbox');
+    if(closeBtn) closeBtn.setAttribute('aria-label', translations[currentLang].close);
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>applyLanguage(btn.dataset.lang));
+  });
+
+  window.TPNG_I18N = {
+    t(key){ return translations[currentLang][key] || key; },
+    get lang(){ return currentLang; }
+  };
+
+  applyLanguage(currentLang);
+})();
+</script>
+<script>
+(function(){
   const gallery = document.getElementById('gallery');
   const status = document.getElementById('galleryStatus');
   const lightbox = document.getElementById('lightbox');
@@ -236,7 +351,7 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
 
   function openLightbox(url,title){
     lightboxImage.src = url;
-    lightboxImage.alt = title || 'Fotografía';
+    lightboxImage.alt = title || window.TPNG_I18N.t('photoAlt');
     lightboxTitle.textContent = title || '';
     lightbox.classList.add('open');
     lightbox.setAttribute('aria-hidden','false');
@@ -263,7 +378,7 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
 
       gallery.innerHTML='';
       if(!data || !data.length){
-        status.textContent='Aún no hay fotografías publicadas.';
+        status.textContent=window.TPNG_I18N.t('galleryEmpty');
         return;
       }
 
@@ -279,7 +394,7 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
         card.className='gallery-card';
         const img=document.createElement('img');
         img.src=url;
-        img.alt=item.title || 'Fotografía de The Present Need Group';
+        img.alt=item.title || window.TPNG_I18N.t('photoFallback');
         img.loading='lazy';
         const caption=document.createElement('div');
         caption.className='caption';
@@ -291,7 +406,7 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
       });
     }catch(err){
       console.error(err);
-      status.textContent='No se pudieron cargar las fotografías. Revisa la configuración de Supabase.';
+      status.textContent=window.TPNG_I18N.t('galleryError');
     }
   }
   loadGallery();
@@ -303,7 +418,7 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
     quoteForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       quoteStatus.className = 'form-status';
-      quoteStatus.textContent = 'Enviando solicitud...';
+      quoteStatus.textContent = window.TPNG_I18N.t('sending');
 
       try {
         if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
@@ -344,14 +459,27 @@ if (emailError) {
 
         quoteForm.reset();
         quoteStatus.className = 'form-status success';
-        quoteStatus.textContent = '¡Solicitud enviada! Nos pondremos en contacto contigo pronto.';
+        quoteStatus.textContent = window.TPNG_I18N.t('success');
       } catch (err) {
         console.error(err);
         quoteStatus.className = 'form-status error';
-        quoteStatus.textContent = 'No se pudo enviar la solicitud. Puedes contactarnos por WhatsApp o email.';
+        quoteStatus.textContent = window.TPNG_I18N.t('formError');
       }
     });
   }
+})();
+</script>
+<script>
+(function(){
+  document.documentElement.classList.add('reveal-ready');
+  const items=document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)){items.forEach(el=>el.classList.add('visible'));return;}
+  const observer=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target);}
+    });
+  },{threshold:.12});
+  items.forEach(el=>observer.observe(el));
 })();
 </script>
 </body>
