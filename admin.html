@@ -553,11 +553,12 @@ async function removeItem(id,path){
 
   try{
     // 1) Delete the physical file from Supabase Storage first.
-    const { data: userData, error: userError } = await c.auth.getUser();
+   const { data: userData, error: userError } = await c.auth.getUser();
 
 alert(
-  'EMAIL: ' + userData.user?.email +
-  '\n\nUSER ID: ' + userData.user?.id +
+  'EMAIL: ' + (userData.user?.email || 'SIN EMAIL') +
+  '\n\nUSER ID: ' + (userData.user?.id || 'SIN ID') +
+  '\n\nOWNER ID DE LA IMAGEN: 2fe22eb6-1ae5-4f5a-9386-df2970e0f72a' +
   '\n\nERROR: ' + (userError?.message || 'null')
 );
    const storageResult=await c.storage.from('gallery').remove([path]);
