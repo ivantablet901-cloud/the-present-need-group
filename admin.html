@@ -56,9 +56,9 @@ h2{font-size:24px;letter-spacing:-.8px}
 .panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:20px}
 .panel-head p{margin-top:5px}
 
-.upload-zone{border:1px dashed rgba(255,255,255,.18);padding:22px;border-radius:9px;background:rgba(255,255,255,.018)}
+.upload-zone{width:100%;box-sizing:border-box;border:1px dashed rgba(255,255,255,.18);padding:22px;border-radius:9px;background:rgba(255,255,255,.018)}
 .upload-zone input{margin:0}
-.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.upload-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-bottom:12px}.upload-grid .field{min-width:0}.upload-grid input{min-width:0}
 .status{min-height:22px;margin-top:12px;color:var(--muted);font-size:12px}
 .status.success{color:#ddd}.status.error{color:var(--danger)}
 
@@ -222,6 +222,7 @@ h2{font-size:24px;letter-spacing:-.8px}
 .gallery-item .danger:hover{background:#4a2020}
 
 @media(max-width:650px){
+  .upload-grid{grid-template-columns:1fr}
   .request-summary{grid-template-columns:repeat(2,1fr)}
   .summary-card:first-child{grid-column:span 2}
   .request-head{flex-direction:row}
@@ -553,21 +554,7 @@ async function removeItem(id,path){
 
   try{
     // 1) Delete the physical file from Supabase Storage first.
-   const { data: userData, error: userError } = await c.auth.getUser();
-
-alert(
-  'EMAIL: ' + (userData.user?.email || 'SIN EMAIL') +
-  '\n\nUSER ID: ' + (userData.user?.id || 'SIN ID') +
-  '\n\nOWNER ID DE LA IMAGEN: 2fe22eb6-1ae5-4f5a-9386-df2970e0f72a' +
-  '\n\nERROR: ' + (userError?.message || 'null')
-);
-   const storageResult=await c.storage.from('gallery').remove([path]);
-
-alert(
-  'RUTA ENVIADA A STORAGE:\n' + path +
-  '\n\nDATA:\n' + JSON.stringify(storageResult.data) +
-  '\n\nERROR:\n' + JSON.stringify(storageResult.error)
-);
+    const storageResult=await c.storage.from('gallery').remove([path]);
     if(storageResult.error){
       console.error('Storage delete error:',storageResult.error);
       alert('No se pudo eliminar la imagen de Supabase Storage:\n\n'+storageResult.error.message);
