@@ -553,6 +553,14 @@ async function removeItem(id,path){
 
   try{
     // 1) Delete the physical file from Supabase Storage first.
+    const { data: userData, error: userError } = await c.auth.getUser();
+
+alert(
+  'USUARIO DE LA SESIÓN:\n' +
+  JSON.stringify(userData?.user?.email) +
+  '\n\nERROR DE USUARIO:\n' +
+  JSON.stringify(userError)
+);
    const storageResult=await c.storage.from('gallery').remove([path]);
 
 alert(
