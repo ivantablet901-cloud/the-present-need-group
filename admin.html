@@ -72,7 +72,7 @@ h2{font-size:24px;letter-spacing:-.8px}
 
 .gallery-list{display:block}
 .gallery-item{display:flex;align-items:center;gap:15px;border:0;border-top:1px solid #333;border-radius:0;background:transparent;overflow:visible;padding:15px 0}
-.gallery-item img{width:75px;height:52px;object-fit:cover;display:block}
+.gallery-item img{width:60px;height:42px;object-fit:cover;display:block;cursor:pointer;border-radius:4px}
 .gallery-info{padding:0;flex:1}.gallery-title{font-size:13px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gallery-actions{display:flex;justify-content:flex-end}.gallery-actions .btn{padding:12px 18px;font-size:12px;border-radius:4px}
 
@@ -84,6 +84,13 @@ h2{font-size:24px;letter-spacing:-.8px}
 .request-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
 .request-status select{padding:9px 11px;font-size:12px}
 .empty{padding:28px 0;text-align:center;color:var(--muted)}
+
+
+.image-preview{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;padding:24px}
+.image-preview.open{display:flex}
+.image-preview img{max-width:90vw;max-height:85vh;width:auto;height:auto;object-fit:contain;border:1px solid rgba(255,255,255,.12);box-shadow:0 20px 70px rgba(0,0,0,.5)}
+.image-preview button{position:absolute;top:18px;right:20px;width:44px;height:44px;border:1px solid #444;background:#111;color:#fff;border-radius:50%;font-size:25px;cursor:pointer}
+.image-preview button:hover{background:#fff;color:#111}
 
 @media(max-width:950px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(5,1fr)}}
 @media(max-width:650px){
@@ -155,8 +162,33 @@ h2{font-size:24px;letter-spacing:-.8px}
 </main>
 </div>
 
+<div id="imagePreview" class="image-preview" aria-hidden="true">
+  <button id="closeImagePreview" type="button" aria-label="Close">×</button>
+  <img id="previewImage" src="" alt="">
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script>
 const c=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY),$=x=>document.getElementById(x);
+const imagePreview=$('imagePreview');
+const previewImage=$('previewImage');
+const closeImagePreview=$('closeImagePreview');
+function openImagePreview(url,title){
+  previewImage.src=url;
+  previewImage.alt=title||'Gallery image';
+  imagePreview.classList.add('open');
+  imagePreview.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+}
+function closeImagePreviewFn(){
+  imagePreview.classList.remove('open');
+  imagePreview.setAttribute('aria-hidden','true');
+  previewImage.src='';
+  document.body.style.overflow='';
+}
+closeImagePreview.addEventListener('click',closeImagePreviewFn);
+imagePreview.addEventListener('click',e=>{if(e.target===imagePreview)closeImagePreviewFn();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeImagePreviewFn();});
+
 async function login(){
 try{
 $('msg').textContent='Iniciando sesión...';
@@ -168,7 +200,7 @@ $('msg').textContent='';
 async function logout(){await c.auth.signOut()}
 async function refresh(){
   let r=await c.from('gallery').select('*').order('created_at',{ascending:false});
-  $('list').innerHTML=r.data?.map(x=>'<div class="item"><img src="'+x.image_url+'"><div>'+x.title+'</div><button class="danger" data-photo-id="'+x.id+'" data-photo-path="'+x.storage_path+'">Eliminar</button></div>').join('')||'<p class="muted">No hay fotografías.</p>';
+  $('list').innerHTML=r.data?.map(x=>'<div class="item"><img src="'+x.image_url+'" alt="'+escapeAttr(x.title||'Gallery image')+'" onclick="openImagePreview(this.src,this.alt)"><div>'+x.title+'</div><button class="danger" data-photo-id="'+x.id+'" data-photo-path="'+x.storage_path+'">Eliminar</button></div>').join('')||'<p class="muted">No hay fotografías.</p>';
   await refreshRequests();
 }
 
