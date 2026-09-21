@@ -229,6 +229,97 @@ h2{font-size:24px;letter-spacing:-.8px}
   .gallery-item img{width:60px;height:42px}
 }
 
+
+/* Compact gallery thumbnails */
+#list .item{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:12px 0;
+  border-top:1px solid #333;
+  min-width:0;
+}
+#list .item:first-child{border-top:0}
+#list .item img{
+  width:72px;
+  height:50px;
+  flex:0 0 72px;
+  object-fit:cover;
+  display:block;
+  border-radius:5px;
+  cursor:pointer;
+  border:1px solid rgba(255,255,255,.08);
+  transition:transform .2s ease,border-color .2s ease;
+}
+#list .item img:hover{
+  transform:scale(1.04);
+  border-color:rgba(255,255,255,.3);
+}
+#list .item > div{
+  flex:1;
+  min-width:0;
+  font-size:13px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#list .item .danger{
+  flex:0 0 auto;
+  padding:9px 13px;
+  font-size:11px;
+  border-radius:4px;
+  background:#351818;
+  color:#fff;
+  border:0;
+}
+#list .item .danger:hover{background:#4a2020}
+
+/* Full-size image viewer */
+.gallery-lightbox{
+  position:fixed;
+  inset:0;
+  z-index:200;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:rgba(0,0,0,.94);
+}
+.gallery-lightbox.open{display:flex}
+.gallery-lightbox img{
+  max-width:92vw;
+  max-height:88vh;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 20px 70px rgba(0,0,0,.55);
+}
+.gallery-lightbox button{
+  position:absolute;
+  top:18px;
+  right:20px;
+  width:44px;
+  height:44px;
+  border:1px solid #444;
+  background:#111;
+  color:#fff;
+  border-radius:50%;
+  font-size:25px;
+  cursor:pointer;
+}
+.gallery-lightbox button:hover{background:#fff;color:#111}
+
+@media(max-width:650px){
+  #list .item img{
+    width:62px;
+    height:43px;
+    flex-basis:62px;
+  }
+  #list .item{gap:10px}
+  #list .item .danger{padding:8px 10px}
+}
+
 @media(max-width:950px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(5,1fr)}}
 @media(max-width:650px){
   .topbar-inner{min-height:68px}.brand-text span{display:none}.top-actions .btn{padding:9px 12px}
@@ -299,6 +390,12 @@ h2{font-size:24px;letter-spacing:-.8px}
 </main>
 </div>
 
+
+<div id="galleryLightbox" class="gallery-lightbox" aria-hidden="true">
+  <button id="closeGalleryLightbox" type="button" aria-label="Close">×</button>
+  <img id="galleryLightboxImage" src="" alt="">
+</div>
+
 <div id="imagePreview" class="image-preview" aria-hidden="true">
   <button id="closeImagePreview" type="button" aria-label="Close">×</button>
   <img id="previewImage" src="" alt="">
@@ -306,6 +403,28 @@ h2{font-size:24px;letter-spacing:-.8px}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script>
 const c=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY),$=x=>document.getElementById(x);
+
+const galleryLightbox=$('galleryLightbox');
+const galleryLightboxImage=$('galleryLightboxImage');
+const closeGalleryLightbox=$('closeGalleryLightbox');
+function openGalleryLightbox(url,title){
+  galleryLightboxImage.src=url;
+  galleryLightboxImage.alt=title||'Gallery image';
+  galleryLightbox.classList.add('open');
+  galleryLightbox.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+}
+function closeGalleryLightboxFn(){
+  galleryLightbox.classList.remove('open');
+  galleryLightbox.setAttribute('aria-hidden','true');
+  galleryLightboxImage.src='';
+  document.body.style.overflow='';
+}
+closeGalleryLightbox.addEventListener('click',closeGalleryLightboxFn);
+galleryLightbox.addEventListener('click',e=>{
+  if(e.target===galleryLightbox) closeGalleryLightboxFn();
+});
+
 const imagePreview=$('imagePreview');
 const previewImage=$('previewImage');
 const closeImagePreview=$('closeImagePreview');
@@ -325,6 +444,7 @@ function closeImagePreviewFn(){
 closeImagePreview.addEventListener('click',closeImagePreviewFn);
 imagePreview.addEventListener('click',e=>{if(e.target===imagePreview)closeImagePreviewFn();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeImagePreviewFn();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeGalleryLightboxFn();});
 
 async function login(){
 try{
@@ -337,7 +457,7 @@ $('msg').textContent='';
 async function logout(){await c.auth.signOut()}
 async function refresh(){
   let r=await c.from('gallery').select('*').order('created_at',{ascending:false});
-  $('list').innerHTML=r.data?.map(x=>'<div class="item"><img src="'+x.image_url+'" alt="'+escapeAttr(x.title||'Gallery image')+'" onclick="openImagePreview(this.src,this.alt)"><div>'+x.title+'</div><button class="danger" data-photo-id="'+x.id+'" data-photo-path="'+x.storage_path+'">Eliminar</button></div>').join('')||'<p class="muted">No hay fotografías.</p>';
+  $('list').innerHTML=r.data?.map(x=>'<div class="item"><img src="'+x.image_url+'" alt="'+escapeAttr(x.title||'Gallery image')+'" onclick="openGalleryLightbox(this.src,this.alt)"><div>'+x.title+'</div><button class="danger" data-photo-id="'+x.id+'" data-photo-path="'+x.storage_path+'">Eliminar</button></div>').join('')||'<p class="muted">No hay fotografías.</p>';
   await refreshRequests();
 }
 
