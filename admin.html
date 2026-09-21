@@ -320,6 +320,61 @@ h2{font-size:24px;letter-spacing:-.8px}
   #list .item .danger{padding:8px 10px}
 }
 
+
+/* Storage cleanup — isolated visual component */
+.storage-cleanup{
+  margin-top:18px;
+  padding:16px;
+  background:#0b0b0b;
+  border:1px solid var(--line2);
+  border-radius:8px;
+}
+.storage-cleanup-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+}
+.storage-cleanup h3{font-size:15px;margin:0 0 4px}
+.storage-cleanup .cleanup-status{
+  margin-top:12px;
+  color:var(--muted);
+  font-size:12px;
+  white-space:pre-wrap;
+}
+.orphan-list{margin-top:12px;display:grid;gap:7px}
+.orphan-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 10px;
+  border:1px solid #292929;
+  border-radius:5px;
+  background:#101010;
+}
+.orphan-item span{
+  flex:1;
+  min-width:0;
+  font-size:11px;
+  color:#ccc;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.orphan-item button{
+  flex:0 0 auto;
+  background:#351818;
+  color:#fff;
+  border:0;
+  border-radius:4px;
+  padding:7px 10px;
+  font-size:10px;
+}
+.orphan-item button:hover{background:#4a2020}
+.cleanup-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.cleanup-actions .btn{padding:9px 12px;font-size:11px}
+.cleanup-count{margin-top:8px;font-size:12px;color:#ddd}
+
 @media(max-width:950px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(5,1fr)}}
 @media(max-width:650px){
   .topbar-inner{min-height:68px}.brand-text span{display:none}.top-actions .btn{padding:9px 12px}
@@ -379,6 +434,24 @@ h2{font-size:24px;letter-spacing:-.8px}
       <div style="height:22px"></div>
       <div class="panel-head"><div><p class="eyebrow">Published</p><h2>Gallery</h2></div></div>
       <div id="list" class="gallery-list">Loading...</div>
+
+<div class="storage-cleanup">
+  <div class="storage-cleanup-head">
+    <div>
+      <p class="eyebrow">Storage</p>
+      <h3>Storage cleanup</h3>
+      <p class="muted">Find files in Storage that are no longer connected to a published gallery item.</p>
+    </div>
+  </div>
+  <div class="cleanup-actions">
+    <button class="btn secondary" type="button" onclick="findOrphanFiles()">Find orphan files</button>
+    <button id="deleteAllOrphans" class="btn danger hide" type="button" onclick="deleteAllOrphans()">Delete all orphans</button>
+  </div>
+  <div id="cleanupCount" class="cleanup-count"></div>
+  <div id="cleanupStatus" class="cleanup-status"></div>
+  <div id="orphanList" class="orphan-list"></div>
+</div>
+
     </section>
 
     <section class="panel">
@@ -540,52 +613,116 @@ let u=await c.storage.from('gallery').upload(path,f,{contentType:f.type});if(u.e
 let url=c.storage.from('gallery').getPublicUrl(path).data.publicUrl;
 let d=await c.from('gallery').insert({title:$('title').value||'Trabajo',image_url:url,storage_path:path});if(d.error){$('status').textContent=d.error.message;return}
 $('status').textContent='Publicada.';$('title').value='';$('file').value='';refresh()}
-async function removeItem(id,path){
-  if(!confirm('¿Eliminar esta fotografía?'))return;
 
-  const btn=document.querySelector('#list .danger[data-photo-id="'+id+'"]');
-  if(btn){
-    btn.disabled=true;
-    btn.textContent='Eliminando...';
+let orphanStorageFiles=[];
+
+function renderOrphanFiles(){
+  const list=$('orphanList');
+  const count=$('cleanupCount');
+  const bulk=$('deleteAllOrphans');
+
+  if(!orphanStorageFiles.length){
+    count.textContent='No orphan files found.';
+    list.innerHTML='';
+    bulk.classList.add('hide');
+    return;
   }
 
+  count.textContent=orphanStorageFiles.length+' orphan file'+(orphanStorageFiles.length===1?'':'s')+' found.';
+  bulk.classList.remove('hide');
+
+  list.innerHTML=orphanStorageFiles.map((name,i)=>
+    '<div class="orphan-item">'+
+      '<span title="'+escapeAttr(name)+'">'+escapeHtml(name)+'</span>'+
+      '<button type="button" onclick="deleteOrphanFile('+i+')">Delete</button>'+
+    '</div>'
+  ).join('');
+}
+
+async function findOrphanFiles(){
+  const status=$('cleanupStatus');
+  status.textContent='Checking Storage...';
+  $('orphanList').innerHTML='';
+  $('cleanupCount').textContent='';
+  $('deleteAllOrphans').classList.add('hide');
+
   try{
-    const storageResult=await c.storage.from('gallery').remove([path]);
-
-    if(storageResult.error){
-      console.error('Storage delete error:',storageResult.error);
-      alert('No se pudo eliminar el archivo de Storage: '+storageResult.error.message);
-      if(btn){
-        btn.disabled=false;
-        btn.textContent='Eliminar';
-      }
+    const db=await c.from('gallery').select('storage_path');
+    if(db.error){
+      status.textContent='Could not read gallery records:\\n'+db.error.message;
       return;
     }
 
-    const dbResult=await c.from('gallery').delete().eq('id',id);
+    const referenced=new Set((db.data||[]).map(x=>x.storage_path).filter(Boolean));
 
-    if(dbResult.error){
-      console.error('Database delete error:',dbResult.error);
-      alert('El archivo fue eliminado de Storage, pero no se pudo eliminar el registro de Gallery: '+dbResult.error.message);
-      if(btn){
-        btn.disabled=false;
-        btn.textContent='Eliminar';
-      }
+    const files=await c.storage.from('gallery').list('',{
+      limit:1000,
+      offset:0,
+      sortBy:{column:'name',order:'asc'}
+    });
+
+    if(files.error){
+      status.textContent=
+        'Could not list Storage files.\\n\\n'+
+        files.error.message+
+        '\\n\\nIf the message mentions SELECT/RLS, the Storage listing policy needs to be added in Supabase.';
       return;
     }
 
-    await refresh();
+    const storageFiles=(files.data||[]).filter(x=>x.name);
+    orphanStorageFiles=storageFiles
+      .map(x=>x.name)
+      .filter(name=>!referenced.has(name));
+
+    status.textContent='Storage and Gallery were compared successfully.';
+    renderOrphanFiles();
 
   }catch(e){
-    console.error('Delete error:',e);
-    alert('Ocurrió un error al eliminar la fotografía: '+(e.message||String(e)));
-    if(btn){
-      btn.disabled=false;
-      btn.textContent='Eliminar';
-    }
+    console.error(e);
+    status.textContent='Cleanup error:\\n'+(e.message||String(e));
   }
 }
 
+async function deleteOrphanFile(index){
+  const name=orphanStorageFiles[index];
+  if(!name)return;
+
+  if(!confirm('Delete this orphan file from Storage?\\n\\n'+name))return;
+
+  const result=await c.storage.from('gallery').remove([name]);
+
+  if(result.error){
+    alert('Could not delete '+name+'\\n\\n'+result.error.message);
+    return;
+  }
+
+  orphanStorageFiles.splice(index,1);
+  $('cleanupStatus').textContent='File deleted from Storage: '+name;
+  renderOrphanFiles();
+}
+
+async function deleteAllOrphans(){
+  if(!orphanStorageFiles.length)return;
+
+  if(!confirm(
+    'Delete all '+orphanStorageFiles.length+
+    ' orphan files from Storage?\\n\\nOnly files that are NOT referenced by the gallery table are included.'
+  ))return;
+
+  const files=[...orphanStorageFiles];
+  const result=await c.storage.from('gallery').remove(files);
+
+  if(result.error){
+    alert('Could not delete the orphan files.\\n\\n'+result.error.message);
+    return;
+  }
+
+  orphanStorageFiles=[];
+  $('cleanupStatus').textContent='All orphan files were deleted from Storage.';
+  renderOrphanFiles();
+}
+
+async function removeItem(id,path){if(!confirm('¿Eliminar esta fotografía?'))return;await c.storage.from('gallery').remove([path]);await c.from('gallery').delete().eq('id',id);refresh()}
 document.addEventListener('click',function(e){
   const btn=e.target.closest('#list .danger[data-photo-id]');
   if(!btn)return;
