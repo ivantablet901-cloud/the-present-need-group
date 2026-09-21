@@ -541,6 +541,13 @@ let url=c.storage.from('gallery').getPublicUrl(path).data.publicUrl;
 let d=await c.from('gallery').insert({title:$('title').value||'Trabajo',image_url:url,storage_path:path});if(d.error){$('status').textContent=d.error.message;return}
 $('status').textContent='Publicada.';$('title').value='';$('file').value='';refresh()}
 async function removeItem(id,path){if(!confirm('¿Eliminar esta fotografía?'))return;await c.storage.from('gallery').remove([path]);await c.from('gallery').delete().eq('id',id);refresh()}
+document.addEventListener('click',function(e){
+  const btn=e.target.closest('#list .danger[data-photo-id]');
+  if(!btn)return;
+  e.preventDefault();
+  removeItem(btn.dataset.photoId,btn.dataset.photoPath);
+});
+
 window.addEventListener('error',e=>{console.error(e);$('msg').textContent='Error de JavaScript: '+e.message});
 c.auth.onAuthStateChange((e,s)=>{ $('login').classList.toggle('hide',!!s);$('app').classList.toggle('hide',!s);if(s)refresh()});
 </script>
