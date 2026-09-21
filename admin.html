@@ -544,29 +544,74 @@ async function removeItem(id,path){
   if(!confirm('¿Eliminar esta fotografía?'))return;
 
   const btn=document.querySelector('#list .danger[data-photo-id="'+id+'"]');
-  if(btn){btn.disabled=true;btn.textContent='Eliminando...';}
+  if(btn){
+    btn.disabled=true;
+    btn.textContent='Verificando...';
+  }
 
   try{
-    // First remove the database record so the photo immediately disappears
-    // from the public gallery. Then attempt to remove the storage file.
-    const db=await c.from('gallery').delete().eq('id',id);
-    if(db.error){
-      if(btn){btn.disabled=false;btn.textContent='Eliminar';}
-      alert('No se pudo eliminar la fotografía: '+db.error.message);
+    // 1. Verify that the gallery record exists and show exactly what Supabase returns.
+    const check=await c.from('gallery').select('id,title,image_url,storage_path').eq('id',id).maybeSingle();
+
+    if(check.error){
+      alert('DIAGNÓSTICO — No se pudo consultar la fotografía.\n\n'+
+        'Código: '+(check.error.code||'sin código')+'\n'+
+        'Mensaje: '+(check.error.message||'sin mensaje')+'\n'+
+        'Detalle: '+(check.error.details||'sin detalle')+'\n'+
+        'Hint: '+(check.error.hint||'sin hint'));
       return;
     }
 
+    if(!check.data){
+      alert('DIAGNÓSTICO — La fotografía no existe en la tabla gallery con el ID: '+id);
+      return;
+    }
+
+    // 2. Try deleting the database record and inspect the response.
+    if(btn)btn.textContent='Eliminando registro...';
+
+    const db=await c.from('gallery').delete().eq('id',id).select('id');
+
+    if(db.error){
+      alert('DIAGNÓSTICO — Supabase rechazó la eliminación del registro.\n\n'+
+        'Código: '+(db.error.code||'sin código')+'\n'+
+        'Mensaje: '+(db.error.message||'sin mensaje')+'\n'+
+        'Detalle: '+(db.error.details||'sin detalle')+'\n'+
+        'Hint: '+(db.error.hint||'sin hint'));
+      return;
+    }
+
+    if(!db.data || db.data.length===0){
+      alert('DIAGNÓSTICO — Supabase no devolvió un registro eliminado.\n\n'+
+        'Esto normalmente indica que la política RLS no permite eliminar este registro.');
+      return;
+    }
+
+    // 3. Try removing the physical file from Storage and inspect that response.
+    if(btn)btn.textContent='Eliminando archivo...';
+
     const storage=await c.storage.from('gallery').remove([path]);
 
-    await refresh();
-
     if(storage.error){
-      alert('La fotografía fue eliminada de la galería, pero el archivo original no pudo eliminarse del almacenamiento.\n\nDetalle: '+storage.error.message);
+      alert('DIAGNÓSTICO — El registro de la galería SÍ fue eliminado, pero Storage rechazó el archivo.\n\n'+
+        'Código: '+(storage.error.statusCode||'sin código')+'\n'+
+        'Mensaje: '+(storage.error.message||'sin mensaje')+'\n'+
+        'Detalle: '+(storage.error.name||'sin detalle'));
+      await refresh();
+      return;
     }
+
+    await refresh();
+    alert('Fotografía eliminada correctamente de Gallery y Storage.');
+
   }catch(e){
-    if(btn){btn.disabled=false;btn.textContent='Eliminar';}
     console.error(e);
-    alert('Ocurrió un error al eliminar la fotografía: '+(e.message||e));
+    alert('DIAGNÓSTICO — Error inesperado.\n\n'+(e.message||String(e)));
+  }finally{
+    if(btn){
+      btn.disabled=false;
+      btn.textContent='Eliminar';
+    }
   }
 }
 
