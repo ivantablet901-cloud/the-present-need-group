@@ -400,24 +400,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 .lightbox img{max-width:95vw;max-height:90vh;width:auto;height:auto;object-fit:contain}
 .lightbox-title{position:absolute;left:20px;bottom:18px;right:20px;text-align:center;color:#ddd;font-size:14px}
 
-.contact{display:grid;grid-template-columns:1fr 1fr;gap:40px}.contactbox{border:1px solid var(--line);padding:30px;background:var(--surface)}.contactbox h3{margin-bottom:12px}
-footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
-.status{color:var(--muted);font-size:13px;margin-bottom:18px}
-
-.contact-form{display:grid;gap:14px;margin-top:22px}
-.contact-form label{display:grid;gap:7px;color:var(--muted);font-size:13px}
-.contact-form input,.contact-form select,.contact-form textarea{
-  width:100%;padding:13px 14px;border:1px solid var(--line);background:#0d0d0d;
-  color:var(--text);border-radius:3px;font:inherit;outline:none
-}
-.contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{border-color:var(--silver)}
-.contact-form textarea{min-height:130px;resize:vertical}
-.contact-form .btn{border:none;cursor:pointer;width:100%}
-.form-status{font-size:14px;color:var(--muted);min-height:22px}
-.form-status.success{color:#d8d6d1}
-.form-status.error{color:#f0aaa3}
-.contact-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
-.contact-actions .btn.secondary{margin-left:0}
+.contact{display:grid;grid-template-columns:.78fr 1.22fr;gap:58px;align-items:start}.contact-section-inner{display:grid;grid-template-columns:.78fr 1.22fr;gap:58px;align-items:start}.contact-intro{padding-top:6px}.contact-intro h2{max-width:500px;margin-bottom:18px}.contact-lead{max-width:470px;color:var(--muted);font-size:17px;line-height:1.65}.contact-details{display:grid;gap:8px;margin-top:28px;font-size:14px}.contact-details a{color:var(--text);transition:color .25s ease}.contact-details a:hover{color:#fff}.contact-details span{color:var(--muted)}.contactbox{border:1px solid var(--line);padding:26px;background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012));border-radius:10px}.contact-form-head{margin-bottom:4px}.contact-form-head h3{font-size:25px;margin-bottom:5px}.contact-form-head p:not(.eyebrow){color:var(--muted);font-size:13px}.contact-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}.contact-form label{display:grid;gap:6px;color:var(--muted);font-size:12px}.contact-form label:nth-of-type(5),.contact-form label:nth-of-type(6),.contact-form .btn,.contact-form .form-status{grid-column:1 / -1}.contact-form input,.contact-form select,.contact-form textarea{width:100%;padding:11px 13px;border:1px solid var(--line);background:#0d0d0d;color:var(--text);border-radius:5px;font:inherit;outline:none}.contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{border-color:var(--silver)}.contact-form textarea{min-height:92px;resize:vertical}.contact-form .btn{border:none;cursor:pointer;width:100%}.form-status{font-size:13px;color:var(--muted);min-height:20px}.form-status.success{color:#d8d6d1}.form-status.error{color:#f0aaa3}.contact-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.contact-actions .btn.secondary{margin-left:0;padding:10px 16px;font-size:12px}
 /* Mobile navigation */
 .mobile-menu-btn{display:none;width:42px;height:42px;border:1px solid var(--line);background:#111;color:var(--text);border-radius:8px;font-size:20px;line-height:1}
 .mobile-menu{display:none}
@@ -460,8 +443,7 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
     border-radius:8px;
   }
   .gallery-card .caption{left:10px;right:10px;bottom:9px;font-size:12px}
-  .contact{gap:14px}.contactbox{padding:22px}
-  .contact-form{gap:12px}
+  .contact,.contact-section-inner{gap:22px}.contactbox{padding:22px}.contact-intro h2{margin-bottom:14px}.contact-lead{font-size:15px}.contact-details{margin-top:20px}.contact-form{gap:12px}
   .contact-form input,.contact-form select,.contact-form textarea{font-size:16px;padding:12px 13px}
   .lightbox{padding:12px}.lightbox img{max-width:96vw;max-height:82vh}
 }
@@ -472,7 +454,7 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
 }
 
 @media(max-width:750px){
-.navlinks{display:none}.services,.about,.contact{grid-template-columns:1fr}
+.navlinks{display:none}.services,.about,.contact,.contact-section-inner{grid-template-columns:1fr}
 .btn.secondary{margin:12px 0 0}
 .brand span{display:none}
 }
@@ -568,12 +550,9 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
 <div id="gallery" class="gallery"></div>
 </div></section>
 
-<section id="contacto"><div class="container"><p class="eyebrow" data-i18n="contactEyebrow">Let’s talk</p><h2 data-i18n="contactTitle">Do you have a project?</h2>
-<div class="contact">
-<div class="contactbox"><h3 data-i18n="contactBoxTitle">Contact</h3><p>📞 <a href="tel:+19295053399">929-505-3399</a></p><p>📧 <a href="mailto:ivantablet901@gmail.com">ivantablet901@gmail.com</a></p><p>📍 New York • New Jersey • Pennsylvania</p></div>
-<div class="contactbox">
-<h3 data-i18n="quoteTitle">Request a quote</h3>
-<p data-i18n="quoteText">Tell us what you need and we’ll get in touch with you.</p>
+<section id="contacto"><div class="container contact-section-inner"><div class="contact-intro"><p class="eyebrow" data-i18n="contactEyebrow">Let’s create something</p><h2 data-i18n="contactTitle">Have a project in mind?</h2><p class="contact-lead" data-i18n="contactText">Tell us what you’re looking for and let’s bring it to life.</p><div class="contact-details"><a href="tel:+19295053399">929-505-3399</a><a href="mailto:ivantablet901@gmail.com">ivantablet901@gmail.com</a><span>New York · New Jersey · Pennsylvania</span></div></div>
+<div class="contactbox contact-formbox">
+<div class="contact-form-head"><p class="eyebrow" data-i18n="quoteEyebrow">Start a project</p><h3 data-i18n="quoteTitle">Request a quote</h3><p data-i18n="quoteText">Share a few details and we’ll get back to you.</p></div>
 <form id="quoteForm" class="contact-form" aria-label="Quote request form">
   <label data-i18n-label="nameLabel">Name
     <input type="text" name="name" autocomplete="name" required>
@@ -656,9 +635,9 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
       aboutText:"We are a team focused on creating photography, video and multimedia content with a clean, modern and professional aesthetic.",
       clientsEyebrow:"Clients & Brands", clientsTitle:"Clients we've worked with", clientsText:"A selection of people, businesses and brands we've had the opportunity to create for.",
       galleryEyebrow:"Portfolio", galleryTitle:"Recent work",
-      contactEyebrow:"Let’s talk", contactTitle:"Do you have a project?",
-      contactBoxTitle:"Contact", quoteTitle:"Request a quote",
-      quoteText:"Tell us what you need and we’ll get in touch with you.",
+      contactEyebrow:"Let’s create something", contactTitle:"Have a project in mind?", contactText:"Tell us what you’re looking for and let’s bring it to life.",
+      quoteEyebrow:"Start a project", contactBoxTitle:"Contact", quoteTitle:"Request a quote",
+      quoteText:"Share a few details and we’ll get back to you.",
       sendButton:"Send request",
       directEmail:"Direct email",
       nameLabel:"Name", phoneLabel:"Phone", emailLabel:"Email",
