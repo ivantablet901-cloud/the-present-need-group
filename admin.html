@@ -101,7 +101,7 @@ h2{font-size:24px;letter-spacing:-.8px}
 @media(max-width:750px){.recent-loop-thumbs{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .gallery-list{display:block}
 .gallery-item{display:flex;align-items:center;gap:15px;border:0;border-top:1px solid #333;border-radius:0;background:transparent;overflow:visible;padding:15px 0}
-.gallery-item img{width:60px;height:42px;object-fit:cover;display:block;cursor:pointer;border-radius:4px}
+.gallery-item img,.gallery-item video{width:60px;height:42px;object-fit:cover;display:block;cursor:pointer;border-radius:4px;background:#070707}
 .gallery-info{padding:0;flex:1}.gallery-title{font-size:13px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gallery-actions{display:flex;justify-content:flex-end}.gallery-actions .btn{padding:12px 18px;font-size:12px;border-radius:4px}
 
@@ -230,7 +230,7 @@ h2{font-size:24px;letter-spacing:-.8px}
 }
 
 /* Gallery thumbnails stay small */
-.gallery-item img{
+.gallery-item img,.gallery-item video{
   width:60px;
   height:42px;
   object-fit:cover;
@@ -256,7 +256,7 @@ h2{font-size:24px;letter-spacing:-.8px}
   .summary-card:first-child{grid-column:span 2}
   .request-head{flex-direction:row}
   .request-head .danger{padding:8px 11px}
-  .gallery-item img{width:60px;height:42px}
+  .gallery-item img,.gallery-item video{width:60px;height:42px}
 }
 
 
@@ -270,9 +270,9 @@ h2{font-size:24px;letter-spacing:-.8px}
   min-width:0;
 }
 #list .item:first-child{border-top:0}
-#list .item img{
-  width:72px;
-  height:50px;
+#list .item img,#list .item video{
+  width:60px;
+  height:42px;
   flex:0 0 72px;
   object-fit:cover;
   display:block;
@@ -281,7 +281,7 @@ h2{font-size:24px;letter-spacing:-.8px}
   border:1px solid rgba(255,255,255,.08);
   transition:transform .2s ease,border-color .2s ease;
 }
-#list .item img:hover{
+#list .item img:hover,#list .item video:hover{
   transform:scale(1.04);
   border-color:rgba(255,255,255,.3);
 }
@@ -373,6 +373,24 @@ h2{font-size:24px;letter-spacing:-.8px}
   .gallery-client-picker{width:150px;max-width:45vw;padding:7px 8px;font-size:10px}
 }
 
+/* Published media thumbnails: photos and videos use the same compact size. */
+#list .item img,#list .item video{
+  width:60px;
+  height:42px;
+  flex:0 0 60px;
+  object-fit:cover;
+  display:block;
+  border-radius:5px;
+  cursor:pointer;
+  border:1px solid rgba(255,255,255,.08);
+  background:#070707;
+  transition:transform .2s ease,border-color .2s ease;
+}
+#list .item img:hover,#list .item video:hover{
+  transform:scale(1.04);
+  border-color:rgba(255,255,255,.3);
+}
+
 /* Full-size image viewer */
 .gallery-lightbox{
   position:fixed;
@@ -410,9 +428,9 @@ h2{font-size:24px;letter-spacing:-.8px}
 .gallery-lightbox button:hover{background:#fff;color:#111}
 
 @media(max-width:650px){
-  #list .item img{
-    width:62px;
-    height:43px;
+  #list .item img,#list .item video{
+    width:60px;
+    height:42px;
     flex-basis:62px;
   }
   #list .item{gap:10px}
