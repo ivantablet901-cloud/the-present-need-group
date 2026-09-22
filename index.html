@@ -90,6 +90,41 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 .about{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}.about p{font-size:18px}
 .locations{display:flex;flex-wrap:wrap;gap:12px;margin-top:25px}.tag{border:1px solid var(--line);padding:10px 16px;color:var(--muted)}
 
+
+/* Clients & Brands */
+.clients-section-intro{max-width:680px;color:var(--muted);font-size:16px;margin:-20px 0 34px}
+.clients-status{color:var(--muted);font-size:13px;margin-bottom:20px}
+.clients-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.client-card{
+  min-height:132px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  padding:24px 18px;
+  background:rgba(255,255,255,.018);
+  border:1px solid var(--line);
+  border-radius:10px;
+  position:relative;
+  overflow:hidden;
+  transition:transform .35s ease,border-color .45s ease,box-shadow .45s ease,background .35s ease;
+}
+.client-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.34);background:rgba(255,255,255,.028);box-shadow:0 0 24px rgba(255,255,255,.055),0 18px 40px rgba(0,0,0,.18)}
+.client-card::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(255,255,255,.08),transparent 34%,transparent 70%,rgba(255,255,255,.025));opacity:0;transition:opacity .4s ease;pointer-events:none}
+.client-card:hover::after{opacity:1}
+.client-logo{width:min(190px,82%);height:66px;object-fit:contain;object-position:center;opacity:.88;filter:grayscale(1) brightness(1.35);transition:filter .4s ease,opacity .4s ease,transform .4s ease}
+.client-card:hover .client-logo{filter:grayscale(0) brightness(1.05);opacity:1;transform:scale(1.025)}
+.client-name{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:center;line-height:1.3;max-width:92%}
+@media(max-width:950px){.clients-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){
+  .clients-section-intro{font-size:14px;margin:-18px 0 25px}
+  .clients-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .client-card{min-height:112px;padding:18px 12px;gap:10px;border-radius:8px}
+  .client-logo{height:54px;width:88%}
+  .client-name{font-size:10px}
+}
+
 /* Galería premium: proporción uniforme 4:5 */
 .gallery{
   display:grid;
@@ -371,6 +406,7 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
 <div class="navlinks">
 <a href="#servicios" data-i18n="navServices">Services</a>
 <a href="#nosotros" data-i18n="navAbout">About</a>
+<a href="#clientes" data-i18n="navClients">Clients</a>
 <a href="#galeria" data-i18n="navGallery">Gallery</a>
 <a href="#contacto" data-i18n="navContact">Contact</a>
 </div>
@@ -384,6 +420,7 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
 <div class="mobile-menu" id="mobileMenu">
   <a href="#servicios" data-i18n="navServices">Services</a>
   <a href="#nosotros" data-i18n="navAbout">About</a>
+  <a href="#clientes" data-i18n="navClients">Clients</a>
   <a href="#galeria" data-i18n="navGallery">Gallery</a>
   <a href="#contacto" data-i18n="navContact">Contact</a>
 </div>
@@ -406,11 +443,20 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
 <article class="card"><span class="number">03</span><h3 data-i18n="mediaTitle">Multimedia Content</h3><p data-i18n="mediaText">Visual content designed for social media, brands and digital presence.</p></article>
 </div></div></section>
 
+<section id="clientes"><div class="container">
+<p class="eyebrow" data-i18n="clientsEyebrow">Clients & Brands</p>
+<h2 data-i18n="clientsTitle">Clients we've worked with</h2>
+<p class="clients-section-intro" data-i18n="clientsText">A selection of people, businesses and brands we've had the opportunity to create for.</p>
+<div id="clientsStatus" class="clients-status"></div>
+<div id="clientsGrid" class="clients-grid"></div>
+</div></section>
 <section id="nosotros"><div class="container about">
 <div><p class="eyebrow" data-i18n="aboutEyebrow">The Present Need Group</p><h2 data-i18n="aboutTitle">Your idea. Our camera. The present moment.</h2></div>
 <div><p data-i18n="aboutText">We are a team focused on creating photography, video and multimedia content with a clean, modern and professional aesthetic.</p>
 <div class="locations"><span class="tag">New York</span><span class="tag">New Jersey</span><span class="tag">Pennsylvania</span></div></div>
 </div></section>
+
+
 
 <section id="galeria"><div class="container">
 <p class="eyebrow" data-i18n="galleryEyebrow">Portfolio</p><h2 data-i18n="galleryTitle">Recent work</h2>
@@ -478,7 +524,7 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
 (function(){
   const translations = {
     en: {
-      navServices:"Services", navAbout:"About", navGallery:"Gallery", navContact:"Contact",
+      navServices:"Services", navAbout:"About", navClients:"Clients", navGallery:"Gallery", navContact:"Contact",
       heroEyebrow:"Photography • Video • Multimedia",
       heroTitle:"We create content that captures the present.",
       heroText:"Photography, video and multimedia content for people, brands and projects in New York, New Jersey and Pennsylvania.",
@@ -489,6 +535,7 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
       mediaTitle:"Multimedia Content", mediaText:"Visual content designed for social media, brands and digital presence.",
       aboutEyebrow:"The Present Need Group", aboutTitle:"Your idea. Our camera. The present moment.",
       aboutText:"We are a team focused on creating photography, video and multimedia content with a clean, modern and professional aesthetic.",
+      clientsEyebrow:"Clients & Brands", clientsTitle:"Clients we've worked with", clientsText:"A selection of people, businesses and brands we've had the opportunity to create for.",
       galleryEyebrow:"Portfolio", galleryTitle:"Recent work",
       contactEyebrow:"Let’s talk", contactTitle:"Do you have a project?",
       contactBoxTitle:"Contact", quoteTitle:"Request a quote",
@@ -508,7 +555,7 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
       close:"Close", photoAlt:"Photograph", photoFallback:"The Present Need Group photograph"
     },
     es: {
-      navServices:"Servicios", navAbout:"Nosotros", navGallery:"Galería", navContact:"Contacto",
+      navServices:"Servicios", navAbout:"Nosotros", navClients:"Clientes", navGallery:"Galería", navContact:"Contacto",
       heroEyebrow:"Fotografía • Video • Multimedia",
       heroTitle:"Creamos contenido que captura el presente.",
       heroText:"Fotografía, video y contenido multimedia para personas, marcas y proyectos en New York, New Jersey y Pennsylvania.",
@@ -519,6 +566,7 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
       mediaTitle:"Contenido multimedia", mediaText:"Contenido visual pensado para redes sociales, marcas y presencia digital.",
       aboutEyebrow:"The Present Need Group", aboutTitle:"Tu idea. Nuestra cámara. El momento presente.",
       aboutText:"Somos un equipo enfocado en crear fotografía, video y contenido multimedia con una estética limpia, moderna y profesional.",
+      clientsEyebrow:"Clientes y marcas", clientsTitle:"Clientes con los que hemos trabajado", clientsText:"Una selección de personas, negocios y marcas para los que hemos tenido la oportunidad de crear.",
       galleryEyebrow:"Portafolio", galleryTitle:"Trabajos recientes",
       contactEyebrow:"Hablemos", contactTitle:"¿Tienes un proyecto?",
       contactBoxTitle:"Contacto", quoteTitle:"Solicita una cotización",
@@ -689,6 +737,47 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   let touchStartX=0;
   lightbox.addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].clientX},{passive:true});
   lightbox.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>=45)(dx<0?nextPhoto:prevPhoto)();},{passive:true});
+
+
+  async function loadClients(){
+    const grid=document.getElementById('clientsGrid');
+    const status=document.getElementById('clientsStatus');
+    if(!grid || !status) return;
+    try{
+      if(!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) throw new Error('Falta configurar Supabase en config.js');
+      const client=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
+      const {data,error}=await client.from('client_logos').select('id,name,image_url,storage_path,sort_order,created_at').order('sort_order',{ascending:true}).order('created_at',{ascending:false});
+      if(error) throw error;
+      grid.innerHTML='';
+      if(!data || !data.length){
+        status.textContent='';
+        return;
+      }
+      status.textContent='';
+      data.forEach(item=>{
+        let url=item.image_url;
+        if(!url && item.storage_path) url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
+        if(!url) return;
+        const card=document.createElement('article');
+        card.className='client-card';
+        const img=document.createElement('img');
+        img.className='client-logo';
+        img.src=url;
+        img.alt=item.name || 'Client logo';
+        img.loading='lazy';
+        const name=document.createElement('div');
+        name.className='client-name';
+        name.textContent=item.name || '';
+        card.appendChild(img);
+        if(item.name) card.appendChild(name);
+        grid.appendChild(card);
+      });
+    }catch(err){
+      console.error(err);
+      status.textContent='';
+    }
+  }
+  loadClients();
 
   async function loadGallery(){
     try{

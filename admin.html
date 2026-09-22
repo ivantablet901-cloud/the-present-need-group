@@ -93,74 +93,6 @@ h2{font-size:24px;letter-spacing:-.8px}
 .image-preview button:hover{background:#fff;color:#111}
 
 
-
-/* Multiple-photo title editor */
-.selected-files{
-  display:none;
-  margin:14px 0 16px;
-  border-top:1px solid var(--line2);
-  padding-top:14px;
-}
-.selected-files.open{display:block}
-.selected-files-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  margin-bottom:9px;
-}
-.selected-files-head strong{
-  font-size:12px;
-  color:var(--text);
-}
-.selected-files-head span{
-  color:var(--muted2);
-  font-size:11px;
-}
-.selected-file-row{
-  display:grid;
-  grid-template-columns:58px minmax(0,1fr) minmax(150px,.85fr);
-  gap:10px;
-  align-items:center;
-  padding:9px 0;
-  border-top:1px solid var(--line2);
-}
-.selected-file-row:first-child{border-top:0}
-.selected-file-thumb{
-  width:58px;
-  height:44px;
-  border-radius:5px;
-  object-fit:cover;
-  display:block;
-  border:1px solid rgba(255,255,255,.08);
-}
-.selected-file-name{
-  min-width:0;
-  color:var(--muted);
-  font-size:12px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.selected-file-title{
-  min-width:0;
-  padding:10px 11px;
-  font-size:12px;
-}
-@media(max-width:650px){
-  .selected-file-row{
-    grid-template-columns:54px minmax(0,1fr);
-    gap:9px;
-  }
-  .selected-file-thumb{
-    width:54px;
-    height:42px;
-  }
-  .selected-file-title{
-    grid-column:2;
-  }
-}
-
 /* Quote requests — clearer dashboard presentation */
 .request-summary{
   display:grid;
@@ -343,6 +275,32 @@ h2{font-size:24px;letter-spacing:-.8px}
 }
 #list .item .danger:hover{background:#4a2020}
 
+
+
+/* Clients & Brands management */
+.clients-admin{margin-top:18px}
+.client-upload-zone{border:1px dashed rgba(255,255,255,.18);padding:22px;border-radius:9px;background:rgba(255,255,255,.018)}
+.client-upload-list{display:grid;gap:10px;margin:14px 0}
+.client-upload-row{display:grid;grid-template-columns:58px minmax(0,1fr) 92px;gap:10px;align-items:center;padding:10px;background:#0b0b0b;border:1px solid var(--line2);border-radius:7px}
+.client-upload-row img{width:58px;height:48px;object-fit:contain;background:#070707;border-radius:5px;border:1px solid var(--line2)}
+.client-upload-row input{min-width:0;padding:10px 11px}
+.client-logo-list{display:grid;gap:0}
+.client-admin-item{display:flex;align-items:center;gap:14px;border-top:1px solid #333;padding:13px 0}
+.client-admin-item:first-child{border-top:0}
+.client-admin-item img{width:72px;height:50px;object-fit:contain;background:#070707;border-radius:5px;border:1px solid rgba(255,255,255,.08);flex:0 0 72px}
+.client-admin-info{flex:1;min-width:0}
+.client-admin-name{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.client-admin-meta{font-size:11px;color:var(--muted2);margin-top:3px}
+.client-admin-actions{display:flex;justify-content:flex-end;flex:0 0 auto}
+@media(max-width:650px){
+  .client-upload-row{grid-template-columns:52px minmax(0,1fr);}
+  .client-upload-row .client-order{grid-column:2}
+  .client-upload-row img{width:52px;height:44px}
+  .client-admin-item{gap:10px}
+  .client-admin-item img{width:62px;height:44px;flex-basis:62px}
+  .client-admin-actions .btn{padding:9px 11px;font-size:11px}
+}
+
 /* Full-size image viewer */
 .gallery-lightbox{
   position:fixed;
@@ -433,19 +391,10 @@ h2{font-size:24px;letter-spacing:-.8px}
       <div class="panel-head"><div><p class="eyebrow">Portfolio</p><h2>Add photography</h2><p class="muted">Upload an image to publish it in the website gallery.</p></div></div>
       <div class="upload-zone">
         <div class="upload-grid">
-          <div class="field"><label for="title">Default title (optional)</label><input id="title" placeholder="e.g. Wedding Session"></div>
-          <div class="field"><label for="file">Images</label><input id="file" type="file" accept="image/jpeg,image/png,image/webp" multiple></div>
+          <div class="field"><label for="title">Title</label><input id="title" placeholder="e.g. Wedding Session"></div>
+          <div class="field"><label for="file">Image</label><input id="file" type="file" accept="image/jpeg,image/png,image/webp" multiple></div>
         </div>
-
-        <div id="selectedFiles" class="selected-files" aria-live="polite">
-          <div class="selected-files-head">
-            <strong>Titles for each photo</strong>
-            <span id="selectedFilesCount"></span>
-          </div>
-          <div id="selectedFilesList"></div>
-        </div>
-
-        <button id="publishBtn" class="btn" onclick="upload()">Publish photo</button>
+        <button class="btn" onclick="upload()">Publish photo</button>
         <div id="status" class="status"></div>
       </div>
       <div style="height:22px"></div>
@@ -458,6 +407,24 @@ h2{font-size:24px;letter-spacing:-.8px}
       <div id="requests">Loading...</div>
     </section>
   </div>
+</div>
+
+
+  <section class="panel clients-admin">
+    <div class="panel-head"><div><p class="eyebrow">Clients & Brands</p><h2>Client logos</h2><p class="muted">Everything uploaded here appears only in the Clients & Brands section of the public website.</p></div></div>
+    <div class="client-upload-zone">
+      <div class="upload-grid">
+        <div class="field"><label for="clientFiles">Logo / image</label><input id="clientFiles" type="file" accept="image/jpeg,image/png,image/webp" multiple></div>
+        <div class="field"><label for="clientDefaultOrder">Default order</label><input id="clientDefaultOrder" type="number" min="1" step="1" value="1" placeholder="1"></div>
+      </div>
+      <div id="clientUploadList" class="client-upload-list"></div>
+      <button class="btn" type="button" onclick="uploadClients()">Publish client logos</button>
+      <div id="clientStatus" class="status"></div>
+    </div>
+    <div style="height:22px"></div>
+    <div class="panel-head"><div><p class="eyebrow">Published</p><h2>Clients & Brands</h2></div></div>
+    <div id="clientLogoList" class="client-logo-list">Loading...</div>
+  </section>
 </div>
 </main>
 </div>
@@ -527,9 +494,108 @@ $('msg').textContent='';
 }catch(e){console.error(e);$('msg').textContent=e.message||'Error al iniciar sesión.'}
 }
 async function logout(){await c.auth.signOut()}
+
+let clientUploadFiles=[];
+function renderClientUploadList(){
+  const list=$('clientUploadList');
+  if(!list)return;
+  list.innerHTML='';
+  const base=Number($('clientDefaultOrder')?.value||1);
+  clientUploadFiles.forEach((f,i)=>{
+    const row=document.createElement('div');
+    row.className='client-upload-row';
+    const img=document.createElement('img');
+    img.src=URL.createObjectURL(f);
+    img.alt=f.name;
+    const name=document.createElement('input');
+    name.className='client-name-input';
+    name.dataset.index=i;
+    name.value=f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ');
+    name.placeholder='Client / company name';
+    const order=document.createElement('input');
+    order.className='client-order';
+    order.type='number';
+    order.min='1';
+    order.step='1';
+    order.dataset.index=i;
+    order.value=base+i;
+    order.title='Display order';
+    row.appendChild(img);row.appendChild(name);row.appendChild(order);list.appendChild(row);
+  });
+}
+$('clientFiles')?.addEventListener('change',e=>{
+  clientUploadFiles=Array.from(e.target.files||[]);
+  renderClientUploadList();
+});
+$('clientDefaultOrder')?.addEventListener('input',()=>renderClientUploadList());
+
+async function refreshClients(){
+  const box=$('clientLogoList');
+  if(!box)return;
+  let r=await c.from('client_logos').select('*').order('sort_order',{ascending:true}).order('created_at',{ascending:false});
+  if(r.error){box.innerHTML='<p class="muted">No se pudieron cargar los clientes: '+escapeHtml(r.error.message)+'</p>';return}
+  if(!r.data?.length){box.innerHTML='<p class="muted">No hay clientes publicados.</p>';return}
+  box.innerHTML=r.data.map(x=>'<div class="client-admin-item"><img src="'+escapeHtml(x.image_url||'')+'" alt="'+escapeHtml(x.name||'Client logo')+'"><div class="client-admin-info"><div class="client-admin-name">'+escapeHtml(x.name||'Sin nombre')+'</div><div class="client-admin-meta">Orden: '+Number(x.sort_order||0)+'</div></div><div class="client-admin-actions"><button class="btn danger" type="button" data-client-id="'+x.id+'" data-client-path="'+escapeHtml(x.storage_path||'')+'">Eliminar</button></div></div>').join('');
+}
+
+async function uploadClients(){
+  const files=clientUploadFiles.length?clientUploadFiles:Array.from($('clientFiles')?.files||[]);
+  if(!files.length){$('clientStatus').textContent='Selecciona uno o más logos/imágenes.';return}
+  const rows=Array.from(document.querySelectorAll('.client-upload-row'));
+  for(let i=0;i<files.length;i++){
+    const f=files[i];
+    if(f.size>6*1024*1024){$('clientStatus').textContent='La imagen "'+f.name+'" supera el límite de 6 MB.';return}
+    if(!['image/jpeg','image/png','image/webp'].includes(f.type)){$('clientStatus').textContent='La imagen "'+f.name+'" no es un formato permitido.';return}
+    if(!rows[i]){renderClientUploadList()}
+  }
+  const finalRows=Array.from(document.querySelectorAll('.client-upload-row'));
+  $('clientStatus').textContent='';
+  let published=0;
+  for(let i=0;i<files.length;i++){
+    const f=files[i];
+    const name=(finalRows[i]?.querySelector('.client-name-input')?.value||'').trim() || f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ');
+    const order=Math.max(1,Number(finalRows[i]?.querySelector('.client-order')?.value||i+1));
+    const path='clients/'+crypto.randomUUID()+'-'+f.name.toLowerCase().replace(/[^a-z0-9._-]/g,'-');
+    $('clientStatus').textContent='Subiendo '+(i+1)+' de '+files.length+'...';
+    const u=await c.storage.from('gallery').upload(path,f,{contentType:f.type});
+    if(u.error){$('clientStatus').textContent=u.error.message;return}
+    const url=c.storage.from('gallery').getPublicUrl(path).data.publicUrl;
+    const d=await c.from('client_logos').insert({name:name,image_url:url,storage_path:path,sort_order:order});
+    if(d.error){await c.storage.from('gallery').remove([path]);$('clientStatus').textContent=d.error.message;return}
+    published++;
+  }
+  $('clientStatus').textContent=published===1?'Cliente publicado.':published+' clientes publicados.';
+  clientUploadFiles=[];
+  if($('clientFiles'))$('clientFiles').value='';
+  if($('clientUploadList'))$('clientUploadList').innerHTML='';
+  await refreshClients();
+}
+
+async function removeClientLogo(id,path){
+  if(!confirm('¿Eliminar este cliente de la sección Clients & Brands?'))return;
+  if(!path){alert('No se encontró la ruta de Storage de este cliente.');return}
+  const btn=document.querySelector('#clientLogoList .btn.danger[data-client-id="'+id+'"]');
+  if(btn){btn.disabled=true;btn.textContent='Eliminando...'}
+  try{
+    const storageResult=await c.storage.from('gallery').remove([path]);
+    if(storageResult.error){alert('No se pudo eliminar la imagen de Supabase Storage:\n\n'+storageResult.error.message);if(btn){btn.disabled=false;btn.textContent='Eliminar'};return}
+    const dbResult=await c.from('client_logos').delete().eq('id',id);
+    if(dbResult.error){alert('La imagen fue eliminada de Storage, pero no se pudo eliminar su registro de Clients & Brands:\n\n'+dbResult.error.message);if(btn){btn.disabled=false;btn.textContent='Eliminar'};await refreshClients();return}
+    await refreshClients();
+  }catch(e){console.error(e);alert('Ocurrió un error al eliminar el cliente:\n\n'+(e.message||String(e)));if(btn){btn.disabled=false;btn.textContent='Eliminar'}}
+}
+
+document.addEventListener('click',function(e){
+  const btn=e.target.closest('#clientLogoList .btn.danger[data-client-id]');
+  if(!btn)return;
+  e.preventDefault();
+  removeClientLogo(btn.dataset.clientId,btn.dataset.clientPath);
+});
+
 async function refresh(){
   let r=await c.from('gallery').select('*').order('created_at',{ascending:false});
   $('list').innerHTML=r.data?.map(x=>'<div class="item"><img src="'+x.image_url+'" alt="'+escapeAttr(x.title||'Gallery image')+'" onclick="openGalleryLightbox(this.src,this.alt)"><div>'+x.title+'</div><button class="danger" data-photo-id="'+x.id+'" data-photo-path="'+x.storage_path+'">Eliminar</button></div>').join('')||'<p class="muted">No hay fotografías.</p>';
+  await refreshClients();
   await refreshRequests();
 }
 
@@ -606,57 +672,11 @@ async function updateRequestStatus(id,status){
   renderRequestDashboard();
 }
 
-let selectedFileTitles = [];
-
-function renderSelectedFiles(){
-  const input=$('file');
-  const files=Array.from(input.files||[]);
-  const box=$('selectedFiles');
-  const list=$('selectedFilesList');
-  const count=$('selectedFilesCount');
-
-  if(!files.length){
-    selectedFileTitles=[];
-    box.classList.remove('open');
-    list.innerHTML='';
-    count.textContent='';
-    return;
-  }
-
-  const defaultTitle=$('title').value.trim();
-  selectedFileTitles=files.map(()=>defaultTitle);
-
-  list.innerHTML=files.map((f,i)=>{
-    const safeName=escapeHtml(f.name);
-    return '<div class="selected-file-row">'+
-      '<img class="selected-file-thumb" src="'+URL.createObjectURL(f)+'" alt="">'+
-      '<div class="selected-file-name" title="'+safeName+'">'+safeName+'</div>'+
-      '<input class="selected-file-title" data-file-title="'+i+'" type="text" value="'+escapeAttr(defaultTitle)+'" placeholder="Título de esta foto">'+
-      '</div>';
-  }).join('');
-
-  count.textContent=files.length+(files.length===1?' photo':' photos');
-  box.classList.add('open');
-
-  list.querySelectorAll('[data-file-title]').forEach(input=>{
-    input.addEventListener('input',()=>{
-      selectedFileTitles[Number(input.dataset.fileTitle)]=input.value;
-    });
-  });
-}
-
-$('file').addEventListener('change',renderSelectedFiles);
-
 async function upload(){
   const files=Array.from($('file').files||[]);
   if(!files.length){$('status').textContent='Selecciona una o más fotos.';return}
 
-  const titleInputs=Array.from(document.querySelectorAll('[data-file-title]'));
-  const titles=files.map((f,i)=>{
-    const value=titleInputs[i] ? titleInputs[i].value.trim() : '';
-    return value;
-  });
-
+  const title=$('title').value.trim();
   for(const f of files){
     if(f.size>6*1024*1024){
       $('status').textContent='La foto "'+f.name+'" supera el límite de 6 MB.';
@@ -668,47 +688,28 @@ async function upload(){
     }
   }
 
-  const publishBtn=$('publishBtn');
-  if(publishBtn){publishBtn.disabled=true;publishBtn.textContent='Publishing...';}
-
   let uploaded=0;
-  for(let i=0;i<files.length;i++){
-    const f=files[i];
+  for(const f of files){
     const path=crypto.randomUUID()+'-'+f.name.toLowerCase().replace(/[^a-z0-9._-]/g,'-');
-    $('status').textContent='Uploading '+(i+1)+' of '+files.length+'...';
+    $('status').textContent='Subiendo '+(uploaded+1)+' de '+files.length+'...';
 
     const u=await c.storage.from('gallery').upload(path,f,{contentType:f.type});
-    if(u.error){
-      $('status').textContent=u.error.message;
-      if(publishBtn){publishBtn.disabled=false;publishBtn.textContent='Publish photo';}
-      return;
-    }
+    if(u.error){$('status').textContent=u.error.message;return}
 
     const url=c.storage.from('gallery').getPublicUrl(path).data.publicUrl;
-    const d=await c.from('gallery').insert({
-      title:titles[i]||'',
-      image_url:url,
-      storage_path:path
-    });
-
+    const d=await c.from('gallery').insert({title:title,image_url:url,storage_path:path});
     if(d.error){
       await c.storage.from('gallery').remove([path]);
       $('status').textContent=d.error.message;
-      if(publishBtn){publishBtn.disabled=false;publishBtn.textContent='Publish photo';}
       return;
     }
     uploaded++;
   }
 
-  $('status').textContent=uploaded===1?'Published.':uploaded+' photos published.';
+  $('status').textContent=uploaded===1?'Publicada.':uploaded+' fotos publicadas.';
   $('title').value='';
   $('file').value='';
-  selectedFileTitles=[];
-  $('selectedFiles').classList.remove('open');
-  $('selectedFilesList').innerHTML='';
-  $('selectedFilesCount').textContent='';
-  if(publishBtn){publishBtn.disabled=false;publishBtn.textContent='Publish photo';}
-  await refresh();
+  refresh();
 }
 
 async function removeItem(id,path){
