@@ -1209,6 +1209,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     const speed=options.speed ?? 0.032;
     const direction=options.direction ?? -1;
     const groupSelector=options.groupSelector || '.marquee-group';
+    const continuousAutoplay=options.continuousAutoplay === true;
 
     const groupWidth=()=>{
       const group=track.querySelector(groupSelector);
@@ -1317,12 +1318,13 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       resumeSoon(350);
     };
 
-    // Desktop: hovering the carousel freezes it.
+    // Desktop: Recent Work keeps its autoplay running while the mouse is over it.
+    // Other carousels keep their existing behavior.
     viewport.addEventListener('pointerenter',e=>{
-      if(e.pointerType==='mouse') pause();
+      if(e.pointerType==='mouse' && !continuousAutoplay) pause();
     });
     viewport.addEventListener('pointerleave',e=>{
-      if(e.pointerType==='mouse' && !dragging) resume();
+      if(e.pointerType==='mouse' && !dragging && !continuousAutoplay) resume();
     });
 
     // Phone/tablet: touching the carousel freezes it while the finger is on it.
@@ -1681,7 +1683,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       recentMarqueeController=setupMarquee(
         galleryViewport,
         gallery,
-        {speed:0.032,direction:-1,groupSelector:'.marquee-group'}
+        {speed:0.032,direction:-1,groupSelector:'.marquee-group',continuousAutoplay:true}
       );
       const loopWidth=galleryViewport.querySelector('.marquee-group')?.getBoundingClientRect().width || 0;
       if(loopWidth) galleryViewport.scrollLeft=loopWidth;
