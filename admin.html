@@ -81,6 +81,13 @@ h2{font-size:24px;letter-spacing:-.8px}
 .recent-limit-info.limit-not-reached{
   color:var(--muted2);
 }
+ .loop-status{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.loop-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid var(--line);border-radius:999px;background:#0b0b0b;color:var(--muted);font-size:10px;letter-spacing:.2px}
+.loop-pill strong{color:var(--text);font-weight:700}
+.loop-pill.reached{border-color:rgba(255,255,255,.28);color:#ddd}
+.loop-pill.available{border-color:rgba(255,255,255,.12);color:var(--muted2)}
+.client-loop-info{margin-top:7px;font-size:11px;line-height:1.45}
+.client-loop-info strong{color:#d8d6d1}
 .gallery-list{display:block}
 .gallery-item{display:flex;align-items:center;gap:15px;border:0;border-top:1px solid #333;border-radius:0;background:transparent;overflow:visible;padding:15px 0}
 .gallery-item img{width:60px;height:42px;object-fit:cover;display:block;cursor:pointer;border-radius:4px}
@@ -461,6 +468,9 @@ h2{font-size:24px;letter-spacing:-.8px}
           <p id="recentLimitInfo" class="muted recent-limit-info">
             The website displays the 10 most recent files in “Recent Work”.
           </p>
+          <div id="recentLoopStats" class="loop-status" aria-live="polite">
+            <span class="loop-pill available"><strong>Recent Work</strong> loading…</span>
+          </div>
         </div>
       </div>
       <div id="list" class="gallery-list">Loading...</div>
@@ -486,7 +496,9 @@ h2{font-size:24px;letter-spacing:-.8px}
       <div id="clientStatus" class="status"></div>
     </div>
     <div style="height:22px"></div>
-    <div class="panel-head"><div><p class="eyebrow">Published</p><h2>Clients & Brands</h2></div></div>
+    <div class="panel-head"><div><p class="eyebrow">Published</p><h2>Clients & Brands</h2>
+      <p id="clientLoopInfo" class="muted client-loop-info">Each client portfolio uses an infinite loop with its assigned photos.</p>
+    </div></div>
     <div id="clientLogoList" class="client-logo-list">Loading...</div>
   </section>
 </div>
@@ -733,19 +745,37 @@ async function refresh(){
     return;
   }
 
-  const totalGalleryFiles=(r.data||[]).length;
+  const galleryRows=r.data||[];
+  const totalGalleryFiles=galleryRows.length;
+  const recentVisibleCount=Math.min(totalGalleryFiles,10);
+  const extraGalleryFiles=Math.max(0,totalGalleryFiles-10);
+  const assignedClientFiles=galleryRows.filter(x=>x.client_id).length;
+
   const recentLimitInfo=$('recentLimitInfo');
+  const recentLoopStats=$('recentLoopStats');
   if(recentLimitInfo){
     if(totalGalleryFiles>=10){
       recentLimitInfo.className='muted recent-limit-info limit-reached';
-      recentLimitInfo.innerHTML='<strong>Límite de Trabajos recientes alcanzado:</strong> la web muestra solo las 10 fotos/videos más recientes. Los '+totalGalleryFiles+' archivos siguen guardados y disponibles para los portafolios de clientes.';
+      recentLimitInfo.innerHTML='<strong>Límite alcanzado:</strong> Trabajos recientes utiliza las 10 fotos/videos más recientes y las reproduce en un bucle continuo. Los '+extraGalleryFiles+' archivos adicionales no aparecen en esa sección, pero siguen disponibles para los portafolios de clientes.';
     }else{
       recentLimitInfo.className='muted recent-limit-info limit-not-reached';
-      recentLimitInfo.textContent='Trabajos recientes: '+totalGalleryFiles+' de 10 archivos visibles. Puedes publicar '+(10-totalGalleryFiles)+' más antes de alcanzar el límite.';
+      recentLimitInfo.textContent='Trabajos recientes muestra hasta 10 archivos en un bucle continuo. Todavía puedes publicar '+(10-totalGalleryFiles)+' más antes de alcanzar el límite visible.';
     }
   }
+  if(recentLoopStats){
+    recentLoopStats.innerHTML=
+      '<span class="loop-pill '+(totalGalleryFiles>=10?'reached':'available')+'"><strong>Recent Work</strong> '+recentVisibleCount+'/10 visibles</span>'
+      +'<span class="loop-pill available"><strong>Total</strong> '+totalGalleryFiles+' archivos</span>'
+      +(extraGalleryFiles?'<span class="loop-pill available"><strong>Fuera de Recent Work</strong> '+extraGalleryFiles+'</span>':'')
+      +'<span class="loop-pill available"><strong>Bucle</strong> Activo</span>';
+  }
 
-  const rows=(r.data||[]).map(x=>{
+  const clientLoopInfo=$('clientLoopInfo');
+  if(clientLoopInfo){
+    clientLoopInfo.innerHTML='<strong>Bucle de clientes:</strong> cada portafolio muestra las fotos asignadas a ese cliente en un bucle continuo. Actualmente hay '+assignedClientFiles+' foto'+(assignedClientFiles===1?'':'s')+' asignada'+(assignedClientFiles===1?'':'s')+' a clientes.';
+  }
+
+  const rows=galleryRows.map(x=>{
     const options=galleryClients.map(cl=>'<option value="'+cl.id+'" '+(String(x.client_id||'')===String(cl.id)?'selected':'')+'>'+escapeHtml(cl.name||'Sin nombre')+'</option>').join('');
     return '<div class="item"><img src="'+escapeHtml(x.image_url||'')+'" alt="'+escapeAttr(x.title||'Gallery image')+'" onclick="openGalleryLightbox(this.src,this.alt)"><div><div>'+escapeHtml(x.title||'')+'</div><select class="gallery-client-picker" onchange="updatePhotoClient('+x.id+',this.value)" aria-label="Client or brand"><option value="">General portfolio / no client</option>'+options+'</select></div><button class="danger" data-photo-id="'+x.id+'" data-photo-path="'+escapeHtml(x.storage_path||'')+'">Eliminar</button></div>';
   }).join('');
