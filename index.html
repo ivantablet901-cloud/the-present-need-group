@@ -337,6 +337,28 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
 .btn.secondary{margin:12px 0 0}
 .brand span{display:none}
 }
+
+/* Ajuste final del visor: transición suave + título más legible */
+.lightbox img{
+  transition:opacity .28s ease,transform .32s cubic-bezier(.22,.61,.36,1);
+  will-change:opacity,transform;
+}
+.lightbox.lightbox-switch-out-next img{opacity:0;transform:translateX(-24px) scale(.992);}
+.lightbox.lightbox-switch-out-prev img{opacity:0;transform:translateX(24px) scale(.992);}
+.lightbox.lightbox-switch-in img{opacity:1;transform:translateX(0) scale(1);}
+.lightbox-title{
+  bottom:52px;
+  font-weight:700;
+  color:#fff;
+  font-size:14px;
+  line-height:1.35;
+  text-shadow:0 2px 14px rgba(0,0,0,.72);
+}
+.lightbox-hint{bottom:14px;}
+@media(max-width:650px){
+  .lightbox-title{bottom:46px;font-size:13px;font-weight:700;left:14px;right:14px;}
+  .lightbox-hint{bottom:12px;font-size:9px;}
+}
 </style>
 </head>
 <body>
@@ -604,24 +626,49 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   const lightboxNext = document.getElementById('lightboxNext');
   let galleryItems=[];
   let currentIndex=0;
-  function showLightbox(index){
+  let transitionTimer=null;
+  function showLightbox(index,direction=0){
     if(!galleryItems.length)return;
-    currentIndex=(index+galleryItems.length)%galleryItems.length;
-    const item=galleryItems[currentIndex];
-    lightboxImage.src=item.url;
-    lightboxImage.alt=item.title || window.TPNG_I18N.t('photoAlt');
-    lightboxTitle.textContent=item.title || '';
-    lightbox.classList.add('open');
-    lightbox.setAttribute('aria-hidden','false');
-    document.body.style.overflow='hidden';
+    const nextIndex=(index+galleryItems.length)%galleryItems.length;
+    const item=galleryItems[nextIndex];
+    const alreadyOpen=lightbox.classList.contains('open');
+
+    if(!alreadyOpen){
+      currentIndex=nextIndex;
+      lightboxImage.src=item.url;
+      lightboxImage.alt=item.title || window.TPNG_I18N.t('photoAlt');
+      lightboxTitle.textContent=item.title || '';
+      lightbox.classList.add('open','lightbox-switch-in');
+      lightbox.setAttribute('aria-hidden','false');
+      document.body.style.overflow='hidden';
+      requestAnimationFrame(()=>lightbox.classList.remove('lightbox-switch-in'));
+      return;
+    }
+
+    currentIndex=nextIndex;
+    clearTimeout(transitionTimer);
+    lightbox.classList.remove('lightbox-switch-in','lightbox-switch-out-next','lightbox-switch-out-prev');
+    void lightbox.offsetWidth;
+    lightbox.classList.add(direction>=0?'lightbox-switch-out-next':'lightbox-switch-out-prev');
+
+    transitionTimer=setTimeout(()=>{
+      lightboxImage.src=item.url;
+      lightboxImage.alt=item.title || window.TPNG_I18N.t('photoAlt');
+      lightboxTitle.textContent=item.title || '';
+      lightbox.classList.remove('lightbox-switch-out-next','lightbox-switch-out-prev');
+      lightbox.classList.add('lightbox-switch-in');
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>lightbox.classList.remove('lightbox-switch-in'));
+      });
+    },180);
   }
   function openLightbox(url,title){
     const i=galleryItems.findIndex(x=>x.url===url && x.title===title);
     showLightbox(i<0?0:i);
   }
-  function close(){lightbox.classList.remove('open');lightbox.setAttribute('aria-hidden','true');lightboxImage.src='';document.body.style.overflow='';}
-  function nextPhoto(){showLightbox(currentIndex+1)}
-  function prevPhoto(){showLightbox(currentIndex-1)}
+  function close(){clearTimeout(transitionTimer);lightbox.classList.remove('open','lightbox-switch-in','lightbox-switch-out-next','lightbox-switch-out-prev');lightbox.setAttribute('aria-hidden','true');lightboxImage.src='';document.body.style.overflow='';}
+  function nextPhoto(){showLightbox(currentIndex+1,1)}
+  function prevPhoto(){showLightbox(currentIndex-1,-1)}
   lightboxNext.addEventListener('click',e=>{e.stopPropagation();nextPhoto()});
   lightboxPrev.addEventListener('click',e=>{e.stopPropagation();prevPhoto()});
   let wheelDelta=0;
@@ -641,7 +688,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   document.addEventListener('keydown',e=>{if(e.key==='Escape')close();if(lightbox.classList.contains('open')&&e.key==='ArrowRight')nextPhoto();if(lightbox.classList.contains('open')&&e.key==='ArrowLeft')prevPhoto();});
   let touchStartX=0;
   lightbox.addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].clientX},{passive:true});
-  lightbox.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>=50)(dx<0?nextPhoto:prevPhoto)();},{passive:true});
+  lightbox.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>=45)(dx<0?nextPhoto:prevPhoto)();},{passive:true});
 
   async function loadGallery(){
     try{
