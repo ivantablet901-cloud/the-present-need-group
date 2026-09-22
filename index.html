@@ -669,7 +669,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   -ms-overflow-style:none;
   overscroll-behavior-x:contain;
   scroll-behavior:auto !important;
-  cursor:grab;
+  cursor:default;
   user-select:none;
   -webkit-user-select:none;
   touch-action:pan-y;
@@ -679,8 +679,6 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 }
 .recent-marquee::-webkit-scrollbar,
 .client-gallery-marquee::-webkit-scrollbar{display:none}
-.recent-marquee.is-dragging,
-.client-gallery-marquee.is-dragging{cursor:grabbing}
 .recent-marquee img,.recent-marquee video,
 .client-gallery-marquee img,.client-gallery-marquee video{
   -webkit-user-drag:none;
@@ -1072,7 +1070,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   }
 
   function renderLightboxItem(item){
-    const video=isVideoUrl(item.url);
+    const video=!!item.video || isVideoUrl(item.url);
     lightboxImage.hidden=video;
     lightboxVideo.hidden=!video;
     lightboxVideo.pause();
@@ -1181,22 +1179,13 @@ const lightboxPrev = document.getElementById('lightboxPrev');
 
 
   // Unified continuous marquee controller for Recent Work + Client Portfolios.
-  // Hover/touch pauses the loop so media cards can be clicked reliably. Drag and wheel remain available.
+  // Normal mouse/touch dragging is disabled. Hover pauses on desktop, touch pauses briefly for reliable taps, and the mouse wheel/trackpad still scrolls.
   function setupMarquee(viewport, track, options={}){
     if(!viewport || !track) return null;
 
     let frame=0;
     let lastTime=0;
-    let dragging=false;
-    let pressed=false;
-    let activePointerId=null;
-    let startX=0;
-    let startScroll=0;
-    let lastX=0;
-    let lastMoveTime=0;
-    let velocity=0;
     let wheelVelocity=0;
-    let ignoreClickUntil=0;
     let pausedByInteraction=false;
     let resumeTimer=0;
     let destroyed=false;
@@ -1222,30 +1211,15 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       if(!lastTime) lastTime=time;
       const dt=Math.min(time-lastTime,40);
       lastTime=time;
-
-      if(!document.hidden && track.firstElementChild){
-        if(!dragging && !pausedByInteraction){
-          // Pause while the pointer/finger is over the carousel so cards can be clicked reliably.
-          viewport.scrollLeft += direction * speed * dt;
-
-          // Continue the user's drag with a smooth deceleration.
-          if(Math.abs(velocity)>0.01){
-            viewport.scrollLeft -= velocity * dt;
-            velocity *= Math.pow(0.0015,dt/1000);
-            if(Math.abs(velocity)<0.01) velocity=0;
-          }
-
-          // Trackpad / wheel momentum.
-          if(Math.abs(wheelVelocity)>0.01){
-            viewport.scrollLeft += wheelVelocity * dt;
-            wheelVelocity *= Math.pow(0.0008,dt/1000);
-            if(Math.abs(wheelVelocity)<0.01) wheelVelocity=0;
-          }
-
-          wrap();
+      if(!document.hidden && track.firstElementChild && !pausedByInteraction){
+        viewport.scrollLeft += direction * speed * dt;
+        if(Math.abs(wheelVelocity)>0.01){
+          viewport.scrollLeft += wheelVelocity * dt;
+          wheelVelocity *= Math.pow(0.0008,dt/1000);
+          if(Math.abs(wheelVelocity)<0.01) wheelVelocity=0;
         }
+        wrap();
       }
-
       frame=requestAnimationFrame(tick);
     };
 
@@ -1255,9 +1229,13 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       frame=requestAnimationFrame(tick);
     };
 
+    const stop=()=>{
+      if(frame){ cancelAnimationFrame(frame); frame=0; }
+    };
+
     const pause=()=>{
       pausedByInteraction=true;
-      if(resumeTimer){clearTimeout(resumeTimer);resumeTimer=0;}
+      if(resumeTimer){ clearTimeout(resumeTimer); resumeTimer=0; }
     };
 
     const resume=()=>{
@@ -1268,262 +1246,61 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       start();
     };
 
-    const resumeSoon=(delay=350)=>{
+    const resumeSoon=(delay=450)=>{
       if(resumeTimer) clearTimeout(resumeTimer);
-      resumeTimer=setTimeout(()=>{resumeTimer=0;resume();},delay);
+      resumeTimer=setTimeout(()=>{ resumeTimer=0; resume(); },delay);
     };
 
-    const beginDrag=e=>{
-      if(e.pointerType==='mouse' && e.button!==0) return;
-      pause();
-      pressed=true;
-      activePointerId=e.pointerId;
-      dragging=false;
-      startX=e.clientX;
-      startScroll=viewport.scrollLeft;
-      lastX=e.clientX;
-      lastMoveTime=performance.now();
-      velocity=0;
-    };
-
-    const moveDrag=e=>{
-      if(!pressed || e.pointerId!==activePointerId) return;
-      const now=performance.now();
-      const dx=e.clientX-startX;
-
-      // Do not capture the mouse/finger until it is clearly a drag.
-      // This keeps a normal desktop click as a real click on the card.
-      if(!dragging && Math.abs(dx)>6){
-        dragging=true;
-        viewport.classList.add('is-dragging');
-        try{viewport.setPointerCapture(e.pointerId);}catch{}
-      }
-      if(!dragging) return;
-      const dt=Math.max(8,now-lastMoveTime);
-      const delta=e.clientX-lastX;
-      const instantVelocity=delta/dt;
-
-      if(Math.abs(dx)>6) ignoreClickUntil=Date.now()+500;
-      viewport.scrollLeft=startScroll-dx;
-      velocity=velocity*0.68 + instantVelocity*0.32;
-      lastX=e.clientX;
-      lastMoveTime=now;
-      wrap();
-    };
-
-    const endDrag=()=>{
-      if(!pressed) return;
-      const wasDragging=dragging;
-      pressed=false;
-      activePointerId=null;
-      if(wasDragging){
-        dragging=false;
-        viewport.classList.remove('is-dragging');
-        // Keep the release momentum, but give the click/tap a short window before resuming.
-        velocity=Math.max(-2.4,Math.min(2.4,velocity));
-        wrap();
-      }
-      // For a simple click/tap, do not interfere with the browser's click event.
-      resumeSoon(wasDragging?350:500);
-    };
-
-    // Desktop: hovering the carousel freezes it.
+    // Desktop: hover pauses the loop so a normal mouse click is stable.
     viewport.addEventListener('pointerenter',e=>{
       if(e.pointerType==='mouse') pause();
     });
     viewport.addEventListener('pointerleave',e=>{
-      if(e.pointerType==='mouse' && !dragging) resume();
+      if(e.pointerType==='mouse') resume();
     });
 
-    // Phone/tablet: touching the carousel freezes it while the finger is on it.
-    viewport.addEventListener('pointerdown',beginDrag);
-    viewport.addEventListener('pointermove',moveDrag);
+    // Touch/pen: pause briefly while tapping, but never convert a held press into dragging.
+    viewport.addEventListener('pointerdown',e=>{
+      if(e.pointerType==='touch' || e.pointerType==='pen') pause();
+    });
     viewport.addEventListener('pointerup',e=>{
-      endDrag();
-      if(e.pointerType==='touch' || e.pointerType==='pen') resumeSoon(500);
+      if(e.pointerType==='touch' || e.pointerType==='pen') resumeSoon(450);
     });
-    viewport.addEventListener('pointercancel',()=>{
-      endDrag();
-      resumeSoon(250);
-    });
-    viewport.addEventListener('lostpointercapture',()=>{
-      endDrag();
-      resumeSoon(250);
+    viewport.addEventListener('pointercancel',e=>{
+      if(e.pointerType==='touch' || e.pointerType==='pen') resumeSoon(250);
     });
 
+    // Mouse wheel / trackpad scrolling remains enabled.
     viewport.addEventListener('wheel',e=>{
       if(!track.firstElementChild) return;
       const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
       if(!amount) return;
       e.preventDefault();
+      pause();
       wheelVelocity=Math.max(-3.2,Math.min(3.2,wheelVelocity + amount*0.035));
       wrap();
+      resumeSoon(350);
     },{passive:false});
 
     document.addEventListener('visibilitychange',()=>{
-      if(!document.hidden){
-        lastTime=performance.now();
-        wrap();
-        start();
-      }
+      if(!document.hidden){ lastTime=performance.now(); wrap(); start(); }
     });
 
-    // Safety restart only if the animation frame itself disappears.
     const watchdog=setInterval(()=>{
-      if(destroyed){clearInterval(watchdog);return;}
+      if(destroyed){ clearInterval(watchdog); return; }
       if(!frame && !document.hidden && track.firstElementChild) start();
       wrap();
     },1000);
 
     const destroy=()=>{
       destroyed=true;
-      if(frame) cancelAnimationFrame(frame);
-      frame=0;
+      stop();
       if(resumeTimer) clearTimeout(resumeTimer);
-      resumeTimer=0;
       clearInterval(watchdog);
     };
 
-    return {
-      start,
-      stop:destroy,
-      pause,
-      resume,
-      wrap,
-      isIgnoringClick(){return Date.now()<ignoreClickUntil;}
-    };
+    return {start,stop,pause,resume,wrap,destroy,isIgnoringClick:()=>false};
   }
-
-  async function openClientGallery(clientId,clientName){
-    if(!clientGalleryModal || !clientGalleryGrid || !clientGalleryMarquee)return;
-    if(clientGalleryController) clientGalleryController.stop();
-    clientGalleryTitle.textContent=clientName || '';
-    clientGalleryGrid.innerHTML='';
-    clientGalleryStatus.textContent=window.TPNG_I18N.t('clientLoading');
-    clientGalleryModal.classList.add('open');
-    clientGalleryModal.setAttribute('aria-hidden','false');
-    document.body.style.overflow='hidden';
-
-    try{
-      if(!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) throw new Error('Falta configurar Supabase en config.js');
-      const client=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
-      const {data,error}=await client.from('gallery')
-        .select('id,title,image_url,storage_path,created_at')
-        .eq('client_id',clientId)
-        .order('created_at',{ascending:false});
-      if(error) throw error;
-
-      const photos=[];
-      (data||[]).forEach(item=>{
-        let url=item.image_url;
-        if(!url && item.storage_path) url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
-        if(url) photos.push({url,title:item.title||''});
-      });
-
-      clientGalleryStatus.textContent='';
-      if(!photos.length){
-        clientGalleryStatus.textContent=window.TPNG_I18N.t('clientNoPhotos');
-        return;
-      }
-
-      const appendGroup=(duplicate=false)=>{
-        const group=document.createElement('div');
-        group.className='client-gallery-group';
-        if(duplicate) group.setAttribute('aria-hidden','false');
-
-        photos.forEach((item,i)=>{
-          const card=document.createElement('article');
-          card.className='client-gallery-card';
-          card.setAttribute('role','button');
-          card.setAttribute('tabindex','0');
-          card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoFallback'));
-
-          const video=isVideoUrl(item.url);
-          if(video){
-            const media=document.createElement('video');
-            media.src=item.url;
-            media.muted=true;
-            media.playsInline=true;
-            media.preload='metadata';
-            media.setAttribute('aria-label',item.title || 'Video');
-            media.tabIndex=-1;
-            card.appendChild(media);
-          }else{
-            const img=document.createElement('img');
-            img.src=item.url;
-            img.alt=item.title || window.TPNG_I18N.t('photoFallback');
-            img.loading=duplicate?'eager':'lazy';
-            img.decoding='async';
-            card.appendChild(img);
-          }
-
-          if(item.title){
-            const cap=document.createElement('div');
-            cap.className='client-photo-caption';
-            cap.textContent=item.title;
-            card.appendChild(cap);
-          }
-
-          const openPhoto=()=>{
-            if(clientGalleryController && clientGalleryController.isIgnoringClick())return;
-            galleryItems=photos;
-            clientPortfolioItems=photos;
-            lightboxContext='client';
-            showLightbox(i);
-          };
-          card.addEventListener('click',openPhoto);
-          if(!duplicate){
-            card.addEventListener('keydown',e=>{
-              if(e.key==='Enter'||e.key===' '){e.preventDefault();openPhoto();}
-            });
-          }
-          group.appendChild(card);
-        });
-        clientGalleryGrid.appendChild(group);
-        return group;
-      };
-
-      // Build enough identical groups to keep the loop filled on phones and desktop.
-      appendGroup(false);
-      appendGroup(true);
-      appendGroup(true);
-      let copies=3;
-      while(clientGalleryGrid.scrollWidth < clientGalleryMarquee.clientWidth*3 && copies<10){
-        appendGroup(true);
-        copies++;
-      }
-
-      // Client portfolio uses the same controller as Recent Work.
-      // Hover/touch pauses it; drag/touch/wheel remain available.
-      clientGalleryController=setupMarquee(
-        clientGalleryMarquee,
-        clientGalleryGrid,
-        {speed:0.032,direction:-1,groupSelector:'.client-gallery-group'}
-      );
-      const loopWidth=clientGalleryMarquee.querySelector('.client-gallery-group')?.getBoundingClientRect().width || 0;
-      if(loopWidth) clientGalleryMarquee.scrollLeft=loopWidth;
-      clientGalleryController.wrap();
-      clientGalleryController.start();
-    }catch(err){
-      console.error(err);
-      clientGalleryStatus.textContent=window.TPNG_I18N.t('galleryError');
-    }
-  }
-
-  function closeClientGallery(){
-    if(clientGalleryController) clientGalleryController.stop();
-    clientGalleryController=null;
-    clientGalleryModal.classList.remove('open');
-    clientGalleryModal.setAttribute('aria-hidden','true');
-    clientGalleryGrid.innerHTML='';
-    clientGalleryStatus.textContent='';
-    if(!lightbox.classList.contains('open')) document.body.style.overflow='';
-  }
-
-  clientGalleryClose.addEventListener('click',closeClientGallery);
-  clientGalleryModal.addEventListener('click',e=>{
-    if(e.target===clientGalleryModal)closeClientGallery();
-  });
 
   async function loadClients(){
     const grid=document.getElementById('clientsGrid');
@@ -1610,7 +1387,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       data.forEach(item=>{
         let url=item.image_url;
         if(!url && item.storage_path) url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
-        if(url) fullGalleryItems.push({url,title:item.title||''});
+        if(url) fullGalleryItems.push({url,title:item.title||'',video:isVideoUrl(url)||isVideoUrl(item.storage_path)});
       });
 
       if(!fullGalleryItems.length){
@@ -1629,15 +1406,23 @@ const lightboxPrev = document.getElementById('lightboxPrev');
           card.setAttribute('tabindex','0');
           card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoAlt'));
 
-          const video=isVideoUrl(item.url);
+          const video=!!item.video || isVideoUrl(item.url);
           if(video){
             const media=document.createElement('video');
-            media.src=item.url;
             media.muted=true;
+            media.defaultMuted=true;
+            media.setAttribute('muted','');
             media.playsInline=true;
-            media.preload='metadata';
+            media.setAttribute('playsinline','');
+            media.autoplay=true;
+            media.loop=true;
+            media.preload='auto';
+            media.setAttribute('autoplay','');
+            media.src=item.url;
             media.setAttribute('aria-label',item.title || 'Video');
             media.tabIndex=-1;
+            media.addEventListener('loadeddata',()=>{ media.play().catch(()=>{}); },{once:true});
+            media.addEventListener('canplay',()=>{ if(media.paused) media.play().catch(()=>{}); });
             card.appendChild(media);
           }else{
             const img=document.createElement('img');
