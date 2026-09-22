@@ -301,6 +301,49 @@ h2{font-size:24px;letter-spacing:-.8px}
   .client-admin-actions .btn{padding:9px 11px;font-size:11px}
 }
 
+/* Gallery upload: each photo can have its own title and client/brand */
+.gallery-upload-list{display:grid;gap:10px;margin:14px 0}
+.gallery-upload-row{
+  display:grid;
+  grid-template-columns:76px minmax(0,1fr) minmax(0,1fr);
+  gap:10px;
+  align-items:center;
+  padding:10px;
+  background:#0b0b0b;
+  border:1px solid var(--line2);
+  border-radius:7px;
+}
+.gallery-upload-row img{
+  width:76px;height:60px;object-fit:cover;
+  background:#070707;border-radius:5px;border:1px solid var(--line2);
+}
+.gallery-upload-row input,.gallery-upload-row select{min-width:0;padding:10px 11px}
+.gallery-upload-meta{
+  grid-column:1 / -1;
+  color:var(--muted2);
+  font-size:10px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.gallery-client-picker{
+  width:190px;
+  max-width:32vw;
+  background:#090909;
+  color:#fff;
+  border:1px solid var(--line);
+  padding:8px 10px;
+  border-radius:6px;
+  font-size:11px;
+}
+@media(max-width:650px){
+  .gallery-upload-row{grid-template-columns:62px minmax(0,1fr)}
+  .gallery-upload-row img{width:62px;height:52px}
+  .gallery-upload-row select{grid-column:2}
+  .gallery-upload-meta{grid-column:1 / -1}
+  .gallery-client-picker{width:150px;max-width:45vw;padding:7px 8px;font-size:10px}
+}
+
 /* Full-size image viewer */
 .gallery-lightbox{
   position:fixed;
@@ -391,10 +434,12 @@ h2{font-size:24px;letter-spacing:-.8px}
       <div class="panel-head"><div><p class="eyebrow">Portfolio</p><h2>Add photography</h2><p class="muted">Upload an image to publish it in the website gallery.</p></div></div>
       <div class="upload-zone">
         <div class="upload-grid">
-          <div class="field"><label for="title">Title</label><input id="title" placeholder="e.g. Wedding Session"></div>
-          <div class="field"><label for="file">Image</label><input id="file" type="file" accept="image/jpeg,image/png,image/webp" multiple></div>
+          <div class="field"><label for="title">Default title</label><input id="title" placeholder="Optional — set individual titles below"></div>
+          <div class="field"><label for="galleryDefaultClient">Default client / brand</label><select id="galleryDefaultClient"><option value="">General portfolio / no client</option></select></div>
         </div>
-        <button class="btn" onclick="upload()">Publish photo</button>
+        <div class="field"><label for="file">Photos</label><input id="file" type="file" accept="image/jpeg,image/png,image/webp" multiple></div>
+        <div id="galleryUploadList" class="gallery-upload-list"></div>
+        <button class="btn" onclick="upload()">Publish photo(s)</button>
         <div id="status" class="status"></div>
       </div>
       <div style="height:22px"></div>
@@ -485,6 +530,66 @@ imagePreview.addEventListener('click',e=>{if(e.target===imagePreview)closeImageP
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeImagePreviewFn();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeGalleryLightboxFn();});
 
+
+let galleryUploadFiles=[];
+let galleryClients=[];
+
+function galleryClientOptions(selectedId=''){
+  let html='<option value="">General portfolio / no client</option>';
+  html+=galleryClients.map(x=>'<option value="'+x.id+'" '+(String(selectedId)===String(x.id)?'selected':'')+'>'+escapeHtml(x.name||'Sin nombre')+'</option>').join('');
+  return html;
+}
+
+function refreshGalleryClientSelector(){
+  const select=$('galleryDefaultClient');
+  if(!select)return;
+  const current=select.value;
+  select.innerHTML=galleryClientOptions(current);
+}
+
+function renderGalleryUploadList(){
+  const list=$('galleryUploadList');
+  if(!list)return;
+  list.innerHTML='';
+  const defaultTitle=String($('title')?.value||'').trim();
+  const defaultClient=$('galleryDefaultClient')?.value||'';
+
+  galleryUploadFiles.forEach(f=>{
+    const row=document.createElement('div');
+    row.className='gallery-upload-row';
+
+    const img=document.createElement('img');
+    img.src=URL.createObjectURL(f);
+    img.alt=f.name;
+
+    const title=document.createElement('input');
+    title.className='gallery-title-input';
+    title.type='text';
+    title.value=defaultTitle;
+    title.placeholder='Title for this photo';
+
+    const clientSelect=document.createElement('select');
+    clientSelect.className='gallery-client-select';
+    clientSelect.innerHTML=galleryClientOptions(defaultClient);
+
+    const meta=document.createElement('div');
+    meta.className='gallery-upload-meta';
+    meta.textContent=f.name;
+
+    row.appendChild(img);
+    row.appendChild(title);
+    row.appendChild(clientSelect);
+    row.appendChild(meta);
+    list.appendChild(row);
+  });
+}
+
+$('file')?.addEventListener('change',e=>{
+  galleryUploadFiles=Array.from(e.target.files||[]);
+  renderGalleryUploadList();
+});
+$('galleryDefaultClient')?.addEventListener('change',()=>renderGalleryUploadList());
+
 async function login(){
 try{
 $('msg').textContent='Iniciando sesión...';
@@ -531,9 +636,17 @@ $('clientDefaultOrder')?.addEventListener('input',()=>renderClientUploadList());
 
 async function refreshClients(){
   const box=$('clientLogoList');
-  if(!box)return;
   let r=await c.from('client_logos').select('*').order('sort_order',{ascending:true}).order('created_at',{ascending:false});
-  if(r.error){box.innerHTML='<p class="muted">No se pudieron cargar los clientes: '+escapeHtml(r.error.message)+'</p>';return}
+  if(r.error){
+    galleryClients=[];
+    refreshGalleryClientSelector();
+    if(box)box.innerHTML='<p class="muted">No se pudieron cargar los clientes: '+escapeHtml(r.error.message)+'</p>';
+    return;
+  }
+  galleryClients=r.data||[];
+  refreshGalleryClientSelector();
+
+  if(!box)return;
   if(!r.data?.length){box.innerHTML='<p class="muted">No hay clientes publicados.</p>';return}
   box.innerHTML=r.data.map(x=>'<div class="client-admin-item"><img src="'+escapeHtml(x.image_url||'')+'" alt="'+escapeHtml(x.name||'Client logo')+'"><div class="client-admin-info"><div class="client-admin-name">'+escapeHtml(x.name||'Sin nombre')+'</div><div class="client-admin-meta">Orden: '+Number(x.sort_order||0)+'</div></div><div class="client-admin-actions"><button class="btn danger" type="button" data-client-id="'+x.id+'" data-client-path="'+escapeHtml(x.storage_path||'')+'">Eliminar</button></div></div>').join('');
 }
@@ -593,9 +706,20 @@ document.addEventListener('click',function(e){
 });
 
 async function refresh(){
-  let r=await c.from('gallery').select('*').order('created_at',{ascending:false});
-  $('list').innerHTML=r.data?.map(x=>'<div class="item"><img src="'+x.image_url+'" alt="'+escapeAttr(x.title||'Gallery image')+'" onclick="openGalleryLightbox(this.src,this.alt)"><div>'+x.title+'</div><button class="danger" data-photo-id="'+x.id+'" data-photo-path="'+x.storage_path+'">Eliminar</button></div>').join('')||'<p class="muted">No hay fotografías.</p>';
   await refreshClients();
+  let r=await c.from('gallery').select('*').order('created_at',{ascending:false});
+  if(r.error){
+    $('list').innerHTML='<p class="muted">No se pudieron cargar las fotografías: '+escapeHtml(r.error.message)+'</p>';
+    await refreshRequests();
+    return;
+  }
+
+  const rows=(r.data||[]).map(x=>{
+    const options=galleryClients.map(cl=>'<option value="'+cl.id+'" '+(String(x.client_id||'')===String(cl.id)?'selected':'')+'>'+escapeHtml(cl.name||'Sin nombre')+'</option>').join('');
+    return '<div class="item"><img src="'+escapeHtml(x.image_url||'')+'" alt="'+escapeAttr(x.title||'Gallery image')+'" onclick="openGalleryLightbox(this.src,this.alt)"><div><div>'+escapeHtml(x.title||'')+'</div><select class="gallery-client-picker" onchange="updatePhotoClient('+x.id+',this.value)" aria-label="Client or brand"><option value="">General portfolio / no client</option>'+options+'</select></div><button class="danger" data-photo-id="'+x.id+'" data-photo-path="'+escapeHtml(x.storage_path||'')+'">Eliminar</button></div>';
+  }).join('');
+
+  $('list').innerHTML=rows||'<p class="muted">No hay fotografías.</p>';
   await refreshRequests();
 }
 
@@ -672,11 +796,22 @@ async function updateRequestStatus(id,status){
   renderRequestDashboard();
 }
 
-async function upload(){
-  const files=Array.from($('file').files||[]);
-  if(!files.length){$('status').textContent='Selecciona una o más fotos.';return}
+async function updatePhotoClient(id,clientId){
+  const value=clientId ? Number(clientId) : null;
+  const r=await c.from('gallery').update({client_id:value}).eq('id',id);
+  if(r.error){
+    alert('No se pudo actualizar el cliente de esta fotografía:\n\n'+r.error.message);
+    await refresh();
+  }
+}
 
-  const title=$('title').value.trim();
+async function upload(){
+  const files=galleryUploadFiles.length?galleryUploadFiles:Array.from($('file').files||[]);
+  if(!files.length){$('status').textContent='Selecciona una o más fotos.';return}
+  if(document.querySelectorAll('.gallery-upload-row').length!==files.length)renderGalleryUploadList();
+
+  const rows=Array.from(document.querySelectorAll('.gallery-upload-row'));
+
   for(const f of files){
     if(f.size>6*1024*1024){
       $('status').textContent='La foto "'+f.name+'" supera el límite de 6 MB.';
@@ -689,15 +824,26 @@ async function upload(){
   }
 
   let uploaded=0;
-  for(const f of files){
+  for(let i=0;i<files.length;i++){
+    const f=files[i];
+    const row=rows[i];
+    const title=(row?.querySelector('.gallery-title-input')?.value||'').trim();
+    const clientId=row?.querySelector('.gallery-client-select')?.value||null;
     const path=crypto.randomUUID()+'-'+f.name.toLowerCase().replace(/[^a-z0-9._-]/g,'-');
+
     $('status').textContent='Subiendo '+(uploaded+1)+' de '+files.length+'...';
 
     const u=await c.storage.from('gallery').upload(path,f,{contentType:f.type});
     if(u.error){$('status').textContent=u.error.message;return}
 
     const url=c.storage.from('gallery').getPublicUrl(path).data.publicUrl;
-    const d=await c.from('gallery').insert({title:title,image_url:url,storage_path:path});
+    const d=await c.from('gallery').insert({
+      title:title||'',
+      image_url:url,
+      storage_path:path,
+      client_id:clientId?Number(clientId):null
+    });
+
     if(d.error){
       await c.storage.from('gallery').remove([path]);
       $('status').textContent=d.error.message;
@@ -707,9 +853,11 @@ async function upload(){
   }
 
   $('status').textContent=uploaded===1?'Publicada.':uploaded+' fotos publicadas.';
+  galleryUploadFiles=[];
   $('title').value='';
   $('file').value='';
-  refresh();
+  $('galleryUploadList').innerHTML='';
+  await refresh();
 }
 
 async function removeItem(id,path){
