@@ -70,6 +70,17 @@ h2{font-size:24px;letter-spacing:-.8px}
 .filter-btn{background:#0a0a0a;color:var(--muted);border:1px solid var(--line);padding:8px 12px;border-radius:999px;font-size:11px}
 .filter-btn:hover{color:#fff}.filter-btn.active{background:var(--silver);color:#111;border-color:var(--silver);font-weight:700}
 
+.recent-limit-info{
+  margin-top:7px;
+  font-size:11px;
+  line-height:1.45;
+}
+.recent-limit-info.limit-reached{
+  color:#d8d6d1;
+}
+.recent-limit-info.limit-not-reached{
+  color:var(--muted2);
+}
 .gallery-list{display:block}
 .gallery-item{display:flex;align-items:center;gap:15px;border:0;border-top:1px solid #333;border-radius:0;background:transparent;overflow:visible;padding:15px 0}
 .gallery-item img{width:60px;height:42px;object-fit:cover;display:block;cursor:pointer;border-radius:4px}
@@ -289,40 +300,16 @@ h2{font-size:24px;letter-spacing:-.8px}
 .client-admin-item:first-child{border-top:0}
 .client-admin-item img{width:72px;height:50px;object-fit:contain;background:#070707;border-radius:5px;border:1px solid rgba(255,255,255,.08);flex:0 0 72px}
 .client-admin-info{flex:1;min-width:0}
-.client-admin-name-input{
-  width:100%;
-  min-width:0;
-  background:#090909;
-  color:var(--text);
-  border:1px solid var(--line);
-  padding:10px 11px;
-  border-radius:6px;
-  outline:none;
-  font-size:13px;
-}
-.client-admin-name-input:focus{border-color:rgba(255,255,255,.35)}
-.client-admin-meta{font-size:11px;color:var(--muted2);margin-top:5px}
-.client-admin-actions{display:flex;justify-content:flex-end;align-items:center;gap:7px;flex:0 0 auto;flex-wrap:wrap}
-.client-admin-actions .save-client{
-  background:var(--silver);
-  color:#111;
-  border:0;
-  border-radius:4px;
-  padding:9px 13px;
-  font-size:11px;
-  font-weight:700;
-}
-.client-admin-actions .save-client:hover{background:#fff}
-.client-admin-actions .save-client:disabled{opacity:.55;cursor:wait;transform:none}
+.client-admin-name{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.client-admin-meta{font-size:11px;color:var(--muted2);margin-top:3px}
+.client-admin-actions{display:flex;justify-content:flex-end;flex:0 0 auto}
 @media(max-width:650px){
   .client-upload-row{grid-template-columns:52px minmax(0,1fr);}
   .client-upload-row .client-order{grid-column:2}
   .client-upload-row img{width:52px;height:44px}
-  .client-admin-item{gap:10px;align-items:flex-start}
+  .client-admin-item{gap:10px}
   .client-admin-item img{width:62px;height:44px;flex-basis:62px}
-  .client-admin-info{width:100%}
-  .client-admin-actions{width:auto;justify-content:flex-end}
-  .client-admin-actions .btn,.client-admin-actions .save-client{padding:8px 10px;font-size:10px}
+  .client-admin-actions .btn{padding:9px 11px;font-size:11px}
 }
 
 /* Gallery upload: each photo can have its own title and client/brand */
@@ -467,7 +454,15 @@ h2{font-size:24px;letter-spacing:-.8px}
         <div id="status" class="status"></div>
       </div>
       <div style="height:22px"></div>
-      <div class="panel-head"><div><p class="eyebrow">Published</p><h2>Gallery</h2></div></div>
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Published</p>
+          <h2>Gallery</h2>
+          <p id="recentLimitInfo" class="muted recent-limit-info">
+            The website displays the 10 most recent files in “Recent Work”.
+          </p>
+        </div>
+      </div>
       <div id="list" class="gallery-list">Loading...</div>
     </section>
 
@@ -672,36 +667,7 @@ async function refreshClients(){
 
   if(!box)return;
   if(!r.data?.length){box.innerHTML='<p class="muted">No hay clientes publicados.</p>';return}
-  box.innerHTML=r.data.map(x=>'<div class="client-admin-item"><img src="'+escapeHtml(x.image_url||'')+'" alt="'+escapeHtml(x.name||'Client logo')+'"><div class="client-admin-info"><input class="client-admin-name-input" type="text" value="'+escapeHtml(x.name||'')+'" data-client-id="'+x.id+'" aria-label="Nombre del cliente" maxlength="120"><div class="client-admin-meta">Orden: '+Number(x.sort_order||0)+' · Puedes cambiar el nombre cuando quieras.</div></div><div class="client-admin-actions"><button class="save-client" type="button" data-client-id="'+x.id+'">Guardar</button><button class="btn danger" type="button" data-client-id="'+x.id+'" data-client-path="'+escapeHtml(x.storage_path||'')+'">Eliminar</button></div></div>').join('');
-}
-
-async function updateClientName(id,input,button){
-  const name=String(input?.value||'').trim();
-  if(!name){
-    if($('clientStatus')){$('clientStatus').textContent='El nombre del cliente no puede quedar vacío.';$('clientStatus').className='status error';}
-    input?.focus();
-    return;
-  }
-
-  const original=button?.textContent||'Guardar';
-  if(button){button.disabled=true;button.textContent='Guardando...'}
-  if($('clientStatus')){$('clientStatus').textContent='';$('clientStatus').className='status';}
-
-  try{
-    const r=await c.from('client_logos').update({name}).eq('id',id);
-    if(r.error){
-      if($('clientStatus')){$('clientStatus').textContent='No se pudo cambiar el nombre: '+r.error.message;$('clientStatus').className='status error';}
-      if(button){button.disabled=false;button.textContent=original}
-      return;
-    }
-
-    if($('clientStatus')){$('clientStatus').textContent='Nombre actualizado.';$('clientStatus').className='status success';}
-    await refreshClients();
-  }catch(e){
-    console.error(e);
-    if($('clientStatus')){$('clientStatus').textContent='Ocurrió un error al actualizar el nombre: '+(e.message||String(e));$('clientStatus').className='status error';}
-    if(button){button.disabled=false;button.textContent=original}
-  }
+  box.innerHTML=r.data.map(x=>'<div class="client-admin-item"><img src="'+escapeHtml(x.image_url||'')+'" alt="'+escapeHtml(x.name||'Client logo')+'"><div class="client-admin-info"><div class="client-admin-name">'+escapeHtml(x.name||'Sin nombre')+'</div><div class="client-admin-meta">Orden: '+Number(x.sort_order||0)+'</div></div><div class="client-admin-actions"><button class="btn danger" type="button" data-client-id="'+x.id+'" data-client-path="'+escapeHtml(x.storage_path||'')+'">Eliminar</button></div></div>').join('');
 }
 
 async function uploadClients(){
@@ -752,28 +718,10 @@ async function removeClientLogo(id,path){
 }
 
 document.addEventListener('click',function(e){
-  const saveBtn=e.target.closest('#clientLogoList .save-client[data-client-id]');
-  if(saveBtn){
-    e.preventDefault();
-    const item=saveBtn.closest('.client-admin-item');
-    const input=item?.querySelector('.client-admin-name-input');
-    updateClientName(saveBtn.dataset.clientId,input,saveBtn);
-    return;
-  }
-
   const btn=e.target.closest('#clientLogoList .btn.danger[data-client-id]');
   if(!btn)return;
   e.preventDefault();
   removeClientLogo(btn.dataset.clientId,btn.dataset.clientPath);
-});
-
-document.addEventListener('keydown',function(e){
-  const input=e.target.closest('#clientLogoList .client-admin-name-input');
-  if(!input || e.key!=='Enter')return;
-  e.preventDefault();
-  const item=input.closest('.client-admin-item');
-  const button=item?.querySelector('.save-client');
-  if(button)updateClientName(button.dataset.clientId,input,button);
 });
 
 async function refresh(){
@@ -783,6 +731,18 @@ async function refresh(){
     $('list').innerHTML='<p class="muted">No se pudieron cargar las fotografías: '+escapeHtml(r.error.message)+'</p>';
     await refreshRequests();
     return;
+  }
+
+  const totalGalleryFiles=(r.data||[]).length;
+  const recentLimitInfo=$('recentLimitInfo');
+  if(recentLimitInfo){
+    if(totalGalleryFiles>=10){
+      recentLimitInfo.className='muted recent-limit-info limit-reached';
+      recentLimitInfo.innerHTML='<strong>Límite de Trabajos recientes alcanzado:</strong> la web muestra solo las 10 fotos/videos más recientes. Los '+totalGalleryFiles+' archivos siguen guardados y disponibles para los portafolios de clientes.';
+    }else{
+      recentLimitInfo.className='muted recent-limit-info limit-not-reached';
+      recentLimitInfo.textContent='Trabajos recientes: '+totalGalleryFiles+' de 10 archivos visibles. Puedes publicar '+(10-totalGalleryFiles)+' más antes de alcanzar el límite.';
+    }
   }
 
   const rows=(r.data||[]).map(x=>{
