@@ -1170,6 +1170,9 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     let frame=0;
     let lastTime=0;
     let dragging=false;
+    let pointerActive=false;
+    let moved=false;
+    let pointerId=null;
     let startX=0;
     let startScroll=0;
     let lastX=0;
@@ -1235,25 +1238,35 @@ const lightboxPrev = document.getElementById('lightboxPrev');
 
     const beginDrag=e=>{
       if(e.pointerType==='mouse' && e.button!==0) return;
-      dragging=true;
+      pointerActive=true;
+      moved=false;
+      dragging=false;
+      pointerId=e.pointerId;
       startX=e.clientX;
       startScroll=viewport.scrollLeft;
       lastX=e.clientX;
       lastMoveTime=performance.now();
       velocity=0;
-      viewport.classList.add('is-dragging');
-      try{viewport.setPointerCapture(e.pointerId);}catch{}
     };
 
     const moveDrag=e=>{
-      if(!dragging) return;
-      const now=performance.now();
+      if(!pointerActive || e.pointerId!==pointerId) return;
       const dx=e.clientX-startX;
+      // A click/tap stays a click. We only take pointer capture and start
+      // scrolling after the user has actually moved the pointer.
+      if(!dragging){
+        if(Math.abs(dx)<8) return;
+        dragging=true;
+        moved=true;
+        ignoreClickUntil=Date.now()+500;
+        viewport.classList.add('is-dragging');
+        try{viewport.setPointerCapture(e.pointerId);}catch{}
+      }
+
+      const now=performance.now();
       const dt=Math.max(8,now-lastMoveTime);
       const delta=e.clientX-lastX;
       const instantVelocity=delta/dt;
-
-      if(Math.abs(dx)>6) ignoreClickUntil=Date.now()+500;
       viewport.scrollLeft=startScroll-dx;
       velocity=velocity*0.68 + instantVelocity*0.32;
       lastX=e.clientX;
@@ -1261,12 +1274,17 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       wrap();
     };
 
-    const endDrag=()=>{
-      if(!dragging) return;
+    const endDrag=e=>{
+      if(!pointerActive || (e && pointerId!==e.pointerId)) return;
+      pointerActive=false;
+      if(!dragging){
+        pointerId=null;
+        return;
+      }
       dragging=false;
       viewport.classList.remove('is-dragging');
-      // Keep the release momentum; automatic movement resumes immediately.
       velocity=Math.max(-2.4,Math.min(2.4,velocity));
+      pointerId=null;
       wrap();
     };
 
@@ -1422,18 +1440,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       clientGalleryController.wrap();
       clientGalleryController.start();
 
-      clientGalleryMarquee.addEventListener('click',e=>{
-        const card=e.target.closest('.client-gallery-card');
-        if(!card || !clientGalleryMarquee.contains(card)) return;
-        if(card.parentElement?.getAttribute('aria-hidden')==='true') return;
-        if(clientGalleryController && clientGalleryController.isIgnoringClick()) return;
-        const index=Number(card.dataset.galleryIndex);
-        if(Number.isInteger(index)){
-          galleryItems=photos;
-          closeClientGallery();
-          showLightbox(index);
-        }
-      });
+
     }catch(err){
       console.error(err);
       clientGalleryStatus.textContent=window.TPNG_I18N.t('galleryError');
@@ -1624,14 +1631,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       recentMarqueeController.wrap();
       recentMarqueeController.start();
 
-      galleryViewport.addEventListener('click',e=>{
-        const card=e.target.closest('.gallery-card');
-        if(!card || !galleryViewport.contains(card)) return;
-        if(card.parentElement?.getAttribute('aria-hidden')==='true') return;
-        if(recentMarqueeController && recentMarqueeController.isIgnoringClick()) return;
-        const index=Number(card.dataset.galleryIndex);
-        if(Number.isInteger(index)) showLightbox(index);
-      });
+
     }catch(err){
       console.error(err);
       status.textContent=window.TPNG_I18N.t('galleryError');
