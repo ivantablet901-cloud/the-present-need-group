@@ -1418,7 +1418,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
           const card=document.createElement('article');
           card.className='client-gallery-card';
           card.setAttribute('role','button');
-          card.setAttribute('tabindex',duplicate?'-1':'0');
+          card.setAttribute('tabindex','0');
           card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoFallback'));
 
           const video=isVideoUrl(item.url);
@@ -1448,14 +1448,14 @@ const lightboxPrev = document.getElementById('lightboxPrev');
           }
 
           const openPhoto=()=>{
-            if(duplicate || (clientGalleryController && clientGalleryController.isIgnoringClick()))return;
+            if(clientGalleryController && clientGalleryController.isIgnoringClick())return;
             galleryItems=photos;
             clientPortfolioItems=photos;
             lightboxContext='client';
             showLightbox(i);
           };
           card.addEventListener('click',openPhoto);
-          if(!duplicate){
+          if(true){
             card.addEventListener('keydown',e=>{
               if(e.key==='Enter'||e.key===' '){e.preventDefault();openPhoto();}
             });
@@ -1609,7 +1609,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
           const card=document.createElement('article');
           card.className='gallery-card';
           card.setAttribute('role','button');
-          card.setAttribute('tabindex',duplicate?'-1':'0');
+          card.setAttribute('tabindex','0');
           card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoAlt'));
 
           const video=isVideoUrl(item.url);
@@ -1644,11 +1644,11 @@ const lightboxPrev = document.getElementById('lightboxPrev');
           card.appendChild(indicator);
 
           const open=()=>{
-            if(duplicate || (recentMarqueeController && recentMarqueeController.isIgnoringClick()))return;
+            if(recentMarqueeController && recentMarqueeController.isIgnoringClick())return;
             showLightbox(index);
           };
           card.addEventListener('click',open);
-          if(!duplicate){
+          if(true){
             card.addEventListener('keydown',e=>{
               if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}
             });
