@@ -677,6 +677,12 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 .client-gallery-marquee::-webkit-scrollbar{display:none}
 .recent-marquee.is-dragging,
 .client-gallery-marquee.is-dragging{cursor:grabbing}
+.recent-marquee img,
+.client-gallery-marquee img{
+  -webkit-user-drag:none;
+  user-drag:none;
+  pointer-events:none;
+}
 .gallery-track,
 .client-gallery-grid{
   display:flex !important;
@@ -1545,11 +1551,12 @@ const lightboxPrev = document.getElementById('lightboxPrev');
         return group;
       };
 
-      // Two identical groups are the visual loop. Add another if the viewport is wider.
+      // Use the same loop structure as Client Portfolios for identical drag/momentum behavior.
       appendGroup(false);
       appendGroup(true);
-      let copies=2;
-      while(gallery.scrollWidth < galleryViewport.clientWidth*2.5 && copies<6){
+      appendGroup(true);
+      let copies=3;
+      while(gallery.scrollWidth < galleryViewport.clientWidth*3 && copies<10){
         appendGroup(true);
         copies++;
       }
