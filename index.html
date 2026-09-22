@@ -373,7 +373,9 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   display:block;
   object-fit:cover;
   transition:transform .4s ease;
+  pointer-events:none;
 }
+.client-gallery-card video{background:#050505}
 .client-gallery-card:hover img,.client-gallery-card:hover video{transform:scale(1.025)}
 .client-gallery-card .client-photo-caption{
   position:absolute;
@@ -505,7 +507,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   .gallery-card .view-indicator{width:32px;height:32px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:15px;letter-spacing:0;background:rgba(0,0,0,.28)}
   .gallery-card:active{transform:scale(.985)}
   .lightbox{padding:16px 8px}
-  .lightbox img{max-width:94vw;max-height:82vh}
+  .lightbox img,.lightbox video{max-width:94vw;max-height:82vh}
   .lightbox-nav{width:36px;height:36px;font-size:19px;background:rgba(10,10,10,.30);border-color:rgba(255,255,255,.13);opacity:.68}
   .lightbox-prev{left:10px}.lightbox-next{right:10px}
   .lightbox-hint{bottom:9px;font-size:10px}
@@ -571,6 +573,8 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 .lightbox{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.94);display:none;align-items:center;justify-content:center;padding:24px}
 .lightbox.open{display:flex}
 .lightbox img{max-width:95vw;max-height:90vh;width:auto;height:auto;object-fit:contain}
+.lightbox video{max-width:95vw;max-height:90vh;width:auto;height:auto;object-fit:contain;background:#000}
+.lightbox video[hidden]{display:none}
 .lightbox-title{position:absolute;left:20px;bottom:18px;right:20px;text-align:center;color:#ddd;font-size:14px}
 
 .contact{display:grid;grid-template-columns:.78fr 1.22fr;gap:58px;align-items:start}.contact-section-inner{display:grid;grid-template-columns:.78fr 1.22fr;gap:58px;align-items:start}.contact-intro{padding-top:6px}.contact-intro h2{max-width:500px;margin-bottom:18px}.contact-lead{max-width:470px;color:var(--muted);font-size:17px;line-height:1.65}.contact-details{display:grid;gap:8px;margin-top:28px;font-size:14px}.contact-details a{color:var(--text);transition:color .25s ease}.contact-details a:hover{color:#fff}.contact-details span{color:var(--muted)}.contactbox{border:1px solid var(--line);padding:26px;background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012));border-radius:10px}.contact-form-head{margin-bottom:4px}.contact-form-head h3{font-size:25px;margin-bottom:5px}.contact-form-head p:not(.eyebrow){color:var(--muted);font-size:13px}.contact-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}.contact-form label{display:grid;gap:6px;color:var(--muted);font-size:12px}.contact-form label:nth-of-type(5),.contact-form label:nth-of-type(6),.contact-form .btn,.contact-form .form-status{grid-column:1 / -1}.contact-form input,.contact-form select,.contact-form textarea{width:100%;padding:11px 13px;border:1px solid var(--line);background:#0d0d0d;color:var(--text);border-radius:5px;font:inherit;outline:none}.contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{border-color:var(--silver)}.contact-form textarea{min-height:92px;resize:vertical}.contact-form .btn{border:none;cursor:pointer;width:100%}.form-status{font-size:13px;color:var(--muted);min-height:20px}.form-status.success{color:#d8d6d1}.form-status.error{color:#f0aaa3}.contact-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.contact-actions .btn.secondary{margin-left:0;padding:10px 16px;font-size:12px}
@@ -618,7 +622,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   .gallery-card .caption{left:10px;right:10px;bottom:9px;font-size:12px}
   .contact,.contact-section-inner{gap:22px}.contactbox{padding:22px}.contact-intro h2{margin-bottom:14px}.contact-lead{font-size:15px}.contact-details{margin-top:20px}.contact-form{gap:12px}
   .contact-form input,.contact-form select,.contact-form textarea{font-size:16px;padding:12px 13px}
-  .lightbox{padding:12px}.lightbox img{max-width:96vw;max-height:82vh}
+  .lightbox{padding:12px}.lightbox img,.lightbox video{max-width:96vw;max-height:82vh}
 }
 
 @media(max-width:750px){
@@ -649,7 +653,6 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   text-shadow:0 2px 14px rgba(0,0,0,.72);
 }
 .lightbox-hint{bottom:14px;}
-.lightbox video{display:none;max-width:92vw;max-height:82vh;object-fit:contain;background:#000;border-radius:8px;}
 @media(max-width:650px){
   .lightbox-title{bottom:46px;font-size:13px;font-weight:700;left:14px;right:14px;}
   .lightbox-hint{bottom:12px;font-size:9px;}
@@ -678,8 +681,8 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 .client-gallery-marquee::-webkit-scrollbar{display:none}
 .recent-marquee.is-dragging,
 .client-gallery-marquee.is-dragging{cursor:grabbing}
-.recent-marquee img,
-.client-gallery-marquee img{
+.recent-marquee img,.recent-marquee video,
+.client-gallery-marquee img,.client-gallery-marquee video{
   -webkit-user-drag:none;
   user-drag:none;
   pointer-events:none;
@@ -711,7 +714,9 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   display:block;
   object-fit:cover;
   object-position:center;
+  pointer-events:none;
 }
+.gallery-track .gallery-card video{background:#050505}
 .client-gallery-grid .client-gallery-card{
   flex:0 0 clamp(260px,25vw,330px);
   width:clamp(260px,25vw,330px);
@@ -866,7 +871,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 <div id="lightbox" class="lightbox" aria-hidden="true">
 <button id="lightboxPrev" class="lightbox-nav lightbox-prev" aria-label="Fotografía anterior">‹</button>
 <img id="lightboxImage" src="" alt="">
-<video id="lightboxVideo" playsinline controls preload="metadata"></video>
+<video id="lightboxVideo" controls playsinline preload="metadata" aria-label="Video"></video>
 <button id="lightboxNext" class="lightbox-nav lightbox-next" aria-label="Fotografía siguiente">›</button>
 <div id="lightboxTitle" class="lightbox-title"></div>
 <div class="lightbox-hint">Desliza o usa la rueda para navegar</div>
@@ -1051,6 +1056,8 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   let galleryItems=[];
   let fullGalleryItems=[];
   let currentIndex=0;
+  let lightboxContext='recent';
+  let clientPortfolioItems=[];
   let transitionTimer=null;
   const clientGalleryModal=document.getElementById('clientGalleryModal');
   const clientGalleryTitle=document.getElementById('clientGalleryTitle');
@@ -1060,25 +1067,28 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   const clientGalleryClose=document.getElementById('clientGalleryClose');
   let clientGalleryController=null;
   let recentMarqueeController=null;
-  function isVideoMedia(pathOrUrl=''){return /\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(String(pathOrUrl))}
-  function applyLightboxMedia(item){
-    const video=!!item.isVideo;
-    lightboxImage.style.display=video?'none':'';
-    lightboxVideo.style.display=video?'block':'none';
+  function isVideoUrl(url){
+    return /\.(mp4|webm|ogg|mov|m4v)(?:$|[?#])/i.test(url || '');
+  }
+
+  function renderLightboxItem(item){
+    const video=isVideoUrl(item.url);
+    lightboxImage.hidden=video;
+    lightboxVideo.hidden=!video;
+    lightboxVideo.pause();
+    lightboxVideo.removeAttribute('src');
+    lightboxVideo.load();
     if(video){
       lightboxVideo.src=item.url;
-      lightboxVideo.muted=true;
+      lightboxVideo.currentTime=0;
       lightboxVideo.load();
-      lightboxVideo.play().catch(()=>{});
     }else{
-      lightboxVideo.pause();
-      lightboxVideo.removeAttribute('src');
-      lightboxVideo.load();
       lightboxImage.src=item.url;
-      lightboxImage.alt=item.title || window.TPNG_I18N.t('photoAlt');
     }
+    lightboxImage.alt=item.title || window.TPNG_I18N.t('photoAlt');
     lightboxTitle.textContent=item.title || '';
   }
+
   function showLightbox(index,direction=0){
     if(!galleryItems.length)return;
     const nextIndex=(index+galleryItems.length)%galleryItems.length;
@@ -1087,7 +1097,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
 
     if(!alreadyOpen){
       currentIndex=nextIndex;
-      applyLightboxMedia(item);
+      renderLightboxItem(item);
       lightbox.classList.add('open','lightbox-switch-in');
       lightbox.setAttribute('aria-hidden','false');
       document.body.style.overflow='hidden';
@@ -1102,7 +1112,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     lightbox.classList.add(direction>=0?'lightbox-switch-out-next':'lightbox-switch-out-prev');
 
     transitionTimer=setTimeout(()=>{
-      applyLightboxMedia(item);
+      renderLightboxItem(item);
       lightbox.classList.remove('lightbox-switch-out-next','lightbox-switch-out-prev');
       lightbox.classList.add('lightbox-switch-in');
       requestAnimationFrame(()=>{
@@ -1110,8 +1120,11 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       });
     },180);
   }
-  function openLightbox(url,title){
-    const i=galleryItems.findIndex(x=>x.url===url && x.title===title);
+  function openLightbox(url,title,context='recent',items=null,index=null){
+    const source=items || fullGalleryItems;
+    galleryItems=source;
+    lightboxContext=context;
+    const i=index ?? source.findIndex(x=>x.url===url && x.title===title);
     showLightbox(i<0?0:i);
   }
   function close(){
@@ -1119,12 +1132,18 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     lightbox.classList.remove('open','lightbox-switch-in','lightbox-switch-out-next','lightbox-switch-out-prev');
     lightbox.setAttribute('aria-hidden','true');
     lightboxImage.src='';
+    lightboxImage.hidden=false;
     lightboxVideo.pause();
     lightboxVideo.removeAttribute('src');
     lightboxVideo.load();
-    lightboxVideo.style.display='none';
-    document.body.style.overflow='';
+    lightboxVideo.hidden=true;
+    lightboxContext='recent';
     galleryItems=fullGalleryItems;
+    if(clientGalleryModal.classList.contains('open')){
+      document.body.style.overflow='hidden';
+    }else{
+      document.body.style.overflow='';
+    }
   }
   function nextPhoto(){showLightbox(currentIndex+1,1)}
   function prevPhoto(){showLightbox(currentIndex-1,-1)}
@@ -1170,9 +1189,6 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     let frame=0;
     let lastTime=0;
     let dragging=false;
-    let pointerActive=false;
-    let moved=false;
-    let pointerId=null;
     let startX=0;
     let startScroll=0;
     let lastX=0;
@@ -1238,35 +1254,25 @@ const lightboxPrev = document.getElementById('lightboxPrev');
 
     const beginDrag=e=>{
       if(e.pointerType==='mouse' && e.button!==0) return;
-      pointerActive=true;
-      moved=false;
-      dragging=false;
-      pointerId=e.pointerId;
+      dragging=true;
       startX=e.clientX;
       startScroll=viewport.scrollLeft;
       lastX=e.clientX;
       lastMoveTime=performance.now();
       velocity=0;
+      viewport.classList.add('is-dragging');
+      try{viewport.setPointerCapture(e.pointerId);}catch{}
     };
 
     const moveDrag=e=>{
-      if(!pointerActive || e.pointerId!==pointerId) return;
-      const dx=e.clientX-startX;
-      // A click/tap stays a click. We only take pointer capture and start
-      // scrolling after the user has actually moved the pointer.
-      if(!dragging){
-        if(Math.abs(dx)<8) return;
-        dragging=true;
-        moved=true;
-        ignoreClickUntil=Date.now()+500;
-        viewport.classList.add('is-dragging');
-        try{viewport.setPointerCapture(e.pointerId);}catch{}
-      }
-
+      if(!dragging) return;
       const now=performance.now();
+      const dx=e.clientX-startX;
       const dt=Math.max(8,now-lastMoveTime);
       const delta=e.clientX-lastX;
       const instantVelocity=delta/dt;
+
+      if(Math.abs(dx)>6) ignoreClickUntil=Date.now()+500;
       viewport.scrollLeft=startScroll-dx;
       velocity=velocity*0.68 + instantVelocity*0.32;
       lastX=e.clientX;
@@ -1274,17 +1280,12 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       wrap();
     };
 
-    const endDrag=e=>{
-      if(!pointerActive || (e && pointerId!==e.pointerId)) return;
-      pointerActive=false;
-      if(!dragging){
-        pointerId=null;
-        return;
-      }
+    const endDrag=()=>{
+      if(!dragging) return;
       dragging=false;
       viewport.classList.remove('is-dragging');
+      // Keep the release momentum; automatic movement resumes immediately.
       velocity=Math.max(-2.4,Math.min(2.4,velocity));
-      pointerId=null;
       wrap();
     };
 
@@ -1357,7 +1358,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       (data||[]).forEach(item=>{
         let url=item.image_url;
         if(!url && item.storage_path) url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
-        if(url) photos.push({url,title:item.title||'',isVideo:isVideoMedia(item.storage_path||url)});
+        if(url) photos.push({url,title:item.title||''});
       });
 
       clientGalleryStatus.textContent='';
@@ -1374,24 +1375,28 @@ const lightboxPrev = document.getElementById('lightboxPrev');
         photos.forEach((item,i)=>{
           const card=document.createElement('article');
           card.className='client-gallery-card';
-          card.dataset.galleryIndex=String(i);
           card.setAttribute('role','button');
           card.setAttribute('tabindex',duplicate?'-1':'0');
           card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoFallback'));
 
-          const media=item.isVideo ? document.createElement('video') : document.createElement('img');
-          media.src=item.url;
-          media.alt=item.title || window.TPNG_I18N.t('photoFallback');
-          media.loading=duplicate?'eager':'lazy';
-          media.decoding='async';
-          if(item.isVideo){
+          const video=isVideoUrl(item.url);
+          if(video){
+            const media=document.createElement('video');
+            media.src=item.url;
             media.muted=true;
             media.playsInline=true;
-            media.autoplay=true;
-            media.loop=true;
-            media.preload=duplicate?'auto':'metadata';
+            media.preload='metadata';
+            media.setAttribute('aria-label',item.title || 'Video');
+            media.tabIndex=-1;
+            card.appendChild(media);
+          }else{
+            const img=document.createElement('img');
+            img.src=item.url;
+            img.alt=item.title || window.TPNG_I18N.t('photoFallback');
+            img.loading=duplicate?'eager':'lazy';
+            img.decoding='async';
+            card.appendChild(img);
           }
-          card.appendChild(media);
 
           if(item.title){
             const cap=document.createElement('div');
@@ -1403,7 +1408,8 @@ const lightboxPrev = document.getElementById('lightboxPrev');
           const openPhoto=()=>{
             if(duplicate || (clientGalleryController && clientGalleryController.isIgnoringClick()))return;
             galleryItems=photos;
-            closeClientGallery();
+            clientPortfolioItems=photos;
+            lightboxContext='client';
             showLightbox(i);
           };
           card.addEventListener('click',openPhoto);
@@ -1439,8 +1445,6 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       if(loopWidth) clientGalleryMarquee.scrollLeft=loopWidth;
       clientGalleryController.wrap();
       clientGalleryController.start();
-
-
     }catch(err){
       console.error(err);
       clientGalleryStatus.textContent=window.TPNG_I18N.t('galleryError');
@@ -1547,7 +1551,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       data.forEach(item=>{
         let url=item.image_url;
         if(!url && item.storage_path) url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
-        if(url) fullGalleryItems.push({url,title:item.title||'',isVideo:isVideoMedia(item.storage_path||url)});
+        if(url) fullGalleryItems.push({url,title:item.title||''});
       });
 
       if(!fullGalleryItems.length){
@@ -1562,24 +1566,28 @@ const lightboxPrev = document.getElementById('lightboxPrev');
         fullGalleryItems.forEach((item,index)=>{
           const card=document.createElement('article');
           card.className='gallery-card';
-          card.dataset.galleryIndex=String(index);
           card.setAttribute('role','button');
           card.setAttribute('tabindex',duplicate?'-1':'0');
           card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoAlt'));
 
-          const media=item.isVideo ? document.createElement('video') : document.createElement('img');
-          media.src=item.url;
-          media.alt=item.title || window.TPNG_I18N.t('photoFallback');
-          media.loading=duplicate?'eager':'lazy';
-          media.decoding='async';
-          if(item.isVideo){
+          const video=isVideoUrl(item.url);
+          if(video){
+            const media=document.createElement('video');
+            media.src=item.url;
             media.muted=true;
             media.playsInline=true;
-            media.autoplay=true;
-            media.loop=true;
-            media.preload=duplicate?'auto':'metadata';
+            media.preload='metadata';
+            media.setAttribute('aria-label',item.title || 'Video');
+            media.tabIndex=-1;
+            card.appendChild(media);
+          }else{
+            const img=document.createElement('img');
+            img.src=item.url;
+            img.alt=item.title || window.TPNG_I18N.t('photoFallback');
+            img.loading=duplicate?'eager':'lazy';
+            img.decoding='async';
+            card.appendChild(img);
           }
-          card.appendChild(media);
 
           if(item.title){
             const caption=document.createElement('div');
@@ -1590,7 +1598,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
 
           const indicator=document.createElement('span');
           indicator.className='view-indicator';
-          indicator.textContent='Ver contenido  ↗';
+          indicator.textContent=isVideoUrl(item.url)?'Ver video  ↗':'Ver fotografía  ↗';
           card.appendChild(indicator);
 
           const open=()=>{
@@ -1630,8 +1638,6 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       if(loopWidth) galleryViewport.scrollLeft=loopWidth;
       recentMarqueeController.wrap();
       recentMarqueeController.start();
-
-
     }catch(err){
       console.error(err);
       status.textContent=window.TPNG_I18N.t('galleryError');
