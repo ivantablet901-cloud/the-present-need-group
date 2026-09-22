@@ -1181,8 +1181,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
 
 
   // Unified continuous marquee controller for Recent Work + Client Portfolios.
-  // Hover NEVER pauses the loop. Drag/touch/wheel add smooth momentum, and the
-  // automatic movement continues underneath once direct interaction ends.
+  // Hover/touch pauses the loop so media cards can be clicked reliably. Drag and wheel remain available.
   function setupMarquee(viewport, track, options={}){
     if(!viewport || !track) return null;
 
@@ -1196,6 +1195,8 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     let velocity=0;
     let wheelVelocity=0;
     let ignoreClickUntil=0;
+    let pausedByInteraction=false;
+    let resumeTimer=0;
     let destroyed=false;
 
     const speed=options.speed ?? 0.032;
@@ -1221,8 +1222,8 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       lastTime=time;
 
       if(!document.hidden && track.firstElementChild){
-        if(!dragging){
-          // Base movement never depends on hover state.
+        if(!dragging && !pausedByInteraction){
+          // Pause while the pointer/finger is over the carousel so cards can be clicked reliably.
           viewport.scrollLeft += direction * speed * dt;
 
           // Continue the user's drag with a smooth deceleration.
@@ -1252,8 +1253,27 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       frame=requestAnimationFrame(tick);
     };
 
+    const pause=()=>{
+      pausedByInteraction=true;
+      if(resumeTimer){clearTimeout(resumeTimer);resumeTimer=0;}
+    };
+
+    const resume=()=>{
+      if(destroyed) return;
+      pausedByInteraction=false;
+      lastTime=performance.now();
+      wrap();
+      start();
+    };
+
+    const resumeSoon=(delay=350)=>{
+      if(resumeTimer) clearTimeout(resumeTimer);
+      resumeTimer=setTimeout(()=>{resumeTimer=0;resume();},delay);
+    };
+
     const beginDrag=e=>{
       if(e.pointerType==='mouse' && e.button!==0) return;
+      pause();
       dragging=true;
       startX=e.clientX;
       startScroll=viewport.scrollLeft;
@@ -1284,16 +1304,35 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       if(!dragging) return;
       dragging=false;
       viewport.classList.remove('is-dragging');
-      // Keep the release momentum; automatic movement resumes immediately.
+      // Keep the release momentum, but give the click/tap a short window before resuming.
       velocity=Math.max(-2.4,Math.min(2.4,velocity));
       wrap();
+      resumeSoon(350);
     };
 
+    // Desktop: hovering the carousel freezes it.
+    viewport.addEventListener('pointerenter',e=>{
+      if(e.pointerType==='mouse') pause();
+    });
+    viewport.addEventListener('pointerleave',e=>{
+      if(e.pointerType==='mouse' && !dragging) resume();
+    });
+
+    // Phone/tablet: touching the carousel freezes it while the finger is on it.
     viewport.addEventListener('pointerdown',beginDrag);
     viewport.addEventListener('pointermove',moveDrag);
-    viewport.addEventListener('pointerup',endDrag);
-    viewport.addEventListener('pointercancel',endDrag);
-    viewport.addEventListener('lostpointercapture',endDrag);
+    viewport.addEventListener('pointerup',e=>{
+      endDrag();
+      if(e.pointerType==='touch' || e.pointerType==='pen') resumeSoon(500);
+    });
+    viewport.addEventListener('pointercancel',()=>{
+      endDrag();
+      resumeSoon(250);
+    });
+    viewport.addEventListener('lostpointercapture',()=>{
+      endDrag();
+      resumeSoon(250);
+    });
 
     viewport.addEventListener('wheel',e=>{
       if(!track.firstElementChild) return;
@@ -1312,8 +1351,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       }
     });
 
-    // Safety restart only if the animation frame itself disappears. Hover is
-    // deliberately not inspected anywhere in this controller.
+    // Safety restart only if the animation frame itself disappears.
     const watchdog=setInterval(()=>{
       if(destroyed){clearInterval(watchdog);return;}
       if(!frame && !document.hidden && track.firstElementChild) start();
@@ -1324,12 +1362,16 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       destroyed=true;
       if(frame) cancelAnimationFrame(frame);
       frame=0;
+      if(resumeTimer) clearTimeout(resumeTimer);
+      resumeTimer=0;
       clearInterval(watchdog);
     };
 
     return {
       start,
       stop:destroy,
+      pause,
+      resume,
       wrap,
       isIgnoringClick(){return Date.now()<ignoreClickUntil;}
     };
@@ -1434,8 +1476,8 @@ const lightboxPrev = document.getElementById('lightboxPrev');
         copies++;
       }
 
-      // Client portfolio uses the same continuous controller as Recent Work.
-      // Hover never pauses it; drag/touch/wheel add smooth momentum.
+      // Client portfolio uses the same controller as Recent Work.
+      // Hover/touch pauses it; drag/touch/wheel remain available.
       clientGalleryController=setupMarquee(
         clientGalleryMarquee,
         clientGalleryGrid,
