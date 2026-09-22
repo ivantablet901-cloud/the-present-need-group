@@ -1188,6 +1188,8 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     let frame=0;
     let lastTime=0;
     let dragging=false;
+    let pressed=false;
+    let activePointerId=null;
     let startX=0;
     let startScroll=0;
     let lastX=0;
@@ -1274,20 +1276,29 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     const beginDrag=e=>{
       if(e.pointerType==='mouse' && e.button!==0) return;
       pause();
-      dragging=true;
+      pressed=true;
+      activePointerId=e.pointerId;
+      dragging=false;
       startX=e.clientX;
       startScroll=viewport.scrollLeft;
       lastX=e.clientX;
       lastMoveTime=performance.now();
       velocity=0;
-      viewport.classList.add('is-dragging');
-      try{viewport.setPointerCapture(e.pointerId);}catch{}
     };
 
     const moveDrag=e=>{
-      if(!dragging) return;
+      if(!pressed || e.pointerId!==activePointerId) return;
       const now=performance.now();
       const dx=e.clientX-startX;
+
+      // Do not capture the mouse/finger until it is clearly a drag.
+      // This keeps a normal desktop click as a real click on the card.
+      if(!dragging && Math.abs(dx)>6){
+        dragging=true;
+        viewport.classList.add('is-dragging');
+        try{viewport.setPointerCapture(e.pointerId);}catch{}
+      }
+      if(!dragging) return;
       const dt=Math.max(8,now-lastMoveTime);
       const delta=e.clientX-lastX;
       const instantVelocity=delta/dt;
@@ -1301,13 +1312,19 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     };
 
     const endDrag=()=>{
-      if(!dragging) return;
-      dragging=false;
-      viewport.classList.remove('is-dragging');
-      // Keep the release momentum, but give the click/tap a short window before resuming.
-      velocity=Math.max(-2.4,Math.min(2.4,velocity));
-      wrap();
-      resumeSoon(350);
+      if(!pressed) return;
+      const wasDragging=dragging;
+      pressed=false;
+      activePointerId=null;
+      if(wasDragging){
+        dragging=false;
+        viewport.classList.remove('is-dragging');
+        // Keep the release momentum, but give the click/tap a short window before resuming.
+        velocity=Math.max(-2.4,Math.min(2.4,velocity));
+        wrap();
+      }
+      // For a simple click/tap, do not interfere with the browser's click event.
+      resumeSoon(wasDragging?350:500);
     };
 
     // Desktop: hovering the carousel freezes it.
@@ -1412,7 +1429,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       const appendGroup=(duplicate=false)=>{
         const group=document.createElement('div');
         group.className='client-gallery-group';
-        if(duplicate) group.setAttribute('aria-hidden','true');
+        if(duplicate) group.setAttribute('aria-hidden','false');
 
         photos.forEach((item,i)=>{
           const card=document.createElement('article');
@@ -1455,7 +1472,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
             showLightbox(i);
           };
           card.addEventListener('click',openPhoto);
-          if(true){
+          if(!duplicate){
             card.addEventListener('keydown',e=>{
               if(e.key==='Enter'||e.key===' '){e.preventDefault();openPhoto();}
             });
@@ -1604,7 +1621,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       const appendGroup=(duplicate=false)=>{
         const group=document.createElement('div');
         group.className='marquee-group';
-        if(duplicate) group.setAttribute('aria-hidden','true');
+        if(duplicate) group.setAttribute('aria-hidden','false');
         fullGalleryItems.forEach((item,index)=>{
           const card=document.createElement('article');
           card.className='gallery-card';
@@ -1648,7 +1665,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
             showLightbox(index);
           };
           card.addEventListener('click',open);
-          if(true){
+          if(!duplicate){
             card.addEventListener('keydown',e=>{
               if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}
             });
