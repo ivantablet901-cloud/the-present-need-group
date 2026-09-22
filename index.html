@@ -295,7 +295,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   .client-name{font-size:10px}
 }
 
-/* Client portfolio modal */
+/* Client portfolio modal — compact draggable marquee */
 .client-gallery-modal{
   position:fixed;
   inset:0;
@@ -308,8 +308,8 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 }
 .client-gallery-modal.open{display:flex}
 .client-gallery-modal-inner{
-  width:min(1080px,94vw);
-  max-height:90vh;
+  width:min(980px,92vw);
+  max-height:88vh;
   overflow:auto;
   padding:10px 4px 18px;
 }
@@ -318,10 +318,10 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   align-items:flex-end;
   justify-content:space-between;
   gap:20px;
-  margin-bottom:22px;
+  margin-bottom:18px;
 }
 .client-gallery-modal-head h3{
-  font-size:clamp(24px,4vw,36px);
+  font-size:clamp(24px,4vw,34px);
   line-height:1.1;
   margin:0;
 }
@@ -344,14 +344,40 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   background:rgba(255,255,255,.08);
   border-color:rgba(255,255,255,.25);
 }
+.client-gallery-marquee{
+  position:relative;
+  width:100%;
+  height:clamp(190px,24vw,250px);
+  overflow:hidden;
+  border-top:1px solid rgba(255,255,255,.06);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  cursor:grab;
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:pan-y;
+  mask-image:linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%);
+}
+.client-gallery-marquee.is-dragging{cursor:grabbing}
 .client-gallery-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:14px;
+  display:flex;
+  width:max-content;
+  min-width:max-content;
+  height:100%;
+  gap:12px;
+  padding:12px 0;
+  will-change:scroll-position;
+}
+.client-gallery-group{
+  display:flex;
+  flex:0 0 auto;
+  gap:12px;
 }
 .client-gallery-card{
   position:relative;
-  aspect-ratio:4 / 5;
+  flex:0 0 clamp(150px,18vw,205px);
+  width:clamp(150px,18vw,205px);
+  height:100%;
   overflow:hidden;
   border-radius:9px;
   border:1px solid var(--line);
@@ -364,21 +390,26 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   border-color:rgba(255,255,255,.3);
   box-shadow:0 0 22px rgba(255,255,255,.06),0 16px 38px rgba(0,0,0,.22);
 }
-.client-gallery-card img{
+.client-gallery-card img,
+.client-gallery-card video{
   width:100%;
   height:100%;
   display:block;
   object-fit:cover;
+  object-position:center;
+  background:#090909;
   transition:transform .4s ease;
 }
-.client-gallery-card:hover img{transform:scale(1.025)}
+.client-gallery-card video{pointer-events:none}
+.client-gallery-card:hover img,
+.client-gallery-card:hover video{transform:scale(1.025)}
 .client-gallery-card .client-photo-caption{
   position:absolute;
-  left:12px;
-  right:12px;
-  bottom:11px;
+  left:10px;
+  right:10px;
+  bottom:9px;
   color:#fff;
-  font-size:12px;
+  font-size:11px;
   font-weight:700;
   text-shadow:0 2px 12px rgba(0,0,0,.75);
 }
@@ -390,12 +421,18 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 }
 @media(max-width:650px){
   .client-gallery-modal{padding:18px 10px}
-  .client-gallery-modal-inner{width:96vw;max-height:91vh}
-  .client-gallery-modal-head{align-items:flex-start;margin-bottom:16px}
-  .client-gallery-modal-head h3{font-size:25px}
+  .client-gallery-modal-inner{width:96vw;max-height:90vh}
+  .client-gallery-modal-head{align-items:flex-start;margin-bottom:14px}
+  .client-gallery-modal-head h3{font-size:23px}
   .client-gallery-close{padding:8px 11px;font-size:10px}
-  .client-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-  .client-gallery-card{border-radius:8px}
+  .client-gallery-marquee{
+    height:205px;
+    mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
+    -webkit-mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
+  }
+  .client-gallery-grid{gap:9px;padding:10px 0}
+  .client-gallery-group{gap:9px}
+  .client-gallery-card{flex-basis:clamp(125px,38vw,160px);width:clamp(125px,38vw,160px);border-radius:8px}
   .client-gallery-card .client-photo-caption{left:9px;right:9px;bottom:8px;font-size:10px}
 }
 
@@ -874,7 +911,9 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       <button id="clientGalleryClose" class="client-gallery-close" type="button" data-i18n="clientClose">Close</button>
     </div>
     <div id="clientGalleryStatus" class="clients-status"></div>
-    <div id="clientGalleryGrid" class="client-gallery-grid"></div>
+    <div id="clientGalleryMarquee" class="client-gallery-marquee" aria-label="Client portfolio photos">
+      <div id="clientGalleryGrid" class="client-gallery-grid"></div>
+    </div>
   </div>
 </div>
 
@@ -1048,6 +1087,14 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   const clientGalleryGrid=document.getElementById('clientGalleryGrid');
   const clientGalleryStatus=document.getElementById('clientGalleryStatus');
   const clientGalleryClose=document.getElementById('clientGalleryClose');
+  const clientGalleryMarquee=document.getElementById('clientGalleryMarquee');
+  let clientGalleryAutoFrame=null;
+  let clientGalleryLastTime=0;
+  let clientGalleryDragging=false;
+  let clientGalleryDragStartX=0;
+  let clientGalleryDragStartScroll=0;
+  let clientGalleryDidDrag=false;
+  const CLIENT_PORTFOLIO_LIMIT=10;
 
   function getMediaType(item,url){
     const source=String(item?.storage_path || url || '').split('?')[0].toLowerCase();
@@ -1216,8 +1263,92 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   }
 
 
+  function stopClientGalleryAuto(){
+    if(clientGalleryAutoFrame){cancelAnimationFrame(clientGalleryAutoFrame);clientGalleryAutoFrame=null;}
+    clientGalleryLastTime=0;
+  }
+
+  function clientGalleryLoopWidth(){
+    const group=clientGalleryGrid ? clientGalleryGrid.querySelector('.client-gallery-group') : null;
+    return group ? group.getBoundingClientRect().width : 0;
+  }
+
+  function keepClientGalleryLooping(){
+    const half=clientGalleryLoopWidth();
+    if(!half || !clientGalleryMarquee) return;
+    if(clientGalleryMarquee.scrollLeft >= half) clientGalleryMarquee.scrollLeft -= half;
+    if(clientGalleryMarquee.scrollLeft < 0) clientGalleryMarquee.scrollLeft += half;
+  }
+
+  function startClientGalleryAuto(){
+    stopClientGalleryAuto();
+    if(!clientGalleryMarquee || !clientGalleryGrid) return;
+    const speed=0.022;
+    const tick=(time)=>{
+      if(!clientGalleryMarquee || clientGalleryDragging) return;
+      if(!clientGalleryLastTime) clientGalleryLastTime=time;
+      const dt=Math.min(time-clientGalleryLastTime,40);
+      clientGalleryLastTime=time;
+      clientGalleryMarquee.scrollLeft += speed*dt;
+      keepClientGalleryLooping();
+      clientGalleryAutoFrame=requestAnimationFrame(tick);
+    };
+    clientGalleryAutoFrame=requestAnimationFrame(tick);
+  }
+
+  function finishClientGalleryDrag(){
+    if(!clientGalleryDragging) return;
+    clientGalleryDragging=false;
+    clientGalleryMarquee.classList.remove('is-dragging');
+    keepClientGalleryLooping();
+    const stopClick=clientGalleryDidDrag;
+    clientGalleryDidDrag=false;
+    if(stopClick){
+      setTimeout(()=>{clientGalleryDidDrag=false;},0);
+    }
+    startClientGalleryAuto();
+  }
+
+  if(clientGalleryMarquee){
+    clientGalleryMarquee.addEventListener('pointerdown',e=>{
+      if(e.button!==undefined && e.button!==0) return;
+      clientGalleryDragging=true;
+      clientGalleryDidDrag=false;
+      clientGalleryDragStartX=e.clientX;
+      clientGalleryDragStartScroll=clientGalleryMarquee.scrollLeft;
+      clientGalleryMarquee.classList.add('is-dragging');
+      stopClientGalleryAuto();
+      try{clientGalleryMarquee.setPointerCapture(e.pointerId);}catch{}
+    });
+    clientGalleryMarquee.addEventListener('pointermove',e=>{
+      if(!clientGalleryDragging)return;
+      const dx=e.clientX-clientGalleryDragStartX;
+      if(Math.abs(dx)>5)clientGalleryDidDrag=true;
+      clientGalleryMarquee.scrollLeft=clientGalleryDragStartScroll-dx;
+      keepClientGalleryLooping();
+    });
+    clientGalleryMarquee.addEventListener('pointerup',finishClientGalleryDrag);
+    clientGalleryMarquee.addEventListener('pointercancel',finishClientGalleryDrag);
+    clientGalleryMarquee.addEventListener('pointerleave',e=>{
+      if(clientGalleryDragging && e.pointerType==='mouse') finishClientGalleryDrag();
+    });
+    clientGalleryMarquee.addEventListener('wheel',e=>{
+      if(!clientGalleryMarquee.querySelector('.client-gallery-group')) return;
+      if(Math.abs(e.deltaX)>Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      stopClientGalleryAuto();
+      clientGalleryMarquee.scrollLeft += e.deltaY;
+      keepClientGalleryLooping();
+      clearTimeout(clientGalleryMarquee._wheelResume);
+      clientGalleryMarquee._wheelResume=setTimeout(startClientGalleryAuto,500);
+    },{passive:false});
+    clientGalleryMarquee.addEventListener('pointerenter',()=>stopClientGalleryAuto());
+    clientGalleryMarquee.addEventListener('pointerleave',()=>{if(!clientGalleryDragging)startClientGalleryAuto();});
+  }
+
   async function openClientGallery(clientId,clientName){
     if(!clientGalleryModal || !clientGalleryGrid)return;
+    stopClientGalleryAuto();
     clientGalleryTitle.textContent=clientName || '';
     clientGalleryGrid.innerHTML='';
     clientGalleryStatus.textContent=window.TPNG_I18N.t('clientLoading');
@@ -1230,7 +1361,8 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       const {data,error}=await client.from('gallery')
         .select('id,title,image_url,storage_path,created_at')
         .eq('client_id',clientId)
-        .order('created_at',{ascending:false});
+        .order('created_at',{ascending:false})
+        .limit(CLIENT_PORTFOLIO_LIMIT);
       if(error) throw error;
 
       clientGalleryStatus.textContent='';
@@ -1238,7 +1370,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       (data||[]).forEach(item=>{
         let url=item.image_url;
         if(!url && item.storage_path) url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
-        if(url) photos.push({url,title:item.title||''});
+        if(url) photos.push({url,title:item.title||'',type:getMediaType(item,url)});
       });
 
       if(!photos.length){
@@ -1246,40 +1378,70 @@ const lightboxPrev = document.getElementById('lightboxPrev');
         return;
       }
 
-      photos.forEach((item,i)=>{
-        const card=document.createElement('article');
-        card.className='client-gallery-card';
-        card.setAttribute('role','button');
-        card.setAttribute('tabindex','0');
+      const buildGroup=(duplicate=false)=>{
+        const group=document.createElement('div');
+        group.className='client-gallery-group';
+        if(duplicate)group.setAttribute('aria-hidden','true');
+        photos.forEach((item,i)=>{
+          const card=document.createElement('article');
+          card.className='client-gallery-card';
+          card.setAttribute('role','button');
+          card.setAttribute('tabindex',duplicate?'-1':'0');
+          card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoFallback'));
 
-        const img=document.createElement('img');
-        img.src=item.url;
-        img.alt=item.title || window.TPNG_I18N.t('photoFallback');
-        img.loading='lazy';
-        img.decoding='async';
-        card.appendChild(img);
-
-        if(item.title){
-          const cap=document.createElement('div');
-          cap.className='client-photo-caption';
-          cap.textContent=item.title;
-          card.appendChild(cap);
-        }
-
-        const openPhoto=()=>{
-          galleryItems=photos;
-          closeClientGallery();
-          showLightbox(i);
-        };
-        card.addEventListener('click',openPhoto);
-        card.addEventListener('keydown',e=>{
-          if(e.key==='Enter'||e.key===' '){
-            e.preventDefault();
-            openPhoto();
+          if(item.type==='video'){
+            const video=document.createElement('video');
+            video.src=item.url;
+            video.muted=true;
+            video.playsInline=true;
+            video.autoplay=true;
+            video.loop=true;
+            video.preload='metadata';
+            video.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoFallback'));
+            card.appendChild(video);
+          }else{
+            const img=document.createElement('img');
+            img.src=item.url;
+            img.alt=item.title || window.TPNG_I18N.t('photoFallback');
+            img.loading=duplicate?'eager':'lazy';
+            img.decoding='async';
+            card.appendChild(img);
           }
+
+          if(item.title){
+            const cap=document.createElement('div');
+            cap.className='client-photo-caption';
+            cap.textContent=item.title;
+            card.appendChild(cap);
+          }
+
+          const openPhoto=()=>{
+            if(duplicate || clientGalleryDidDrag) return;
+            galleryItems=photos;
+            closeClientGallery();
+            showLightbox(i);
+          };
+          card.addEventListener('click',openPhoto);
+          if(!duplicate){
+            card.addEventListener('keydown',e=>{
+              if(e.key==='Enter'||e.key===' '){
+                e.preventDefault();
+                openPhoto();
+              }
+            });
+          }
+          group.appendChild(card);
         });
-        clientGalleryGrid.appendChild(card);
-      });
+        return group;
+      };
+
+      clientGalleryGrid.appendChild(buildGroup(false));
+      clientGalleryGrid.appendChild(buildGroup(true));
+      keepClientGalleryLooping();
+      // Start slightly offset so the marquee feels alive immediately.
+      const half=clientGalleryLoopWidth();
+      if(half) clientGalleryMarquee.scrollLeft=Math.min(40,half-1);
+      startClientGalleryAuto();
     }catch(err){
       console.error(err);
       clientGalleryStatus.textContent=window.TPNG_I18N.t('galleryError');
@@ -1287,10 +1449,13 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   }
 
   function closeClientGallery(){
+    stopClientGalleryAuto();
+    if(clientGalleryMarquee){clientGalleryMarquee.scrollLeft=0;clientGalleryMarquee.classList.remove('is-dragging');}
     clientGalleryModal.classList.remove('open');
     clientGalleryModal.setAttribute('aria-hidden','true');
     clientGalleryGrid.innerHTML='';
     clientGalleryStatus.textContent='';
+    clientGalleryDidDrag=false;
     if(!lightbox.classList.contains('open'))document.body.style.overflow='';
   }
 
