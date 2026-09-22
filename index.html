@@ -75,11 +75,181 @@ nav{min-height:78px;display:flex;align-items:center;justify-content:space-betwee
 .lang-btn:hover{color:var(--text)}
 .lang-btn.active{color:var(--text);border-color:var(--line);background:#171717}
 
-.hero{min-height:100vh;display:grid;place-items:center;text-align:center;padding:125px 0 80px;background:radial-gradient(circle at 50% 25%,#292929 0,#111 38%,#050505 75%)}
-.hero-logo{width:min(330px,62vw);height:auto;display:block;margin:0 auto 34px;filter:drop-shadow(0 0 28px rgba(255,255,255,.08))}
-.eyebrow{text-transform:uppercase;letter-spacing:3px;color:var(--muted);font-size:11px;margin-bottom:14px}
-h1{font-size:clamp(40px,7vw,78px);line-height:1.02;letter-spacing:-2px;max-width:900px;margin:auto}
-.hero p{color:var(--muted);max-width:680px;margin:24px auto 34px;font-size:18px}
+/* HERO CINEMATIC PREMIUM */
+.hero{
+  position:relative;
+  min-height:100svh;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  padding:140px 0 78px;
+  overflow:hidden;
+  isolation:isolate;
+  background:
+    radial-gradient(circle at 50% 34%,rgba(255,255,255,.105),transparent 23%),
+    radial-gradient(circle at 18% 75%,rgba(255,255,255,.035),transparent 28%),
+    radial-gradient(circle at 82% 25%,rgba(255,255,255,.028),transparent 25%),
+    linear-gradient(180deg,#111 0%,#090909 52%,#040404 100%);
+}
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:-8%;
+  z-index:-3;
+  background:
+    linear-gradient(115deg,transparent 0%,rgba(255,255,255,.025) 35%,transparent 54%),
+    radial-gradient(ellipse at center,rgba(255,255,255,.055),transparent 52%);
+  transform:scale(1.06);
+  animation:heroAtmosphere 14s ease-in-out infinite alternate;
+}
+.hero::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.10),transparent 25%,transparent 70%,rgba(0,0,0,.48)),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.012) 0 1px,transparent 1px 7px);
+  opacity:.42;
+}
+.hero-inner{
+  position:relative;
+  z-index:1;
+  width:min(980px,92%);
+  margin:auto;
+}
+.hero-logo{
+  width:min(380px,68vw);
+  height:auto;
+  display:block;
+  margin:0 auto 30px;
+  filter:drop-shadow(0 0 30px rgba(255,255,255,.08)) drop-shadow(0 18px 45px rgba(0,0,0,.38));
+  opacity:0;
+  transform:translateY(16px) scale(.985);
+  animation:heroLogoIn 1s cubic-bezier(.22,.61,.36,1) .12s forwards;
+}
+.hero .eyebrow{
+  opacity:0;
+  transform:translateY(10px);
+  animation:heroTextIn .75s ease .48s forwards;
+}
+.hero h1{
+  max-width:900px;
+  margin:0 auto;
+  font-size:clamp(46px,7.3vw,88px);
+  line-height:.98;
+  letter-spacing:-3.4px;
+  text-wrap:balance;
+  opacity:0;
+  transform:translateY(16px);
+  animation:heroTextIn .85s cubic-bezier(.22,.61,.36,1) .58s forwards;
+}
+.hero p:not(.eyebrow){
+  max-width:650px;
+  margin:25px auto 31px;
+  font-size:17px;
+  line-height:1.65;
+  color:var(--muted);
+  opacity:0;
+  transform:translateY(12px);
+  animation:heroTextIn .75s ease .82s forwards;
+}
+.hero-actions{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  opacity:0;
+  transform:translateY(10px);
+  animation:heroTextIn .75s ease 1s forwards;
+}
+.hero-actions .btn{margin:0}
+.hero-actions .btn.secondary{margin:0}
+.hero-scroll{
+  position:absolute;
+  left:50%;
+  bottom:27px;
+  transform:translateX(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  color:rgba(255,255,255,.48);
+  font-size:9px;
+  letter-spacing:2.8px;
+  text-transform:uppercase;
+  opacity:0;
+  animation:heroScrollIn .8s ease 1.35s forwards;
+}
+.hero-scroll span:last-child{
+  font-size:15px;
+  line-height:1;
+  animation:heroScrollFloat 2s ease-in-out 1.8s infinite;
+}
+@keyframes heroAtmosphere{
+  from{transform:scale(1.06) translate3d(-1%,0,0)}
+  to{transform:scale(1.12) translate3d(1%,1%,0)}
+}
+@keyframes heroLogoIn{
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes heroTextIn{
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes heroScrollIn{
+  to{opacity:1}
+}
+@keyframes heroScrollFloat{
+  0%,100%{transform:translateY(0);opacity:.55}
+  50%{transform:translateY(4px);opacity:1}
+}
+@media(max-width:750px){
+  .hero{
+    min-height:calc(100svh - 68px);
+    padding:112px 0 82px;
+  }
+  .hero-inner{width:min(100% - 32px,680px)}
+  .hero-logo{
+    width:min(245px,62vw);
+    margin-bottom:25px;
+  }
+  .hero h1{
+    font-size:clamp(40px,12vw,62px);
+    letter-spacing:-2.1px;
+    line-height:1;
+  }
+  .hero p:not(.eyebrow){
+    font-size:15px;
+    line-height:1.55;
+    margin:19px auto 25px;
+  }
+  .hero-actions{
+    flex-direction:column;
+    gap:9px;
+  }
+  .hero-actions .btn,
+  .hero-actions .btn.secondary{
+    width:min(340px,100%);
+    margin:0;
+    text-align:center;
+  }
+  .hero-scroll{bottom:18px;font-size:8px;letter-spacing:2.3px}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero::before,
+  .hero-logo,
+  .hero .eyebrow,
+  .hero h1,
+  .hero p:not(.eyebrow),
+  .hero-actions,
+  .hero-scroll,
+  .hero-scroll span:last-child{animation:none!important}
+  .hero-logo,.hero .eyebrow,.hero h1,.hero p:not(.eyebrow),.hero-actions,.hero-scroll{
+    opacity:1;transform:none;
+  }
+}
+
 .btn{display:inline-block;padding:14px 24px;border:1px solid var(--silver);background:var(--silver);color:#111;border-radius:3px;font-weight:700}
 .btn.secondary{background:transparent;color:var(--text);border-color:var(--line);margin-left:10px}
 section{padding:95px 0;border-bottom:1px solid var(--line)}
@@ -513,14 +683,22 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 </div></header>
 
 <main>
-<section class="hero" id="inicio"><div class="container">
-<img class="hero-logo" src="logo.png" alt="Logo de The Present Need Group" width="330" height="330">
-<p class="eyebrow" data-i18n="heroEyebrow">Photography • Video • Multimedia</p>
-<h1 data-i18n="heroTitle">We create content that captures the present.</h1>
-<p data-i18n="heroText">Photography, video and multimedia content for people, brands and projects in New York, New Jersey and Pennsylvania.</p>
-<a class="btn" href="#contacto" data-i18n="quoteButton">Request a quote</a>
-<a class="btn secondary" href="#galeria" data-i18n="viewWork">View our work</a>
-</div></section>
+<section class="hero" id="inicio">
+  <div class="hero-inner">
+    <img class="hero-logo" src="logo.png" alt="The Present Need Group logo" width="380" height="380">
+    <p class="eyebrow" data-i18n="heroEyebrow">Photography • Video • Multimedia</p>
+    <h1 data-i18n="heroTitle">We create the moments you remember.</h1>
+    <p data-i18n="heroText">Photography, video and multimedia content for people, brands and projects in New York, New Jersey and Pennsylvania.</p>
+    <div class="hero-actions">
+      <a class="btn" href="#contacto" data-i18n="quoteButton">Request a quote</a>
+      <a class="btn secondary" href="#galeria" data-i18n="viewWork">View our work ↗</a>
+    </div>
+  </div>
+  <a class="hero-scroll" href="#servicios" aria-label="Scroll to explore">
+    <span>Scroll to explore</span>
+    <span>↓</span>
+  </a>
+</section>
 
 <section id="servicios"><div class="container"><p class="eyebrow" data-i18n="servicesEyebrow">What we do</p><h2 data-i18n="servicesTitle">Our services</h2>
 <div class="services">
