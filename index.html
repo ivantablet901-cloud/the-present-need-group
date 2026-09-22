@@ -1285,6 +1285,161 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     };
   }
 
+  // Client portfolio: continuous loop with drag momentum.
+  // Hover never pauses the automatic movement. Pointer/touch dragging adds
+  // momentum on release, while a simple click still opens the selected media.
+  function setupClientMarquee(viewport,track,options={}){
+    if(!viewport || !track) return null;
+
+    let frame=0;
+    let lastTime=0;
+    let dragging=false;
+    let startX=0;
+    let startScroll=0;
+    let lastX=0;
+    let lastMoveTime=0;
+    let velocity=0;
+    let ignoreClickUntil=0;
+    let wheelVelocity=0;
+    let destroyed=false;
+
+    const autoSpeed=options.speed ?? 0.030;
+    const direction=options.direction ?? -1;
+    const groupSelector=options.groupSelector || '.client-gallery-group';
+
+    const groupWidth=()=>{
+      const group=track.querySelector(groupSelector);
+      return group ? group.getBoundingClientRect().width : 0;
+    };
+
+    const wrap=()=>{
+      const w=groupWidth();
+      if(!w) return;
+      while(viewport.scrollLeft <= 0.5) viewport.scrollLeft += w;
+      while(viewport.scrollLeft >= w + 0.5) viewport.scrollLeft -= w;
+    };
+
+    const tick=(time)=>{
+      if(destroyed) return;
+      if(!lastTime) lastTime=time;
+      const dt=Math.min(time-lastTime,40);
+      lastTime=time;
+
+      if(!document.hidden && track.firstElementChild){
+        // Automatic movement NEVER stops because of hover.
+        // During a drag, the pointer controls the position; after release,
+        // velocity decays smoothly while the automatic loop keeps running.
+        if(!dragging){
+          viewport.scrollLeft += direction * autoSpeed * dt;
+
+          if(Math.abs(velocity)>0.01){
+            viewport.scrollLeft -= velocity * dt;
+            velocity *= Math.pow(0.001,dt/1000);
+            if(Math.abs(velocity)<0.01) velocity=0;
+          }
+
+          if(Math.abs(wheelVelocity)>0.01){
+            viewport.scrollLeft += wheelVelocity * dt;
+            wheelVelocity *= Math.pow(0.0005,dt/1000);
+            if(Math.abs(wheelVelocity)<0.01) wheelVelocity=0;
+          }
+
+          wrap();
+        }
+      }
+
+      frame=requestAnimationFrame(tick);
+    };
+
+    const start=()=>{
+      if(destroyed || frame || !track.firstElementChild) return;
+      lastTime=0;
+      frame=requestAnimationFrame(tick);
+    };
+
+    const beginDrag=e=>{
+      if(e.pointerType==='mouse' && e.button!==0) return;
+      dragging=true;
+      startX=e.clientX;
+      startScroll=viewport.scrollLeft;
+      lastX=e.clientX;
+      lastMoveTime=performance.now();
+      velocity=0;
+      wheelVelocity=0;
+      viewport.classList.add('is-dragging');
+      try{viewport.setPointerCapture(e.pointerId);}catch{}
+    };
+
+    const moveDrag=e=>{
+      if(!dragging) return;
+      const now=performance.now();
+      const dx=e.clientX-startX;
+      const dt=Math.max(8,now-lastMoveTime);
+      const delta=e.clientX-lastX;
+      const instantVelocity=delta/dt;
+
+      if(Math.abs(dx)>6) ignoreClickUntil=Date.now()+500;
+      viewport.scrollLeft=startScroll-dx;
+      velocity=velocity*0.65 + instantVelocity*0.35;
+      lastX=e.clientX;
+      lastMoveTime=now;
+      wrap();
+    };
+
+    const endDrag=()=>{
+      if(!dragging) return;
+      dragging=false;
+      viewport.classList.remove('is-dragging');
+      // Preserve the release velocity so the track keeps sliding smoothly.
+      velocity=Math.max(-2.2,Math.min(2.2,velocity));
+      wrap();
+    };
+
+    viewport.addEventListener('pointerdown',beginDrag);
+    viewport.addEventListener('pointermove',moveDrag);
+    viewport.addEventListener('pointerup',endDrag);
+    viewport.addEventListener('pointercancel',endDrag);
+    viewport.addEventListener('lostpointercapture',endDrag);
+
+    // Mouse wheel / trackpad interaction also gets momentum instead of pausing.
+    viewport.addEventListener('wheel',e=>{
+      if(!track.firstElementChild) return;
+      const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if(!amount) return;
+      e.preventDefault();
+      wheelVelocity=Math.max(-2.8,Math.min(2.8,wheelVelocity + amount*0.035));
+      wrap();
+    },{passive:false});
+
+    document.addEventListener('visibilitychange',()=>{
+      if(!document.hidden){
+        lastTime=performance.now();
+        wrap();
+        start();
+      }
+    });
+
+    const watchdog=setInterval(()=>{
+      if(destroyed){clearInterval(watchdog);return;}
+      if(!frame && !document.hidden && track.firstElementChild) start();
+      wrap();
+    },1000);
+
+    const destroy=()=>{
+      destroyed=true;
+      if(frame) cancelAnimationFrame(frame);
+      frame=0;
+      clearInterval(watchdog);
+    };
+
+    return {
+      start,
+      stop:destroy,
+      wrap,
+      isIgnoringClick(){return Date.now()<ignoreClickUntil;}
+    };
+  }
+
   async function openClientGallery(clientId,clientName){
     if(!clientGalleryModal || !clientGalleryGrid || !clientGalleryMarquee)return;
     if(clientGalleryController) clientGalleryController.stop();
@@ -1371,19 +1526,16 @@ const lightboxPrev = document.getElementById('lightboxPrev');
         copies++;
       }
 
-      // Desktop client loop: no viewport mouse listeners. The pointer may sit
-      // over moving cards without ever pausing the automatic animation.
-      // Mobile keeps the existing drag/swipe interaction unchanged.
-      const clientMarqueeIsMobile=window.matchMedia('(max-width:650px)').matches;
-      clientGalleryController=setupMarquee(
+      // Client portfolio uses its own continuous controller:
+      // hover never pauses it on desktop or mobile. Dragging/touching gives
+      // direct control and leaves smooth momentum when the pointer/finger ends.
+      clientGalleryController=setupClientMarquee(
         clientGalleryMarquee,
         clientGalleryGrid,
         {
           speed:0.030,
           direction:-1,
-          groupSelector:'.client-gallery-group',
-          pauseOnHover:false,
-          interaction:clientMarqueeIsMobile
+          groupSelector:'.client-gallery-group'
         }
       );
       const loopWidth=clientGalleryMarquee.querySelector('.client-gallery-group')?.getBoundingClientRect().width || 0;
