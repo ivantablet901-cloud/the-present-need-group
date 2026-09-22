@@ -1189,6 +1189,9 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     let resumeTimer=0;
     let destroyed=false;
     let scrollAnimFrame=0;
+    let inputVelocity=0;
+    let inputFrame=0;
+    let wheelIdleTimer=0;
     let touchStartX=0;
     let touchStartY=0;
     let touchActive=false;
@@ -1240,8 +1243,16 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       if(!lastTime) lastTime=time;
       const dt=Math.min(time-lastTime,40);
       lastTime=time;
-      if(!document.hidden && track.firstElementChild && !pausedByInteraction && !scrollAnimFrame){
-        viewport.scrollLeft += direction * speed * dt;
+      if(!document.hidden && track.firstElementChild){
+        if(!pausedByInteraction && !scrollAnimFrame){
+          viewport.scrollLeft += direction * speed * dt;
+        }
+        if(Math.abs(inputVelocity)>0.01){
+          viewport.scrollLeft += inputVelocity * dt;
+          inputVelocity *= Math.pow(0.001, dt/900);
+        }else{
+          inputVelocity=0;
+        }
         wrap();
       }
       frame=requestAnimationFrame(tick);
@@ -1289,10 +1300,13 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     let touchLastX=0;
     let touchLastY=0;
     let touchMoved=false;
+    let touchStartTime=0;
     viewport.addEventListener('touchstart',e=>{
       const t=e.changedTouches[0];
       touchStartX=touchLastX=t.clientX;
       touchStartY=touchLastY=t.clientY;
+      touchStartTime=performance.now();
+      inputVelocity=0;
       touchActive=true;
       touchMoved=false;
       pause();
@@ -1323,9 +1337,10 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       const t=e.changedTouches[0];
       const totalDx=t.clientX-touchStartX;
       if(Math.abs(totalDx)>=12){
-        // A short easing settles the carousel naturally after the finger is released.
-        const nearest=Math.round(viewport.scrollLeft/cardStep())*cardStep();
-        animateScrollTo(nearest,220);
+        const now=performance.now();
+        const elapsed=Math.max(16,now-(touchStartTime||now));
+        inputVelocity=-(totalDx/elapsed)*1.35;
+        inputVelocity=Math.max(-1.8,Math.min(1.8,inputVelocity));
       }
       resumeSoon(520);
     },{passive:true});
@@ -1335,25 +1350,20 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       resumeSoon(250);
     },{passive:true});
 
-    // Mouse wheel / trackpad: use the actual wheel delta and ease toward it, rather than jumping card-by-card.
-    let wheelTimer=0;
-    let wheelTarget=0;
+    // Mouse wheel / trackpad: continuous inertial scrolling, preserving the automatic loop.
     viewport.addEventListener('wheel',e=>{
       if(!track.firstElementChild) return;
       const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
       if(!amount) return;
       e.preventDefault();
       pause();
-      if(!wheelTarget) wheelTarget=viewport.scrollLeft;
-      wheelTarget += amount * 0.72;
-      const maxStep=cardStep()*1.35;
-      wheelTarget=Math.max(viewport.scrollLeft-maxStep,Math.min(viewport.scrollLeft+maxStep,wheelTarget));
-      animateScrollTo(wheelTarget,260);
-      if(wheelTimer) clearTimeout(wheelTimer);
-      wheelTimer=setTimeout(()=>{
-        wheelTarget=0;
-        resumeSoon(420);
-      },90);
+      inputVelocity += amount * 0.0028;
+      inputVelocity=Math.max(-2.2,Math.min(2.2,inputVelocity));
+      if(wheelIdleTimer) clearTimeout(wheelIdleTimer);
+      wheelIdleTimer=setTimeout(()=>{
+        wheelIdleTimer=0;
+        resumeSoon(260);
+      },110);
     },{passive:false});
 
     document.addEventListener('visibilitychange',()=>{
@@ -1370,7 +1380,8 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       destroyed=true;
       stop();
       if(resumeTimer) clearTimeout(resumeTimer);
-      if(wheelTimer) clearTimeout(wheelTimer);
+      if(wheelIdleTimer) clearTimeout(wheelIdleTimer);
+      if(inputFrame) cancelAnimationFrame(inputFrame);
       clearInterval(watchdog);
     };
 
@@ -1569,9 +1580,21 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     if(!lightbox.classList.contains('open')) document.body.style.overflow='';
   }
 
-  clientGalleryClose.addEventListener('click',closeClientGallery);
+  ['pointerdown','pointerup','click','touchend'].forEach(type=>{
+    clientGalleryClose.addEventListener(type,e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      if(type==='click') closeClientGallery();
+    },{passive:false});
+  });
   clientGalleryModal.addEventListener('click',e=>{
     if(e.target===clientGalleryModal)closeClientGallery();
+  });
+  clientGalleryModal.querySelector('.client-gallery-modal-inner')?.addEventListener('click',e=>{
+    if(e.target.closest('.client-gallery-close')){
+      e.preventDefault();
+      e.stopPropagation();
+    }
   });
 
   async function loadGallery(){
