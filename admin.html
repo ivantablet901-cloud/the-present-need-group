@@ -342,7 +342,7 @@ h2{font-size:24px;letter-spacing:-.8px}
   border:1px solid var(--line2);
   border-radius:7px;
 }
-.gallery-upload-row img{
+.gallery-upload-row img,.gallery-upload-row video{
   width:76px;height:60px;object-fit:cover;
   background:#070707;border-radius:5px;border:1px solid var(--line2);
 }
@@ -367,7 +367,7 @@ h2{font-size:24px;letter-spacing:-.8px}
 }
 @media(max-width:650px){
   .gallery-upload-row{grid-template-columns:62px minmax(0,1fr)}
-  .gallery-upload-row img{width:62px;height:52px}
+  .gallery-upload-row img,.gallery-upload-row video{width:62px;height:52px}
   .gallery-upload-row select{grid-column:2}
   .gallery-upload-meta{grid-column:1 / -1}
   .gallery-client-picker{width:150px;max-width:45vw;padding:7px 8px;font-size:10px}
@@ -385,7 +385,7 @@ h2{font-size:24px;letter-spacing:-.8px}
   background:rgba(0,0,0,.94);
 }
 .gallery-lightbox.open{display:flex}
-.gallery-lightbox img{
+.gallery-lightbox img,.gallery-lightbox video{
   max-width:92vw;
   max-height:88vh;
   width:auto;
@@ -460,15 +460,15 @@ h2{font-size:24px;letter-spacing:-.8px}
 
   <div class="grid">
     <section class="panel">
-      <div class="panel-head"><div><p class="eyebrow">Portfolio</p><h2>Add photography</h2><p class="muted">Upload an image to publish it in the website gallery.</p></div></div>
+      <div class="panel-head"><div><p class="eyebrow">Portfolio</p><h2>Add media</h2><p class="muted">Upload photos or videos to publish them in the website gallery and client portfolios.</p></div></div>
       <div class="upload-zone">
         <div class="upload-grid">
           <div class="field"><label for="title">Default title</label><input id="title" placeholder="Optional — set individual titles below"></div>
           <div class="field"><label for="galleryDefaultClient">Default client / brand</label><select id="galleryDefaultClient"><option value="">General portfolio / no client</option></select></div>
         </div>
-        <div class="field"><label for="file">Photos</label><input id="file" type="file" accept="image/jpeg,image/png,image/webp" multiple></div>
+        <div class="field"><label for="file">Photos / videos</label><input id="file" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime,video/x-m4v,.jpg,.jpeg,.png,.webp,.mp4,.webm,.mov,.m4v" multiple></div>
         <div id="galleryUploadList" class="gallery-upload-list"></div>
-        <button class="btn" onclick="upload()">Publish photo(s)</button>
+        <button class="btn" onclick="upload()">Publish photo(s) / video(s)</button>
         <div id="status" class="status"></div>
       </div>
       <div style="height:22px"></div>
@@ -521,6 +521,7 @@ h2{font-size:24px;letter-spacing:-.8px}
 <div id="galleryLightbox" class="gallery-lightbox" aria-hidden="true">
   <button id="closeGalleryLightbox" type="button" aria-label="Close">×</button>
   <img id="galleryLightboxImage" src="" alt="">
+  <video id="galleryLightboxVideo" playsinline controls></video>
 </div>
 
 <div id="imagePreview" class="image-preview" aria-hidden="true">
@@ -533,10 +534,24 @@ const c=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY),$=x=>document.getE
 
 const galleryLightbox=$('galleryLightbox');
 const galleryLightboxImage=$('galleryLightboxImage');
+const galleryLightboxVideo=$('galleryLightboxVideo');
 const closeGalleryLightbox=$('closeGalleryLightbox');
-function openGalleryLightbox(url,title){
-  galleryLightboxImage.src=url;
-  galleryLightboxImage.alt=title||'Gallery image';
+function isVideoUrl(url=''){return /\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(url)}
+function openGalleryLightbox(url,title,isVideo=false){
+  const video=isVideo || isVideoUrl(url);
+  galleryLightboxImage.style.display=video?'none':'';
+  galleryLightboxVideo.style.display=video?'block':'none';
+  if(video){
+    galleryLightboxVideo.src=url;
+    galleryLightboxVideo.load();
+    galleryLightboxVideo.play().catch(()=>{});
+  }else{
+    galleryLightboxVideo.pause();
+    galleryLightboxVideo.removeAttribute('src');
+    galleryLightboxVideo.load();
+    galleryLightboxImage.src=url;
+    galleryLightboxImage.alt=title||'Gallery image';
+  }
   galleryLightbox.classList.add('open');
   galleryLightbox.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';
@@ -545,6 +560,9 @@ function closeGalleryLightboxFn(){
   galleryLightbox.classList.remove('open');
   galleryLightbox.setAttribute('aria-hidden','true');
   galleryLightboxImage.src='';
+  galleryLightboxVideo.pause();
+  galleryLightboxVideo.removeAttribute('src');
+  galleryLightboxVideo.load();
   document.body.style.overflow='';
 }
 closeGalleryLightbox.addEventListener('click',closeGalleryLightboxFn);
@@ -583,6 +601,8 @@ function galleryClientOptions(selectedId=''){
   return html;
 }
 
+function isVideoMedia(pathOrUrl=''){return /\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(String(pathOrUrl))}
+
 function refreshGalleryClientSelector(){
   const select=$('galleryDefaultClient');
   if(!select)return;
@@ -601,9 +621,17 @@ function renderGalleryUploadList(){
     const row=document.createElement('div');
     row.className='gallery-upload-row';
 
-    const img=document.createElement('img');
-    img.src=URL.createObjectURL(f);
-    img.alt=f.name;
+    const mediaUrl=URL.createObjectURL(f);
+    const isVideo=f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(f.name);
+    const media=isVideo ? document.createElement('video') : document.createElement('img');
+    media.src=mediaUrl;
+    media.alt=f.name;
+    if(isVideo){
+      media.muted=true;
+      media.playsInline=true;
+      media.controls=true;
+      media.preload='metadata';
+    }
 
     const title=document.createElement('input');
     title.className='gallery-title-input';
@@ -619,7 +647,7 @@ function renderGalleryUploadList(){
     meta.className='gallery-upload-meta';
     meta.textContent=f.name;
 
-    row.appendChild(img);
+    row.appendChild(media);
     row.appendChild(title);
     row.appendChild(clientSelect);
     row.appendChild(meta);
@@ -652,9 +680,17 @@ function renderClientUploadList(){
   clientUploadFiles.forEach((f,i)=>{
     const row=document.createElement('div');
     row.className='client-upload-row';
-    const img=document.createElement('img');
-    img.src=URL.createObjectURL(f);
-    img.alt=f.name;
+    const mediaUrl=URL.createObjectURL(f);
+    const isVideo=f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(f.name);
+    const media=isVideo ? document.createElement('video') : document.createElement('img');
+    media.src=mediaUrl;
+    media.alt=f.name;
+    if(isVideo){
+      media.muted=true;
+      media.playsInline=true;
+      media.controls=true;
+      media.preload='metadata';
+    }
     const name=document.createElement('input');
     name.className='client-name-input';
     name.dataset.index=i;
@@ -787,7 +823,7 @@ async function refresh(){
     const recentLoopRows=galleryRows.slice(0,10);
     if(recentLoopRows.length){
       recentLoopPreview.innerHTML='<div class="recent-loop-preview-head"><strong>Imágenes que aparecen en el bucle</strong><span>'+recentLoopRows.length+' de 10</span></div><div class="recent-loop-thumbs">'
-        +recentLoopRows.map((x,i)=>'<div class="recent-loop-thumb" data-recent-url="'+escapeHtml(x.image_url||'')+'" data-recent-title="'+escapeHtml(x.title||'Gallery image')+'" title="#'+(i+1)+' — '+escapeHtml(x.title||'Sin título')+'"><img src="'+escapeHtml(x.image_url||'')+'" alt="'+escapeAttr(x.title||('Recent Work '+(i+1)))+'" loading="lazy"><span class="recent-loop-number">'+(i+1)+'</span><span class="recent-loop-title">'+escapeHtml(x.title||'Sin título')+'</span></div>').join('')
+        +recentLoopRows.map((x,i)=>{const video=isVideoMedia(x.storage_path||x.image_url||'');return '<div class="recent-loop-thumb" data-recent-url="'+escapeHtml(x.image_url||'')+'" data-recent-title="'+escapeHtml(x.title||'Gallery image')+'" data-recent-video="'+video+'" title="#'+(i+1)+' — '+escapeHtml(x.title||'Sin título')+'">'+(video?'<video src="'+escapeHtml(x.image_url||'')+'" muted playsinline preload="metadata"></video>':'<img src="'+escapeHtml(x.image_url||'')+'" alt="'+escapeAttr(x.title||('Recent Work '+(i+1)))+'" loading="lazy">')+'<span class="recent-loop-number">'+(i+1)+'</span><span class="recent-loop-title">'+escapeHtml(x.title||'Sin título')+'</span></div>';}).join('')
         +'</div>';
     }else{
       recentLoopPreview.innerHTML='<div class="recent-loop-empty">Todavía no hay imágenes publicadas para mostrar.</div>';
@@ -801,7 +837,11 @@ async function refresh(){
 
   const rows=galleryRows.map(x=>{
     const options=galleryClients.map(cl=>'<option value="'+cl.id+'" '+(String(x.client_id||'')===String(cl.id)?'selected':'')+'>'+escapeHtml(cl.name||'Sin nombre')+'</option>').join('');
-    return '<div class="item"><img src="'+escapeHtml(x.image_url||'')+'" alt="'+escapeAttr(x.title||'Gallery image')+'" onclick="openGalleryLightbox(this.src,this.alt)"><div><div>'+escapeHtml(x.title||'')+'</div><select class="gallery-client-picker" onchange="updatePhotoClient('+x.id+',this.value)" aria-label="Client or brand"><option value="">General portfolio / no client</option>'+options+'</select></div><button class="danger" data-photo-id="'+x.id+'" data-photo-path="'+escapeHtml(x.storage_path||'')+'">Eliminar</button></div>';
+    const video=isVideoMedia(x.storage_path||x.image_url||'');
+    const media=video
+      ? '<video src="'+escapeHtml(x.image_url||'')+'" muted playsinline controls preload="metadata" onclick="event.stopPropagation();openGalleryLightbox(this.src,\''+escapeAttr(x.title||'Gallery video')+'\',true)"></video>'
+      : '<img src="'+escapeHtml(x.image_url||'')+'" alt="'+escapeAttr(x.title||'Gallery image')+'" onclick="openGalleryLightbox(this.src,\''+escapeAttr(x.title||'Gallery image')+'\')">';
+    return '<div class="item">'+media+'<div><div>'+escapeHtml(x.title||'')+'</div><select class="gallery-client-picker" onchange="updatePhotoClient('+x.id+',this.value)" aria-label="Client or brand"><option value="">General portfolio / no client</option>'+options+'</select></div><button class="danger" data-photo-id="'+x.id+'" data-photo-path="'+escapeHtml(x.storage_path||'')+'">Eliminar</button></div>';
   }).join('');
 
   $('list').innerHTML=rows||'<p class="muted">No hay fotografías.</p>';
@@ -892,18 +932,22 @@ async function updatePhotoClient(id,clientId){
 
 async function upload(){
   const files=galleryUploadFiles.length?galleryUploadFiles:Array.from($('file').files||[]);
-  if(!files.length){$('status').textContent='Selecciona una o más fotos.';return}
+  if(!files.length){$('status').textContent='Selecciona una o más fotos o videos.';return}
   if(document.querySelectorAll('.gallery-upload-row').length!==files.length)renderGalleryUploadList();
 
   const rows=Array.from(document.querySelectorAll('.gallery-upload-row'));
 
   for(const f of files){
-    if(f.size>6*1024*1024){
-      $('status').textContent='La foto "'+f.name+'" supera el límite de 6 MB.';
+    const isVideo=f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(f.name);
+    const maxSize=isVideo ? 50*1024*1024 : 6*1024*1024;
+    if(f.size>maxSize){
+      $('status').textContent=(isVideo?'El video ':'La foto "'+f.name+'" ')+'supera el límite de '+(isVideo?'50 MB':'6 MB')+'.';
       return;
     }
-    if(!['image/jpeg','image/png','image/webp'].includes(f.type)){
-      $('status').textContent='La foto "'+f.name+'" no es un formato permitido.';
+    const allowedImage=['image/jpeg','image/png','image/webp'].includes(f.type) || /\.(jpg|jpeg|png|webp)$/i.test(f.name);
+    const allowedVideo=f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(f.name);
+    if(!allowedImage && !allowedVideo){
+      $('status').textContent='El archivo "'+f.name+'" no es un formato permitido. Usa JPG, PNG, WEBP, MP4, WEBM o MOV.';
       return;
     }
   }
@@ -937,7 +981,7 @@ async function upload(){
     uploaded++;
   }
 
-  $('status').textContent=uploaded===1?'Publicada.':uploaded+' fotos publicadas.';
+  $('status').textContent=uploaded===1?'Publicado 1 archivo.':uploaded+' archivos publicados.';
   galleryUploadFiles=[];
   $('title').value='';
   $('file').value='';
@@ -991,7 +1035,7 @@ async function removeItem(id,path){
 document.addEventListener('click',function(e){
   const recent=e.target.closest('#recentLoopPreview .recent-loop-thumb');
   if(recent){
-    openGalleryLightbox(recent.dataset.recentUrl||'',recent.dataset.recentTitle||'Recent Work');
+    openGalleryLightbox(recent.dataset.recentUrl||'',recent.dataset.recentTitle||'Recent Work',recent.dataset.recentVideo==='true');
     return;
   }
   const btn=e.target.closest('#list .danger[data-photo-id]');

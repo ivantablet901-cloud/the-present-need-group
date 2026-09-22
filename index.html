@@ -367,14 +367,14 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   border-color:rgba(255,255,255,.3);
   box-shadow:0 0 22px rgba(255,255,255,.06),0 16px 38px rgba(0,0,0,.22);
 }
-.client-gallery-card img{
+.client-gallery-card img,.client-gallery-card video{
   width:100%;
   height:100%;
   display:block;
   object-fit:cover;
   transition:transform .4s ease;
 }
-.client-gallery-card:hover img{transform:scale(1.025)}
+.client-gallery-card:hover img,.client-gallery-card:hover video{transform:scale(1.025)}
 .client-gallery-card .client-photo-caption{
   position:absolute;
   left:12px;
@@ -633,13 +633,13 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 }
 
 /* Ajuste final del visor: transición suave + título más legible */
-.lightbox img{
+.lightbox img,.lightbox video{
   transition:opacity .28s ease,transform .32s cubic-bezier(.22,.61,.36,1);
   will-change:opacity,transform;
 }
-.lightbox.lightbox-switch-out-next img{opacity:0;transform:translateX(-24px) scale(.992);}
-.lightbox.lightbox-switch-out-prev img{opacity:0;transform:translateX(24px) scale(.992);}
-.lightbox.lightbox-switch-in img{opacity:1;transform:translateX(0) scale(1);}
+.lightbox.lightbox-switch-out-next img,.lightbox.lightbox-switch-out-next video{opacity:0;transform:translateX(-24px) scale(.992);}
+.lightbox.lightbox-switch-out-prev img,.lightbox.lightbox-switch-out-prev video{opacity:0;transform:translateX(24px) scale(.992);}
+.lightbox.lightbox-switch-in img,.lightbox.lightbox-switch-in video{opacity:1;transform:translateX(0) scale(1);}
 .lightbox-title{
   bottom:52px;
   font-weight:700;
@@ -649,6 +649,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   text-shadow:0 2px 14px rgba(0,0,0,.72);
 }
 .lightbox-hint{bottom:14px;}
+.lightbox video{display:none;max-width:92vw;max-height:82vh;object-fit:contain;background:#000;border-radius:8px;}
 @media(max-width:650px){
   .lightbox-title{bottom:46px;font-size:13px;font-weight:700;left:14px;right:14px;}
   .lightbox-hint{bottom:12px;font-size:9px;}
@@ -704,7 +705,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   width:clamp(230px,24vw,300px);
   margin:0;
 }
-.gallery-track .gallery-card img{
+.gallery-track .gallery-card img,.gallery-track .gallery-card video{
   width:100%;
   height:100%;
   display:block;
@@ -865,6 +866,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 <div id="lightbox" class="lightbox" aria-hidden="true">
 <button id="lightboxPrev" class="lightbox-nav lightbox-prev" aria-label="Fotografía anterior">‹</button>
 <img id="lightboxImage" src="" alt="">
+<video id="lightboxVideo" playsinline controls preload="metadata"></video>
 <button id="lightboxNext" class="lightbox-nav lightbox-next" aria-label="Fotografía siguiente">›</button>
 <div id="lightboxTitle" class="lightbox-title"></div>
 <div class="lightbox-hint">Desliza o usa la rueda para navegar</div>
@@ -1042,6 +1044,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   const status = document.getElementById('galleryStatus');
   const lightbox = document.getElementById('lightbox');
   const lightboxImage = document.getElementById('lightboxImage');
+  const lightboxVideo = document.getElementById('lightboxVideo');
   const lightboxTitle = document.getElementById('lightboxTitle');
 const lightboxPrev = document.getElementById('lightboxPrev');
   const lightboxNext = document.getElementById('lightboxNext');
@@ -1057,6 +1060,25 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   const clientGalleryClose=document.getElementById('clientGalleryClose');
   let clientGalleryController=null;
   let recentMarqueeController=null;
+  function isVideoMedia(pathOrUrl=''){return /\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(String(pathOrUrl))}
+  function applyLightboxMedia(item){
+    const video=!!item.isVideo;
+    lightboxImage.style.display=video?'none':'';
+    lightboxVideo.style.display=video?'block':'none';
+    if(video){
+      lightboxVideo.src=item.url;
+      lightboxVideo.muted=true;
+      lightboxVideo.load();
+      lightboxVideo.play().catch(()=>{});
+    }else{
+      lightboxVideo.pause();
+      lightboxVideo.removeAttribute('src');
+      lightboxVideo.load();
+      lightboxImage.src=item.url;
+      lightboxImage.alt=item.title || window.TPNG_I18N.t('photoAlt');
+    }
+    lightboxTitle.textContent=item.title || '';
+  }
   function showLightbox(index,direction=0){
     if(!galleryItems.length)return;
     const nextIndex=(index+galleryItems.length)%galleryItems.length;
@@ -1065,9 +1087,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
 
     if(!alreadyOpen){
       currentIndex=nextIndex;
-      lightboxImage.src=item.url;
-      lightboxImage.alt=item.title || window.TPNG_I18N.t('photoAlt');
-      lightboxTitle.textContent=item.title || '';
+      applyLightboxMedia(item);
       lightbox.classList.add('open','lightbox-switch-in');
       lightbox.setAttribute('aria-hidden','false');
       document.body.style.overflow='hidden';
@@ -1082,9 +1102,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     lightbox.classList.add(direction>=0?'lightbox-switch-out-next':'lightbox-switch-out-prev');
 
     transitionTimer=setTimeout(()=>{
-      lightboxImage.src=item.url;
-      lightboxImage.alt=item.title || window.TPNG_I18N.t('photoAlt');
-      lightboxTitle.textContent=item.title || '';
+      applyLightboxMedia(item);
       lightbox.classList.remove('lightbox-switch-out-next','lightbox-switch-out-prev');
       lightbox.classList.add('lightbox-switch-in');
       requestAnimationFrame(()=>{
@@ -1101,6 +1119,10 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     lightbox.classList.remove('open','lightbox-switch-in','lightbox-switch-out-next','lightbox-switch-out-prev');
     lightbox.setAttribute('aria-hidden','true');
     lightboxImage.src='';
+    lightboxVideo.pause();
+    lightboxVideo.removeAttribute('src');
+    lightboxVideo.load();
+    lightboxVideo.style.display='none';
     document.body.style.overflow='';
     galleryItems=fullGalleryItems;
   }
@@ -1317,7 +1339,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       (data||[]).forEach(item=>{
         let url=item.image_url;
         if(!url && item.storage_path) url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
-        if(url) photos.push({url,title:item.title||''});
+        if(url) photos.push({url,title:item.title||'',isVideo:isVideoMedia(item.storage_path||url)});
       });
 
       clientGalleryStatus.textContent='';
@@ -1338,12 +1360,19 @@ const lightboxPrev = document.getElementById('lightboxPrev');
           card.setAttribute('tabindex',duplicate?'-1':'0');
           card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoFallback'));
 
-          const img=document.createElement('img');
-          img.src=item.url;
-          img.alt=item.title || window.TPNG_I18N.t('photoFallback');
-          img.loading=duplicate?'eager':'lazy';
-          img.decoding='async';
-          card.appendChild(img);
+          const media=item.isVideo ? document.createElement('video') : document.createElement('img');
+          media.src=item.url;
+          media.alt=item.title || window.TPNG_I18N.t('photoFallback');
+          media.loading=duplicate?'eager':'lazy';
+          media.decoding='async';
+          if(item.isVideo){
+            media.muted=true;
+            media.playsInline=true;
+            media.autoplay=true;
+            media.loop=true;
+            media.preload=duplicate?'auto':'metadata';
+          }
+          card.appendChild(media);
 
           if(item.title){
             const cap=document.createElement('div');
@@ -1497,7 +1526,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       data.forEach(item=>{
         let url=item.image_url;
         if(!url && item.storage_path) url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
-        if(url) fullGalleryItems.push({url,title:item.title||''});
+        if(url) fullGalleryItems.push({url,title:item.title||'',isVideo:isVideoMedia(item.storage_path||url)});
       });
 
       if(!fullGalleryItems.length){
@@ -1516,12 +1545,19 @@ const lightboxPrev = document.getElementById('lightboxPrev');
           card.setAttribute('tabindex',duplicate?'-1':'0');
           card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoAlt'));
 
-          const img=document.createElement('img');
-          img.src=item.url;
-          img.alt=item.title || window.TPNG_I18N.t('photoFallback');
-          img.loading=duplicate?'eager':'lazy';
-          img.decoding='async';
-          card.appendChild(img);
+          const media=item.isVideo ? document.createElement('video') : document.createElement('img');
+          media.src=item.url;
+          media.alt=item.title || window.TPNG_I18N.t('photoFallback');
+          media.loading=duplicate?'eager':'lazy';
+          media.decoding='async';
+          if(item.isVideo){
+            media.muted=true;
+            media.playsInline=true;
+            media.autoplay=true;
+            media.loop=true;
+            media.preload=duplicate?'auto':'metadata';
+          }
+          card.appendChild(media);
 
           if(item.title){
             const caption=document.createElement('div');
@@ -1532,7 +1568,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
 
           const indicator=document.createElement('span');
           indicator.className='view-indicator';
-          indicator.textContent='Ver fotografía  ↗';
+          indicator.textContent='Ver contenido  ↗';
           card.appendChild(indicator);
 
           const open=()=>{
