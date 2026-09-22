@@ -1133,17 +1133,22 @@ const lightboxPrev = document.getElementById('lightboxPrev');
 
 
 
-  // Robust horizontal marquee controller. It keeps moving after hover/click,
-  // pauses only during an active drag or a short wheel interaction, then resumes.
+  // Continuous marquee controller.
+  // The animation loop stays alive at all times and only pauses movement during
+  // direct user interaction. This prevents the marquee from dying after
+  // repeated clicks, swipes, wheels or touch interactions.
   function setupMarquee(viewport, track, options={}){
     if(!viewport || !track) return null;
+
     let frame=0;
     let lastTime=0;
     let dragging=false;
     let startX=0;
     let startScroll=0;
     let ignoreClickUntil=0;
-    let resumeTimer=0;
+    let pauseUntil=0;
+    let destroyed=false;
+
     const speed=options.speed ?? 0.032;
     const direction=options.direction ?? -1;
     const groupSelector=options.groupSelector || '.marquee-group';
@@ -1156,8 +1161,10 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     const wrap=()=>{
       const w=groupWidth();
       if(!w) return;
-      // Keep the viewport inside the first repeated group. With identical groups,
-      // adding/subtracting one group width is visually seamless.
+
+      // Keep the viewport centered on a repeated copy of the same group.
+      // The correction is exactly one group width, so the visual position
+      // remains seamless.
       while(viewport.scrollLeft <= 0.5){
         viewport.scrollLeft += w;
       }
@@ -1166,39 +1173,30 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       }
     };
 
-    const stop=()=>{
-      if(frame){cancelAnimationFrame(frame);frame=0;}
-      lastTime=0;
-    };
+    const tick=(time)=>{
+      if(destroyed) return;
 
-    const clearResume=()=>{
-      if(resumeTimer){clearTimeout(resumeTimer);resumeTimer=0;}
-    };
+      if(!lastTime) lastTime=time;
+      const dt=Math.min(time-lastTime,40);
+      lastTime=time;
 
-    const start=()=>{
-      clearResume();
-      if(dragging || frame || !track.firstElementChild) return;
-      lastTime=0;
-      const tick=(time)=>{
-        if(dragging){frame=0;lastTime=0;return;}
-        if(document.hidden){
-          frame=requestAnimationFrame(tick);
-          return;
-        }
-        if(!lastTime) lastTime=time;
-        const dt=Math.min(time-lastTime,40);
-        lastTime=time;
+      if(!document.hidden && !dragging && time>=pauseUntil && track.firstElementChild){
         const delta=speed*dt;
         viewport.scrollLeft += direction<0 ? -delta : delta;
         wrap();
-        frame=requestAnimationFrame(tick);
-      };
+      }
+
       frame=requestAnimationFrame(tick);
     };
 
-    const resume=(delay=650)=>{
-      clearResume();
-      resumeTimer=setTimeout(()=>{resumeTimer=0;start();},delay);
+    const start=()=>{
+      if(destroyed || frame || !track.firstElementChild) return;
+      lastTime=0;
+      frame=requestAnimationFrame(tick);
+    };
+
+    const pause=(duration=650)=>{
+      pauseUntil=Math.max(pauseUntil,performance.now()+duration);
     };
 
     const beginDrag=e=>{
@@ -1207,8 +1205,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       startX=e.clientX;
       startScroll=viewport.scrollLeft;
       viewport.classList.add('is-dragging');
-      stop();
-      clearResume();
+      pause(0);
       try{viewport.setPointerCapture(e.pointerId);}catch{}
     };
 
@@ -1225,32 +1222,55 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       dragging=false;
       viewport.classList.remove('is-dragging');
       wrap();
-      resume(300);
+      pause(350);
     };
 
     viewport.addEventListener('pointerdown',beginDrag);
     viewport.addEventListener('pointermove',moveDrag);
     viewport.addEventListener('pointerup',endDrag);
     viewport.addEventListener('pointercancel',endDrag);
+    viewport.addEventListener('pointerleave',()=>{ if(dragging) endDrag(); });
+
     viewport.addEventListener('wheel',e=>{
       if(!track.firstElementChild) return;
       const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
       if(!amount) return;
       e.preventDefault();
-      stop();
       viewport.scrollLeft += amount;
       wrap();
-      resume(550);
+      pause(700);
     },{passive:false});
 
+    viewport.addEventListener('mouseenter',()=>pause(500));
+    viewport.addEventListener('mouseleave',()=>pause(250));
+
     document.addEventListener('visibilitychange',()=>{
-      if(document.hidden){stop();clearResume();}
-      else resume(120);
+      if(!document.hidden){
+        lastTime=performance.now();
+        pauseUntil=performance.now()+120;
+        wrap();
+        start();
+      }
     });
+
+    // Watchdog: if a browser event cancels the animation frame unexpectedly,
+    // restart it automatically while the marquee is still on the page.
+    const watchdog=setInterval(()=>{
+      if(destroyed){clearInterval(watchdog);return;}
+      if(!frame && !document.hidden && track.firstElementChild) start();
+      wrap();
+    },1200);
+
+    const destroy=()=>{
+      destroyed=true;
+      if(frame) cancelAnimationFrame(frame);
+      frame=0;
+      clearInterval(watchdog);
+    };
 
     return {
       start,
-      stop,
+      stop:destroy,
       wrap,
       isIgnoringClick(){return Date.now()<ignoreClickUntil;}
     };
