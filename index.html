@@ -1153,6 +1153,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     const direction=options.direction ?? -1;
     const groupSelector=options.groupSelector || '.marquee-group';
     const pauseOnHover=options.pauseOnHover !== false;
+    const interaction=options.interaction !== false;
 
     const groupWidth=()=>{
       const group=track.querySelector(groupSelector);
@@ -1226,28 +1227,30 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       pause(350);
     };
 
-    viewport.addEventListener('pointerdown',beginDrag);
-    viewport.addEventListener('pointermove',moveDrag);
-    viewport.addEventListener('pointerup',endDrag);
-    viewport.addEventListener('pointercancel',endDrag);
-    viewport.addEventListener('pointerleave',()=>{ if(dragging) endDrag(); });
+    // Direct pointer/drag/wheel interaction is optional.
+    // For the client portfolio on desktop we intentionally disable these
+    // viewport listeners so the mouse can never pause or interrupt the loop.
+    if(interaction){
+      viewport.addEventListener('pointerdown',beginDrag);
+      viewport.addEventListener('pointermove',moveDrag);
+      viewport.addEventListener('pointerup',endDrag);
+      viewport.addEventListener('pointercancel',endDrag);
+      viewport.addEventListener('pointerleave',()=>{ if(dragging) endDrag(); });
 
-    viewport.addEventListener('wheel',e=>{
-      if(!track.firstElementChild) return;
-      const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      if(!amount) return;
-      e.preventDefault();
-      viewport.scrollLeft += amount;
-      wrap();
-      pause(700);
-    },{passive:false});
+      viewport.addEventListener('wheel',e=>{
+        if(!track.firstElementChild) return;
+        const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+        if(!amount) return;
+        e.preventDefault();
+        viewport.scrollLeft += amount;
+        wrap();
+        pause(700);
+      },{passive:false});
 
-    // Hover on desktop must NOT stop the client marquee.
-    // A transformed image can remain under the pointer while the track moves,
-    // which can otherwise make the browser repeatedly fire enter/leave events.
-    if(pauseOnHover){
-      viewport.addEventListener('mouseenter',()=>pause(500));
-      viewport.addEventListener('mouseleave',()=>pause(250));
+      if(pauseOnHover){
+        viewport.addEventListener('mouseenter',()=>pause(500));
+        viewport.addEventListener('mouseleave',()=>pause(250));
+      }
     }
 
     document.addEventListener('visibilitychange',()=>{
@@ -1368,10 +1371,20 @@ const lightboxPrev = document.getElementById('lightboxPrev');
         copies++;
       }
 
+      // Desktop client loop: no viewport mouse listeners. The pointer may sit
+      // over moving cards without ever pausing the automatic animation.
+      // Mobile keeps the existing drag/swipe interaction unchanged.
+      const clientMarqueeIsMobile=window.matchMedia('(max-width:650px)').matches;
       clientGalleryController=setupMarquee(
         clientGalleryMarquee,
         clientGalleryGrid,
-        {speed:0.030,direction:-1,groupSelector:'.client-gallery-group',pauseOnHover:false}
+        {
+          speed:0.030,
+          direction:-1,
+          groupSelector:'.client-gallery-group',
+          pauseOnHover:false,
+          interaction:clientMarqueeIsMobile
+        }
       );
       const loopWidth=clientGalleryMarquee.querySelector('.client-gallery-group')?.getBoundingClientRect().width || 0;
       if(loopWidth) clientGalleryMarquee.scrollLeft=loopWidth;
