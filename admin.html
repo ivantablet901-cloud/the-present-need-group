@@ -88,6 +88,17 @@ h2{font-size:24px;letter-spacing:-.8px}
 .loop-pill.available{border-color:rgba(255,255,255,.12);color:var(--muted2)}
 .client-loop-info{margin-top:7px;font-size:11px;line-height:1.45}
 .client-loop-info strong{color:#d8d6d1}
+.recent-loop-preview{margin-top:12px;border:1px solid var(--line);background:#0a0a0a;padding:10px;border-radius:8px}
+.recent-loop-preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+.recent-loop-preview-head strong{font-size:11px;color:var(--text);letter-spacing:.2px}
+.recent-loop-preview-head span{font-size:10px;color:var(--muted2)}
+.recent-loop-thumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.recent-loop-thumb{position:relative;min-width:0;aspect-ratio:4/5;border:1px solid var(--line);border-radius:5px;overflow:hidden;background:#111;cursor:pointer}
+.recent-loop-thumb img{width:100%;height:100%;display:block;object-fit:cover}
+.recent-loop-thumb .recent-loop-number{position:absolute;left:4px;top:4px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:rgba(0,0,0,.78);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.recent-loop-thumb .recent-loop-title{position:absolute;left:0;right:0;bottom:0;padding:14px 5px 5px;background:linear-gradient(transparent,rgba(0,0,0,.88));color:#fff;font-size:9px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recent-loop-empty{padding:12px;color:var(--muted2);font-size:10px}
+@media(max-width:750px){.recent-loop-thumbs{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .gallery-list{display:block}
 .gallery-item{display:flex;align-items:center;gap:15px;border:0;border-top:1px solid #333;border-radius:0;background:transparent;overflow:visible;padding:15px 0}
 .gallery-item img{width:60px;height:42px;object-fit:cover;display:block;cursor:pointer;border-radius:4px}
@@ -471,6 +482,7 @@ h2{font-size:24px;letter-spacing:-.8px}
           <div id="recentLoopStats" class="loop-status" aria-live="polite">
             <span class="loop-pill available"><strong>Recent Work</strong> loading…</span>
           </div>
+          <div id="recentLoopPreview" class="recent-loop-preview" aria-live="polite"></div>
         </div>
       </div>
       <div id="list" class="gallery-list">Loading...</div>
@@ -770,6 +782,18 @@ async function refresh(){
       +'<span class="loop-pill available"><strong>Bucle</strong> Activo</span>';
   }
 
+  const recentLoopPreview=$('recentLoopPreview');
+  if(recentLoopPreview){
+    const recentLoopRows=galleryRows.slice(0,10);
+    if(recentLoopRows.length){
+      recentLoopPreview.innerHTML='<div class="recent-loop-preview-head"><strong>Imágenes que aparecen en el bucle</strong><span>'+recentLoopRows.length+' de 10</span></div><div class="recent-loop-thumbs">'
+        +recentLoopRows.map((x,i)=>'<div class="recent-loop-thumb" data-recent-url="'+escapeHtml(x.image_url||'')+'" data-recent-title="'+escapeHtml(x.title||'Gallery image')+'" title="#'+(i+1)+' — '+escapeHtml(x.title||'Sin título')+'"><img src="'+escapeHtml(x.image_url||'')+'" alt="'+escapeAttr(x.title||('Recent Work '+(i+1)))+'" loading="lazy"><span class="recent-loop-number">'+(i+1)+'</span><span class="recent-loop-title">'+escapeHtml(x.title||'Sin título')+'</span></div>').join('')
+        +'</div>';
+    }else{
+      recentLoopPreview.innerHTML='<div class="recent-loop-empty">Todavía no hay imágenes publicadas para mostrar.</div>';
+    }
+  }
+
   const clientLoopInfo=$('clientLoopInfo');
   if(clientLoopInfo){
     clientLoopInfo.innerHTML='<strong>Bucle de clientes:</strong> cada portafolio muestra las fotos asignadas a ese cliente en un bucle continuo. Actualmente hay '+assignedClientFiles+' foto'+(assignedClientFiles===1?'':'s')+' asignada'+(assignedClientFiles===1?'':'s')+' a clientes.';
@@ -965,6 +989,11 @@ async function removeItem(id,path){
 }
 
 document.addEventListener('click',function(e){
+  const recent=e.target.closest('#recentLoopPreview .recent-loop-thumb');
+  if(recent){
+    openGalleryLightbox(recent.dataset.recentUrl||'',recent.dataset.recentTitle||'Recent Work');
+    return;
+  }
   const btn=e.target.closest('#list .danger[data-photo-id]');
   if(!btn)return;
   e.preventDefault();
