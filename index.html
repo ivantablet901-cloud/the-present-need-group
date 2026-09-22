@@ -669,7 +669,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   -ms-overflow-style:none;
   overscroll-behavior-x:contain;
   scroll-behavior:auto !important;
-  cursor:default;
+  cursor:grab;
   user-select:none;
   -webkit-user-select:none;
   touch-action:pan-y;
@@ -679,6 +679,8 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 }
 .recent-marquee::-webkit-scrollbar,
 .client-gallery-marquee::-webkit-scrollbar{display:none}
+.recent-marquee.is-dragging,
+.client-gallery-marquee.is-dragging{cursor:grabbing}
 .recent-marquee img,.recent-marquee video,
 .client-gallery-marquee img,.client-gallery-marquee video{
   -webkit-user-drag:none;
@@ -743,30 +745,12 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   .client-gallery-marquee{scroll-behavior:auto !important}
 }
 
+</style>
 
-/* Mobile lightbox fix: remove browser tap/focus highlight that can appear as a blue screen. */
-@media (max-width:650px){
-  html,body,.lightbox,.client-gallery-modal{
-    -webkit-tap-highlight-color:transparent;
-  }
-  .lightbox{
-    background:#000 !important;
-    color:#fff;
-  }
-  .lightbox img,.lightbox video{
-    background:#000;
-    -webkit-tap-highlight-color:transparent;
-    outline:none;
-  }
-  .lightbox button,.client-gallery-close,.client-gallery-card,.gallery-card{
-    -webkit-tap-highlight-color:transparent;
-  }
-  .lightbox button:focus,.lightbox button:active,
-  .client-gallery-close:focus,.client-gallery-close:active,
-  .gallery-card:focus,.gallery-card:active,
-  .client-gallery-card:focus,.client-gallery-card:active{
-    outline:none;
-  }
+<style id="mobile-blue-touch-fix">
+/* Mobile touch fix only — does not alter carousel movement or lightbox logic. */
+.gallery-card,.client-gallery-card,.client-card,.lightbox,.lightbox-content,.lightbox-nav,.lightbox-close,#clientGalleryClose{
+  -webkit-tap-highlight-color:transparent;
 }
 </style>
 </head>
@@ -1095,7 +1079,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   }
 
   function renderLightboxItem(item){
-    const video=!!item.video || isVideoUrl(item.url);
+    const video=isVideoUrl(item.url);
     lightboxImage.hidden=video;
     lightboxVideo.hidden=!video;
     lightboxVideo.pause();
@@ -1204,19 +1188,23 @@ const lightboxPrev = document.getElementById('lightboxPrev');
 
 
   // Unified continuous marquee controller for Recent Work + Client Portfolios.
-  // Normal mouse/touch dragging is disabled. Hover pauses on desktop, touch pauses briefly for reliable taps, and the mouse wheel/trackpad still scrolls.
+  // Hover/touch pauses the loop so media cards can be clicked reliably. Drag and wheel remain available.
   function setupMarquee(viewport, track, options={}){
     if(!viewport || !track) return null;
 
     let frame=0;
     let lastTime=0;
+    let dragging=false;
+    let startX=0;
+    let startScroll=0;
+    let lastX=0;
+    let lastMoveTime=0;
+    let velocity=0;
+    let wheelVelocity=0;
+    let ignoreClickUntil=0;
     let pausedByInteraction=false;
     let resumeTimer=0;
     let destroyed=false;
-    let scrollAnimFrame=0;
-    let touchStartX=0;
-    let touchStartY=0;
-    let touchActive=false;
 
     const speed=options.speed ?? 0.032;
     const direction=options.direction ?? -1;
@@ -1227,14 +1215,6 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       return group ? group.getBoundingClientRect().width : 0;
     };
 
-    const cardStep=()=>{
-      const card=track.querySelector(groupSelector+' > *');
-      if(!card) return Math.max(180, viewport.clientWidth*0.42);
-      const style=getComputedStyle(card.parentElement);
-      const gap=parseFloat(style.gap)||0;
-      return Math.max(1,card.getBoundingClientRect().width+gap);
-    };
-
     const wrap=()=>{
       const w=groupWidth();
       if(!w) return;
@@ -1242,33 +1222,35 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       while(viewport.scrollLeft >= w + 0.5) viewport.scrollLeft -= w;
     };
 
-    const animateScrollTo=(target,duration=360)=>{
-      cancelAnimationFrame(scrollAnimFrame);
-      const startLeft=viewport.scrollLeft;
-      const diff=target-startLeft;
-      if(Math.abs(diff)<0.5){ wrap(); return; }
-      const started=performance.now();
-      const ease=t=>1-Math.pow(1-t,3);
-      const step=time=>{
-        if(destroyed)return;
-        const t=Math.min(1,(time-started)/duration);
-        viewport.scrollLeft=startLeft+diff*ease(t);
-        wrap();
-        if(t<1) scrollAnimFrame=requestAnimationFrame(step);
-        else { scrollAnimFrame=0; wrap(); }
-      };
-      scrollAnimFrame=requestAnimationFrame(step);
-    };
-
     const tick=(time)=>{
       if(destroyed) return;
       if(!lastTime) lastTime=time;
       const dt=Math.min(time-lastTime,40);
       lastTime=time;
-      if(!document.hidden && track.firstElementChild && !pausedByInteraction && !scrollAnimFrame){
-        viewport.scrollLeft += direction * speed * dt;
-        wrap();
+
+      if(!document.hidden && track.firstElementChild){
+        if(!dragging && !pausedByInteraction){
+          // Pause while the pointer/finger is over the carousel so cards can be clicked reliably.
+          viewport.scrollLeft += direction * speed * dt;
+
+          // Continue the user's drag with a smooth deceleration.
+          if(Math.abs(velocity)>0.01){
+            viewport.scrollLeft -= velocity * dt;
+            velocity *= Math.pow(0.0015,dt/1000);
+            if(Math.abs(velocity)<0.01) velocity=0;
+          }
+
+          // Trackpad / wheel momentum.
+          if(Math.abs(wheelVelocity)>0.01){
+            viewport.scrollLeft += wheelVelocity * dt;
+            wheelVelocity *= Math.pow(0.0008,dt/1000);
+            if(Math.abs(wheelVelocity)<0.01) wheelVelocity=0;
+          }
+
+          wrap();
+        }
       }
+
       frame=requestAnimationFrame(tick);
     };
 
@@ -1278,15 +1260,9 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       frame=requestAnimationFrame(tick);
     };
 
-    const stop=()=>{
-      if(frame){ cancelAnimationFrame(frame); frame=0; }
-      cancelAnimationFrame(scrollAnimFrame);
-      scrollAnimFrame=0;
-    };
-
     const pause=()=>{
       pausedByInteraction=true;
-      if(resumeTimer){ clearTimeout(resumeTimer); resumeTimer=0; }
+      if(resumeTimer){clearTimeout(resumeTimer);resumeTimer=0;}
     };
 
     const resume=()=>{
@@ -1297,110 +1273,247 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       start();
     };
 
-    const resumeSoon=(delay=450)=>{
+    const resumeSoon=(delay=350)=>{
       if(resumeTimer) clearTimeout(resumeTimer);
-      resumeTimer=setTimeout(()=>{ resumeTimer=0; resume(); },delay);
+      resumeTimer=setTimeout(()=>{resumeTimer=0;resume();},delay);
     };
 
-    // Desktop: hover pauses only the automatic loop. A normal click opens the item.
+    const beginDrag=e=>{
+      if(e.pointerType==='mouse' && e.button!==0) return;
+      pause();
+      dragging=true;
+      startX=e.clientX;
+      startScroll=viewport.scrollLeft;
+      lastX=e.clientX;
+      lastMoveTime=performance.now();
+      velocity=0;
+      viewport.classList.add('is-dragging');
+      try{viewport.setPointerCapture(e.pointerId);}catch{}
+    };
+
+    const moveDrag=e=>{
+      if(!dragging) return;
+      const now=performance.now();
+      const dx=e.clientX-startX;
+      const dt=Math.max(8,now-lastMoveTime);
+      const delta=e.clientX-lastX;
+      const instantVelocity=delta/dt;
+
+      if(Math.abs(dx)>6) ignoreClickUntil=Date.now()+500;
+      viewport.scrollLeft=startScroll-dx;
+      velocity=velocity*0.68 + instantVelocity*0.32;
+      lastX=e.clientX;
+      lastMoveTime=now;
+      wrap();
+    };
+
+    const endDrag=()=>{
+      if(!dragging) return;
+      dragging=false;
+      viewport.classList.remove('is-dragging');
+      // Keep the release momentum, but give the click/tap a short window before resuming.
+      velocity=Math.max(-2.4,Math.min(2.4,velocity));
+      wrap();
+      resumeSoon(350);
+    };
+
+    // Desktop: hovering the carousel freezes it.
     viewport.addEventListener('pointerenter',e=>{
       if(e.pointerType==='mouse') pause();
     });
     viewport.addEventListener('pointerleave',e=>{
-      if(e.pointerType==='mouse') resume();
+      if(e.pointerType==='mouse' && !dragging) resume();
     });
 
-    // Touch: the finger follows the carousel smoothly. Mouse press-and-hold dragging remains disabled.
-    let touchLastX=0;
-    let touchLastY=0;
-    let touchMoved=false;
-    viewport.addEventListener('touchstart',e=>{
-      const t=e.changedTouches[0];
-      touchStartX=touchLastX=t.clientX;
-      touchStartY=touchLastY=t.clientY;
-      touchActive=true;
-      touchMoved=false;
-      pause();
-    },{passive:true});
-
-    viewport.addEventListener('touchmove',e=>{
-      if(!touchActive || !track.firstElementChild) return;
-      const t=e.changedTouches[0];
-      const dx=t.clientX-touchLastX;
-      const dy=t.clientY-touchLastY;
-      if(Math.abs(t.clientX-touchStartX)>8 || Math.abs(t.clientY-touchStartY)>8) touchMoved=true;
-      if(Math.abs(dx)>Math.abs(dy) && Math.abs(dx)>0){
-        e.preventDefault();
-        viewport.scrollLeft -= dx;
-        wrap();
-        touchLastX=t.clientX;
-        touchLastY=t.clientY;
-      }
-    },{passive:false});
-
-    viewport.addEventListener('touchend',e=>{
-      if(!touchActive)return;
-      touchActive=false;
-      if(!touchMoved){
-        resumeSoon(300);
-        return;
-      }
-      const t=e.changedTouches[0];
-      const totalDx=t.clientX-touchStartX;
-      if(Math.abs(totalDx)>=12){
-        // A short easing settles the carousel naturally after the finger is released.
-        const nearest=Math.round(viewport.scrollLeft/cardStep())*cardStep();
-        animateScrollTo(nearest,220);
-      }
-      resumeSoon(520);
-    },{passive:true});
-
-    viewport.addEventListener('touchcancel',()=>{
-      touchActive=false;
+    // Phone/tablet: touching the carousel freezes it while the finger is on it.
+    viewport.addEventListener('pointerdown',beginDrag);
+    viewport.addEventListener('pointermove',moveDrag);
+    viewport.addEventListener('pointerup',e=>{
+      endDrag();
+      if(e.pointerType==='touch' || e.pointerType==='pen') resumeSoon(500);
+    });
+    viewport.addEventListener('pointercancel',()=>{
+      endDrag();
       resumeSoon(250);
-    },{passive:true});
+    });
+    viewport.addEventListener('lostpointercapture',()=>{
+      endDrag();
+      resumeSoon(250);
+    });
 
-    // Mouse wheel / trackpad: use the actual wheel delta and ease toward it, rather than jumping card-by-card.
-    let wheelTimer=0;
-    let wheelTarget=0;
     viewport.addEventListener('wheel',e=>{
       if(!track.firstElementChild) return;
       const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
       if(!amount) return;
       e.preventDefault();
-      pause();
-      if(!wheelTarget) wheelTarget=viewport.scrollLeft;
-      wheelTarget += amount * 0.72;
-      const maxStep=cardStep()*1.35;
-      wheelTarget=Math.max(viewport.scrollLeft-maxStep,Math.min(viewport.scrollLeft+maxStep,wheelTarget));
-      animateScrollTo(wheelTarget,260);
-      if(wheelTimer) clearTimeout(wheelTimer);
-      wheelTimer=setTimeout(()=>{
-        wheelTarget=0;
-        resumeSoon(420);
-      },90);
+      wheelVelocity=Math.max(-3.2,Math.min(3.2,wheelVelocity + amount*0.035));
+      wrap();
     },{passive:false});
 
     document.addEventListener('visibilitychange',()=>{
-      if(!document.hidden){ lastTime=performance.now(); wrap(); start(); }
+      if(!document.hidden){
+        lastTime=performance.now();
+        wrap();
+        start();
+      }
     });
 
+    // Safety restart only if the animation frame itself disappears.
     const watchdog=setInterval(()=>{
-      if(destroyed){ clearInterval(watchdog); return; }
+      if(destroyed){clearInterval(watchdog);return;}
       if(!frame && !document.hidden && track.firstElementChild) start();
       wrap();
     },1000);
 
     const destroy=()=>{
       destroyed=true;
-      stop();
+      if(frame) cancelAnimationFrame(frame);
+      frame=0;
       if(resumeTimer) clearTimeout(resumeTimer);
-      if(wheelTimer) clearTimeout(wheelTimer);
+      resumeTimer=0;
       clearInterval(watchdog);
     };
 
-    return {start,stop,pause,resume,wrap,destroy,isIgnoringClick:()=>false};
+    return {
+      start,
+      stop:destroy,
+      pause,
+      resume,
+      wrap,
+      isIgnoringClick(){return Date.now()<ignoreClickUntil;}
+    };
   }
+
+  async function openClientGallery(clientId,clientName){
+    if(!clientGalleryModal || !clientGalleryGrid || !clientGalleryMarquee)return;
+    if(clientGalleryController) clientGalleryController.stop();
+    clientGalleryTitle.textContent=clientName || '';
+    clientGalleryGrid.innerHTML='';
+    clientGalleryStatus.textContent=window.TPNG_I18N.t('clientLoading');
+    clientGalleryModal.classList.add('open');
+    clientGalleryModal.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+
+    try{
+      if(!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) throw new Error('Falta configurar Supabase en config.js');
+      const client=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
+      const {data,error}=await client.from('gallery')
+        .select('id,title,image_url,storage_path,created_at')
+        .eq('client_id',clientId)
+        .order('created_at',{ascending:false});
+      if(error) throw error;
+
+      const photos=[];
+      (data||[]).forEach(item=>{
+        let url=item.image_url;
+        if(!url && item.storage_path) url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
+        if(url) photos.push({url,title:item.title||''});
+      });
+
+      clientGalleryStatus.textContent='';
+      if(!photos.length){
+        clientGalleryStatus.textContent=window.TPNG_I18N.t('clientNoPhotos');
+        return;
+      }
+
+      const appendGroup=(duplicate=false)=>{
+        const group=document.createElement('div');
+        group.className='client-gallery-group';
+        if(duplicate) group.setAttribute('aria-hidden','true');
+
+        photos.forEach((item,i)=>{
+          const card=document.createElement('article');
+          card.className='client-gallery-card';
+          card.setAttribute('role','button');
+          card.setAttribute('tabindex',duplicate?'-1':'0');
+          card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoFallback'));
+
+          const video=isVideoUrl(item.url);
+          if(video){
+            const media=document.createElement('video');
+            media.src=item.url;
+            media.muted=true;
+            media.playsInline=true;
+            media.preload='metadata';
+            media.setAttribute('aria-label',item.title || 'Video');
+            media.tabIndex=-1;
+            card.appendChild(media);
+          }else{
+            const img=document.createElement('img');
+            img.src=item.url;
+            img.alt=item.title || window.TPNG_I18N.t('photoFallback');
+            img.loading=duplicate?'eager':'lazy';
+            img.decoding='async';
+            card.appendChild(img);
+          }
+
+          if(item.title){
+            const cap=document.createElement('div');
+            cap.className='client-photo-caption';
+            cap.textContent=item.title;
+            card.appendChild(cap);
+          }
+
+          const openPhoto=()=>{
+            if(duplicate || (clientGalleryController && clientGalleryController.isIgnoringClick()))return;
+            galleryItems=photos;
+            clientPortfolioItems=photos;
+            lightboxContext='client';
+            showLightbox(i);
+          };
+          card.addEventListener('click',openPhoto);
+          if(!duplicate){
+            card.addEventListener('keydown',e=>{
+              if(e.key==='Enter'||e.key===' '){e.preventDefault();openPhoto();}
+            });
+          }
+          group.appendChild(card);
+        });
+        clientGalleryGrid.appendChild(group);
+        return group;
+      };
+
+      // Build enough identical groups to keep the loop filled on phones and desktop.
+      appendGroup(false);
+      appendGroup(true);
+      appendGroup(true);
+      let copies=3;
+      while(clientGalleryGrid.scrollWidth < clientGalleryMarquee.clientWidth*3 && copies<10){
+        appendGroup(true);
+        copies++;
+      }
+
+      // Client portfolio uses the same controller as Recent Work.
+      // Hover/touch pauses it; drag/touch/wheel remain available.
+      clientGalleryController=setupMarquee(
+        clientGalleryMarquee,
+        clientGalleryGrid,
+        {speed:0.032,direction:-1,groupSelector:'.client-gallery-group'}
+      );
+      const loopWidth=clientGalleryMarquee.querySelector('.client-gallery-group')?.getBoundingClientRect().width || 0;
+      if(loopWidth) clientGalleryMarquee.scrollLeft=loopWidth;
+      clientGalleryController.wrap();
+      clientGalleryController.start();
+    }catch(err){
+      console.error(err);
+      clientGalleryStatus.textContent=window.TPNG_I18N.t('galleryError');
+    }
+  }
+
+  function closeClientGallery(){
+    if(clientGalleryController) clientGalleryController.stop();
+    clientGalleryController=null;
+    clientGalleryModal.classList.remove('open');
+    clientGalleryModal.setAttribute('aria-hidden','true');
+    clientGalleryGrid.innerHTML='';
+    clientGalleryStatus.textContent='';
+    if(!lightbox.classList.contains('open')) document.body.style.overflow='';
+  }
+
+  clientGalleryClose.addEventListener('click',closeClientGallery);
+  clientGalleryModal.addEventListener('click',e=>{
+    if(e.target===clientGalleryModal)closeClientGallery();
+  });
 
   async function loadClients(){
     const grid=document.getElementById('clientsGrid');
@@ -1464,141 +1577,6 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   }
   loadClients();
 
-  async function openClientGallery(clientId,clientName){
-    if(!clientGalleryModal || !clientGalleryGrid || !clientGalleryMarquee)return;
-    if(clientGalleryController) clientGalleryController.stop();
-    clientGalleryTitle.textContent=clientName || '';
-    clientGalleryGrid.innerHTML='';
-    clientGalleryStatus.textContent=window.TPNG_I18N.t('clientLoading');
-    clientGalleryModal.classList.add('open');
-    clientGalleryModal.setAttribute('aria-hidden','false');
-    document.body.style.overflow='hidden';
-
-    try{
-      if(!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) throw new Error('Falta configurar Supabase en config.js');
-      const client=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
-      const {data,error}=await client.from('gallery')
-        .select('id,title,image_url,storage_path,created_at')
-        .eq('client_id',clientId)
-        .order('created_at',{ascending:false});
-      if(error) throw error;
-
-      const photos=[];
-      (data||[]).forEach(item=>{
-        let url=item.image_url;
-        if(!url && item.storage_path) url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
-        if(url) photos.push({url,title:item.title||'',video:isVideoUrl(url)||isVideoUrl(item.storage_path)});
-      });
-
-      clientGalleryStatus.textContent='';
-      if(!photos.length){
-        clientGalleryStatus.textContent=window.TPNG_I18N.t('clientNoPhotos');
-        return;
-      }
-
-      const appendGroup=(duplicate=false)=>{
-        const group=document.createElement('div');
-        group.className='client-gallery-group';
-        if(duplicate) group.setAttribute('aria-hidden','false');
-
-        photos.forEach((item,i)=>{
-          const card=document.createElement('article');
-          card.className='client-gallery-card';
-          card.setAttribute('role','button');
-          card.setAttribute('tabindex','0');
-          card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoFallback'));
-
-          const video=!!item.video || isVideoUrl(item.url);
-          if(video){
-            const media=document.createElement('video');
-            media.src=item.url;
-            media.muted=true;
-            media.defaultMuted=true;
-            media.setAttribute('muted','');
-            media.playsInline=true;
-            media.setAttribute('playsinline','');
-            media.autoplay=true;
-            media.setAttribute('autoplay','');
-            media.loop=true;
-            media.preload='auto';
-            media.setAttribute('aria-label',item.title || 'Video');
-            media.tabIndex=-1;
-            media.addEventListener('loadeddata',()=>{media.play().catch(()=>{});},{once:true});
-            media.addEventListener('canplay',()=>{if(media.paused)media.play().catch(()=>{});});
-            card.appendChild(media);
-          }else{
-            const img=document.createElement('img');
-            img.src=item.url;
-            img.alt=item.title || window.TPNG_I18N.t('photoFallback');
-            img.loading=duplicate?'eager':'lazy';
-            img.decoding='async';
-            card.appendChild(img);
-          }
-
-          if(item.title){
-            const cap=document.createElement('div');
-            cap.className='client-photo-caption';
-            cap.textContent=item.title;
-            card.appendChild(cap);
-          }
-
-          const openPhoto=()=>{
-            galleryItems=photos;
-            clientPortfolioItems=photos;
-            lightboxContext='client';
-            showLightbox(i);
-          };
-          card.addEventListener('click',openPhoto);
-          if(!duplicate){
-            card.addEventListener('keydown',e=>{
-              if(e.key==='Enter'||e.key===' '){e.preventDefault();openPhoto();}
-            });
-          }
-          group.appendChild(card);
-        });
-        clientGalleryGrid.appendChild(group);
-        return group;
-      };
-
-      appendGroup(false);
-      appendGroup(true);
-      appendGroup(true);
-      let copies=3;
-      while(clientGalleryGrid.scrollWidth < clientGalleryMarquee.clientWidth*3 && copies<10){
-        appendGroup(true);
-        copies++;
-      }
-
-      clientGalleryController=setupMarquee(
-        clientGalleryMarquee,
-        clientGalleryGrid,
-        {speed:0.032,direction:-1,groupSelector:'.client-gallery-group'}
-      );
-      const loopWidth=clientGalleryMarquee.querySelector('.client-gallery-group')?.getBoundingClientRect().width || 0;
-      if(loopWidth) clientGalleryMarquee.scrollLeft=loopWidth;
-      clientGalleryController.wrap();
-      clientGalleryController.start();
-    }catch(err){
-      console.error(err);
-      clientGalleryStatus.textContent=window.TPNG_I18N.t('galleryError');
-    }
-  }
-
-  function closeClientGallery(){
-    if(clientGalleryController) clientGalleryController.stop();
-    clientGalleryController=null;
-    clientGalleryModal.classList.remove('open');
-    clientGalleryModal.setAttribute('aria-hidden','true');
-    clientGalleryGrid.innerHTML='';
-    clientGalleryStatus.textContent='';
-    if(!lightbox.classList.contains('open')) document.body.style.overflow='';
-  }
-
-  clientGalleryClose.addEventListener('click',closeClientGallery);
-  clientGalleryModal.addEventListener('click',e=>{
-    if(e.target===clientGalleryModal)closeClientGallery();
-  });
-
   async function loadGallery(){
     const RECENT_LIMIT=10;
     const galleryViewport=document.getElementById('galleryViewport');
@@ -1622,7 +1600,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       data.forEach(item=>{
         let url=item.image_url;
         if(!url && item.storage_path) url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
-        if(url) fullGalleryItems.push({url,title:item.title||'',video:isVideoUrl(url)||isVideoUrl(item.storage_path)});
+        if(url) fullGalleryItems.push({url,title:item.title||''});
       });
 
       if(!fullGalleryItems.length){
@@ -1633,31 +1611,23 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       const appendGroup=(duplicate=false)=>{
         const group=document.createElement('div');
         group.className='marquee-group';
-        if(duplicate) group.setAttribute('aria-hidden','false');
+        if(duplicate) group.setAttribute('aria-hidden','true');
         fullGalleryItems.forEach((item,index)=>{
           const card=document.createElement('article');
           card.className='gallery-card';
           card.setAttribute('role','button');
-          card.setAttribute('tabindex','0');
+          card.setAttribute('tabindex',duplicate?'-1':'0');
           card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoAlt'));
 
-          const video=!!item.video || isVideoUrl(item.url);
+          const video=isVideoUrl(item.url);
           if(video){
             const media=document.createElement('video');
-            media.muted=true;
-            media.defaultMuted=true;
-            media.setAttribute('muted','');
-            media.playsInline=true;
-            media.setAttribute('playsinline','');
-            media.autoplay=true;
-            media.loop=true;
-            media.preload='auto';
-            media.setAttribute('autoplay','');
             media.src=item.url;
+            media.muted=true;
+            media.playsInline=true;
+            media.preload='metadata';
             media.setAttribute('aria-label',item.title || 'Video');
             media.tabIndex=-1;
-            media.addEventListener('loadeddata',()=>{ media.play().catch(()=>{}); },{once:true});
-            media.addEventListener('canplay',()=>{ if(media.paused) media.play().catch(()=>{}); });
             card.appendChild(media);
           }else{
             const img=document.createElement('img');
@@ -1677,11 +1647,11 @@ const lightboxPrev = document.getElementById('lightboxPrev');
 
           const indicator=document.createElement('span');
           indicator.className='view-indicator';
-          indicator.textContent=(item.video||isVideoUrl(item.url))?'Ver video  ↗':'Ver fotografía  ↗';
+          indicator.textContent=isVideoUrl(item.url)?'Ver video  ↗':'Ver fotografía  ↗';
           card.appendChild(indicator);
 
           const open=()=>{
-            if(recentMarqueeController && recentMarqueeController.isIgnoringClick())return;
+            if(duplicate || (recentMarqueeController && recentMarqueeController.isIgnoringClick()))return;
             showLightbox(index);
           };
           card.addEventListener('click',open);
