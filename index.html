@@ -348,16 +348,22 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   position:relative;
   width:100%;
   height:clamp(190px,24vw,250px);
-  overflow:hidden;
+  overflow-x:auto;
+  overflow-y:hidden;
   border-top:1px solid rgba(255,255,255,.06);
   border-bottom:1px solid rgba(255,255,255,.06);
   cursor:grab;
   user-select:none;
   -webkit-user-select:none;
   touch-action:pan-y;
+  overscroll-behavior-x:contain;
+  scroll-behavior:auto !important;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
   mask-image:linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%);
   -webkit-mask-image:linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%);
 }
+.client-gallery-marquee::-webkit-scrollbar{display:none}
 .client-gallery-marquee.is-dragging{cursor:grabbing}
 .client-gallery-grid{
   display:flex;
@@ -688,23 +694,33 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   .lightbox-hint{bottom:12px;font-size:9px;}
 }
 
-/* Recent work: compact horizontal marquee */
+/* Recent work: compact horizontal draggable marquee */
 .recent-marquee{
   position:relative;
   width:100%;
-  overflow:hidden;
+  overflow-x:auto;
+  overflow-y:hidden;
   padding:4px 0 12px;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  overscroll-behavior-x:contain;
+  scroll-behavior:auto !important;
+  cursor:grab;
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:pan-y;
   mask-image:linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%);
   -webkit-mask-image:linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%);
 }
+.recent-marquee::-webkit-scrollbar{display:none}
+.recent-marquee.is-dragging{cursor:grabbing}
 .gallery-track{
   display:flex !important;
   width:max-content;
   min-width:max-content;
   gap:0;
   align-items:stretch;
-  animation:recentMarquee 52s linear infinite;
-  will-change:transform;
+  will-change:scroll-position;
 }
 .marquee-group{
   display:flex;
@@ -716,6 +732,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   flex:0 0 clamp(230px,24vw,300px);
   width:clamp(230px,24vw,300px);
   margin:0;
+  touch-action:pan-y;
 }
 .gallery-track .gallery-card img,
 .gallery-track .gallery-card video{
@@ -726,34 +743,24 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   object-position:center;
   background:#080808;
 }
-.gallery-track .gallery-card video{
-  pointer-events:none;
-}
+.gallery-track .gallery-card video{pointer-events:none}
 .gallery-track .gallery-card .view-indicator{
   display:flex;
   align-items:center;
   justify-content:center;
 }
-.recent-marquee:hover .gallery-track,
-.recent-marquee.is-touching .gallery-track{
-  animation-play-state:paused;
-}
-@keyframes recentMarquee{
-  from{transform:translate3d(-50%,0,0)}
-  to{transform:translate3d(0,0,0)}
-}
+.gallery-track .gallery-card:active{cursor:grabbing}
 @media(max-width:650px){
   .recent-marquee{
     padding-bottom:8px;
     mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
     -webkit-mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
   }
-  .gallery-track{animation-duration:44s}
   .marquee-group{gap:10px;padding-right:10px}
   .gallery-track .gallery-card{flex-basis:clamp(190px,56vw,250px);width:clamp(190px,56vw,250px)}
 }
 @media(prefers-reduced-motion:reduce){
-  .gallery-track{animation:none;transform:none}
+  .recent-marquee{scroll-behavior:auto !important}
 }
 
 /* Lightbox support for videos */
@@ -1088,13 +1095,6 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   const clientGalleryStatus=document.getElementById('clientGalleryStatus');
   const clientGalleryClose=document.getElementById('clientGalleryClose');
   const clientGalleryMarquee=document.getElementById('clientGalleryMarquee');
-  let clientGalleryAutoFrame=null;
-  let clientGalleryLastTime=0;
-  let clientGalleryDragging=false;
-  let clientGalleryDragStartX=0;
-  let clientGalleryDragStartScroll=0;
-  let clientGalleryDidDrag=false;
-  const CLIENT_PORTFOLIO_LIMIT=10;
 
   function getMediaType(item,url){
     const source=String(item?.storage_path || url || '').split('?')[0].toLowerCase();
@@ -1164,7 +1164,10 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     indicator.textContent=item.type==='video' ? 'Ver video  ▶' : 'Ver fotografía  ↗';
     card.appendChild(indicator);
 
-    const open=()=>showLightbox(index);
+    const open=()=>{
+      if(recentMarqueeController && recentMarqueeController.isIgnoringClick()) return;
+      showLightbox(index);
+    };
     card.addEventListener('click',open);
     if(!duplicate){
       card.addEventListener('keydown',e=>{
@@ -1254,125 +1257,154 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   lightbox.addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].clientX},{passive:true});
   lightbox.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>=45)(dx<0?nextPhoto:prevPhoto)();},{passive:true});
 
-  if(galleryViewport){
-    const pauseRecent=()=>galleryViewport.classList.add('is-touching');
-    const resumeRecent=()=>galleryViewport.classList.remove('is-touching');
-    galleryViewport.addEventListener('touchstart',pauseRecent,{passive:true});
-    galleryViewport.addEventListener('touchend',resumeRecent,{passive:true});
-    galleryViewport.addEventListener('touchcancel',resumeRecent,{passive:true});
-  }
+  // Horizontal marquee controller: autoplay + free mouse/touch dragging + wheel.
+  function setupMarquee(viewport, track, options={}){
+    if(!viewport || !track) return null;
+    let frame=null;
+    let lastTime=0;
+    let dragging=false;
+    let startX=0;
+    let startScroll=0;
+    let didDrag=false;
+    let ignoreClickUntil=0;
+    const speed=options.speed ?? 0.035;
+    const direction=options.direction ?? -1; // -1 = visually left-to-right
 
-
-  function stopClientGalleryAuto(){
-    if(clientGalleryAutoFrame){cancelAnimationFrame(clientGalleryAutoFrame);clientGalleryAutoFrame=null;}
-    clientGalleryLastTime=0;
-  }
-
-  function clientGalleryLoopWidth(){
-    const group=clientGalleryGrid ? clientGalleryGrid.querySelector('.client-gallery-group') : null;
-    return group ? group.getBoundingClientRect().width : 0;
-  }
-
-  function keepClientGalleryLooping(){
-    const half=clientGalleryLoopWidth();
-    if(!half || !clientGalleryMarquee) return;
-    if(clientGalleryMarquee.scrollLeft >= half) clientGalleryMarquee.scrollLeft -= half;
-    if(clientGalleryMarquee.scrollLeft < 0) clientGalleryMarquee.scrollLeft += half;
-  }
-
-  function startClientGalleryAuto(){
-    stopClientGalleryAuto();
-    if(!clientGalleryMarquee || !clientGalleryGrid) return;
-    const speed=0.022;
-    const tick=(time)=>{
-      if(!clientGalleryMarquee || clientGalleryDragging) return;
-      if(!clientGalleryLastTime) clientGalleryLastTime=time;
-      const dt=Math.min(time-clientGalleryLastTime,40);
-      clientGalleryLastTime=time;
-      clientGalleryMarquee.scrollLeft += speed*dt;
-      keepClientGalleryLooping();
-      clientGalleryAutoFrame=requestAnimationFrame(tick);
+    const groupWidth=()=>{
+      const group=track.querySelector(options.groupSelector || '.marquee-group');
+      return group ? group.getBoundingClientRect().width : 0;
     };
-    clientGalleryAutoFrame=requestAnimationFrame(tick);
-  }
 
-  function finishClientGalleryDrag(){
-    if(!clientGalleryDragging) return;
-    clientGalleryDragging=false;
-    clientGalleryMarquee.classList.remove('is-dragging');
-    keepClientGalleryLooping();
-    const stopClick=clientGalleryDidDrag;
-    clientGalleryDidDrag=false;
-    if(stopClick){
-      setTimeout(()=>{clientGalleryDidDrag=false;},0);
-    }
-    startClientGalleryAuto();
-  }
+    const wrap=()=>{
+      const w=groupWidth();
+      if(!w) return;
+      // Two identical groups are rendered side-by-side.
+      while(viewport.scrollLeft <= 0) viewport.scrollLeft += w;
+      while(viewport.scrollLeft >= w) viewport.scrollLeft -= w;
+    };
 
-  if(clientGalleryMarquee){
-    clientGalleryMarquee.addEventListener('pointerdown',e=>{
-      if(e.button!==undefined && e.button!==0) return;
-      clientGalleryDragging=true;
-      clientGalleryDidDrag=false;
-      clientGalleryDragStartX=e.clientX;
-      clientGalleryDragStartScroll=clientGalleryMarquee.scrollLeft;
-      clientGalleryMarquee.classList.add('is-dragging');
-      stopClientGalleryAuto();
-      try{clientGalleryMarquee.setPointerCapture(e.pointerId);}catch{}
-    });
-    clientGalleryMarquee.addEventListener('pointermove',e=>{
-      if(!clientGalleryDragging)return;
-      const dx=e.clientX-clientGalleryDragStartX;
-      if(Math.abs(dx)>5)clientGalleryDidDrag=true;
-      clientGalleryMarquee.scrollLeft=clientGalleryDragStartScroll-dx;
-      keepClientGalleryLooping();
-    });
-    clientGalleryMarquee.addEventListener('pointerup',finishClientGalleryDrag);
-    clientGalleryMarquee.addEventListener('pointercancel',finishClientGalleryDrag);
-    clientGalleryMarquee.addEventListener('pointerleave',e=>{
-      if(clientGalleryDragging && e.pointerType==='mouse') finishClientGalleryDrag();
-    });
-    clientGalleryMarquee.addEventListener('wheel',e=>{
-      if(!clientGalleryMarquee.querySelector('.client-gallery-group')) return;
-      if(Math.abs(e.deltaX)>Math.abs(e.deltaY)) return;
+    const stop=()=>{
+      if(frame){cancelAnimationFrame(frame);frame=null;}
+      lastTime=0;
+    };
+
+    const start=()=>{
+      stop();
+      const tick=(time)=>{
+        if(dragging) return;
+        if(!lastTime) lastTime=time;
+        const dt=Math.min(time-lastTime,40);
+        lastTime=time;
+        const delta=speed*dt;
+        viewport.scrollLeft += direction<0 ? -delta : delta;
+        wrap();
+        frame=requestAnimationFrame(tick);
+      };
+      frame=requestAnimationFrame(tick);
+    };
+
+    const beginDrag=e=>{
+      if(e.pointerType==='mouse' && e.button!==0) return;
+      dragging=true;
+      didDrag=false;
+      startX=e.clientX;
+      startScroll=viewport.scrollLeft;
+      viewport.classList.add('is-dragging');
+      stop();
+      try{viewport.setPointerCapture(e.pointerId);}catch{}
+    };
+
+    const moveDrag=e=>{
+      if(!dragging) return;
+      const dx=e.clientX-startX;
+      if(Math.abs(dx)>5){
+        didDrag=true;
+        ignoreClickUntil=Date.now()+350;
+      }
+      viewport.scrollLeft=startScroll-dx;
+      wrap();
+    };
+
+    const endDrag=()=>{
+      if(!dragging) return;
+      dragging=false;
+      viewport.classList.remove('is-dragging');
+      wrap();
+      start();
+    };
+
+    viewport.addEventListener('pointerdown',beginDrag);
+    viewport.addEventListener('pointermove',moveDrag);
+    viewport.addEventListener('pointerup',endDrag);
+    viewport.addEventListener('pointercancel',endDrag);
+    viewport.addEventListener('wheel',e=>{
+      if(!track.firstElementChild) return;
+      const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if(!amount) return;
       e.preventDefault();
-      stopClientGalleryAuto();
-      clientGalleryMarquee.scrollLeft += e.deltaY;
-      keepClientGalleryLooping();
-      clearTimeout(clientGalleryMarquee._wheelResume);
-      clientGalleryMarquee._wheelResume=setTimeout(startClientGalleryAuto,500);
+      stop();
+      viewport.scrollLeft += amount;
+      wrap();
+      clearTimeout(viewport._marqueeResume);
+      viewport._marqueeResume=setTimeout(start,450);
     },{passive:false});
-    clientGalleryMarquee.addEventListener('pointerenter',()=>stopClientGalleryAuto());
-    clientGalleryMarquee.addEventListener('pointerleave',()=>{if(!clientGalleryDragging)startClientGalleryAuto();});
+    viewport.addEventListener('pointerenter',()=>{ if(!dragging) stop(); });
+    viewport.addEventListener('pointerleave',()=>{ if(!dragging) start(); });
+    viewport.addEventListener('touchstart',()=>stop(),{passive:true});
+    viewport.addEventListener('touchend',()=>start(),{passive:true});
+    viewport.addEventListener('touchcancel',()=>start(),{passive:true});
+
+    return {
+      start,
+      stop,
+      wrap,
+      isIgnoringClick(){ return Date.now()<ignoreClickUntil; }
+    };
   }
+
+  const recentMarqueeController=setupMarquee(galleryViewport,gallery,{speed:0.032,direction:-1,groupSelector:'.marquee-group'});
+
+  function createClientMarqueeController(){
+    return setupMarquee(clientGalleryMarquee,clientGalleryGrid,{speed:0.030,direction:-1,groupSelector:'.client-gallery-group'});
+  }
+
+  let clientGalleryController=null;
 
   async function openClientGallery(clientId,clientName){
-    if(!clientGalleryModal || !clientGalleryGrid)return;
-    stopClientGalleryAuto();
+    if(!clientGalleryModal || !clientGalleryGrid || !clientGalleryMarquee) return;
+    if(clientGalleryController) clientGalleryController.stop();
     clientGalleryTitle.textContent=clientName || '';
     clientGalleryGrid.innerHTML='';
     clientGalleryStatus.textContent=window.TPNG_I18N.t('clientLoading');
     clientGalleryModal.classList.add('open');
     clientGalleryModal.setAttribute('aria-hidden','false');
     document.body.style.overflow='hidden';
+
     try{
-      if(!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) throw new Error('Falta configurar Supabase en config.js');
+      if(!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
+        throw new Error('Falta configurar Supabase en config.js');
+      }
       const client=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
       const {data,error}=await client.from('gallery')
         .select('id,title,image_url,storage_path,created_at')
         .eq('client_id',clientId)
-        .order('created_at',{ascending:false})
-        .limit(CLIENT_PORTFOLIO_LIMIT);
+        .order('created_at',{ascending:false});
       if(error) throw error;
 
-      clientGalleryStatus.textContent='';
       const photos=[];
       (data||[]).forEach(item=>{
         let url=item.image_url;
-        if(!url && item.storage_path) url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
-        if(url) photos.push({url,title:item.title||'',type:getMediaType(item,url)});
+        if(!url && item.storage_path){
+          url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
+        }
+        if(url) photos.push({
+          url,
+          title:item.title||'',
+          type:getMediaType(item,url)
+        });
       });
 
+      clientGalleryStatus.textContent='';
       if(!photos.length){
         clientGalleryStatus.textContent=window.TPNG_I18N.t('clientNoPhotos');
         return;
@@ -1381,7 +1413,8 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       const buildGroup=(duplicate=false)=>{
         const group=document.createElement('div');
         group.className='client-gallery-group';
-        if(duplicate)group.setAttribute('aria-hidden','true');
+        if(duplicate) group.setAttribute('aria-hidden','true');
+
         photos.forEach((item,i)=>{
           const card=document.createElement('article');
           card.className='client-gallery-card';
@@ -1416,7 +1449,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
           }
 
           const openPhoto=()=>{
-            if(duplicate || clientGalleryDidDrag) return;
+            if(duplicate || (clientGalleryController && clientGalleryController.isIgnoringClick())) return;
             galleryItems=photos;
             closeClientGallery();
             showLightbox(i);
@@ -1435,13 +1468,20 @@ const lightboxPrev = document.getElementById('lightboxPrev');
         return group;
       };
 
+      // Two identical groups create a seamless infinite loop.
       clientGalleryGrid.appendChild(buildGroup(false));
       clientGalleryGrid.appendChild(buildGroup(true));
-      keepClientGalleryLooping();
-      // Start slightly offset so the marquee feels alive immediately.
-      const half=clientGalleryLoopWidth();
-      if(half) clientGalleryMarquee.scrollLeft=Math.min(40,half-1);
-      startClientGalleryAuto();
+
+      clientGalleryController=setupMarquee(
+        clientGalleryMarquee,
+        clientGalleryGrid,
+        {speed:0.030,direction:-1,groupSelector:'.client-gallery-group'}
+      );
+
+      const loopWidth=clientGalleryMarquee.querySelector('.client-gallery-group')?.getBoundingClientRect().width || 0;
+      if(loopWidth) clientGalleryMarquee.scrollLeft=loopWidth;
+      clientGalleryController.wrap();
+      clientGalleryController.start();
     }catch(err){
       console.error(err);
       clientGalleryStatus.textContent=window.TPNG_I18N.t('galleryError');
@@ -1449,19 +1489,22 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   }
 
   function closeClientGallery(){
-    stopClientGalleryAuto();
-    if(clientGalleryMarquee){clientGalleryMarquee.scrollLeft=0;clientGalleryMarquee.classList.remove('is-dragging');}
+    if(clientGalleryController) clientGalleryController.stop();
+    if(clientGalleryMarquee){
+      clientGalleryMarquee.scrollLeft=0;
+      clientGalleryMarquee.classList.remove('is-dragging');
+    }
+    clientGalleryController=null;
     clientGalleryModal.classList.remove('open');
     clientGalleryModal.setAttribute('aria-hidden','true');
     clientGalleryGrid.innerHTML='';
     clientGalleryStatus.textContent='';
-    clientGalleryDidDrag=false;
-    if(!lightbox.classList.contains('open'))document.body.style.overflow='';
+    if(!lightbox.classList.contains('open')) document.body.style.overflow='';
   }
 
   clientGalleryClose.addEventListener('click',closeClientGallery);
   clientGalleryModal.addEventListener('click',e=>{
-    if(e.target===clientGalleryModal)closeClientGallery();
+    if(e.target===clientGalleryModal) closeClientGallery();
   });
 
   async function loadClients(){
