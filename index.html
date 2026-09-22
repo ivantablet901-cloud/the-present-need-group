@@ -1356,6 +1356,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
         photos.forEach((item,i)=>{
           const card=document.createElement('article');
           card.className='client-gallery-card';
+          card.dataset.galleryIndex=String(i);
           card.setAttribute('role','button');
           card.setAttribute('tabindex',duplicate?'-1':'0');
           card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoFallback'));
@@ -1420,6 +1421,19 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       if(loopWidth) clientGalleryMarquee.scrollLeft=loopWidth;
       clientGalleryController.wrap();
       clientGalleryController.start();
+
+      clientGalleryMarquee.addEventListener('click',e=>{
+        const card=e.target.closest('.client-gallery-card');
+        if(!card || !clientGalleryMarquee.contains(card)) return;
+        if(card.parentElement?.getAttribute('aria-hidden')==='true') return;
+        if(clientGalleryController && clientGalleryController.isIgnoringClick()) return;
+        const index=Number(card.dataset.galleryIndex);
+        if(Number.isInteger(index)){
+          galleryItems=photos;
+          closeClientGallery();
+          showLightbox(index);
+        }
+      });
     }catch(err){
       console.error(err);
       clientGalleryStatus.textContent=window.TPNG_I18N.t('galleryError');
@@ -1541,6 +1555,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
         fullGalleryItems.forEach((item,index)=>{
           const card=document.createElement('article');
           card.className='gallery-card';
+          card.dataset.galleryIndex=String(index);
           card.setAttribute('role','button');
           card.setAttribute('tabindex',duplicate?'-1':'0');
           card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoAlt'));
@@ -1608,6 +1623,15 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       if(loopWidth) galleryViewport.scrollLeft=loopWidth;
       recentMarqueeController.wrap();
       recentMarqueeController.start();
+
+      galleryViewport.addEventListener('click',e=>{
+        const card=e.target.closest('.gallery-card');
+        if(!card || !galleryViewport.contains(card)) return;
+        if(card.parentElement?.getAttribute('aria-hidden')==='true') return;
+        if(recentMarqueeController && recentMarqueeController.isIgnoringClick()) return;
+        const index=Number(card.dataset.galleryIndex);
+        if(Number.isInteger(index)) showLightbox(index);
+      });
     }catch(err){
       console.error(err);
       status.textContent=window.TPNG_I18N.t('galleryError');
