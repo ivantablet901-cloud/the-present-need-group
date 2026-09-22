@@ -132,6 +132,16 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   pointer-events:none;
 }
 .gallery-card:hover::after{opacity:1}
+
+.gallery-card::before{content:"Ver fotografía  ↗";position:absolute;left:50%;top:50%;transform:translate(-50%,-46%);padding:9px 13px;border:1px solid rgba(255,255,255,.38);background:rgba(0,0,0,.42);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;font-size:11px;letter-spacing:.7px;white-space:nowrap;opacity:0;z-index:3;pointer-events:none;transition:opacity .28s ease,transform .28s ease}
+.gallery-card:hover::before{opacity:1;transform:translate(-50%,-50%)}
+.gallery-card:focus-visible{outline:2px solid rgba(255,255,255,.65);outline-offset:4px}
+.lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border:1px solid rgba(255,255,255,.22);background:rgba(15,15,15,.72);color:#fff;border-radius:50%;font-size:25px;cursor:pointer;z-index:4;transition:background .25s ease,border-color .25s ease}
+.lightbox-nav:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.5)}
+.lightbox-prev{left:22px}.lightbox-next{right:22px}
+.lightbox-hint{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.58);font-size:11px;letter-spacing:.5px;pointer-events:none}
+@media(max-width:650px){.gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.gallery-card{border-radius:8px}.gallery-card::before{content:"↗";width:34px;height:34px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:16px;letter-spacing:0;transform:translate(-50%,-50%)}.gallery-card:hover::before{transform:translate(-50%,-50%)}.gallery-card:active{transform:scale(.985)}.lightbox{padding:18px 10px}.lightbox img{max-width:94vw;max-height:80vh}.lightbox-nav{width:42px;height:42px;font-size:22px}.lightbox-prev{left:8px}.lightbox-next{right:8px}.lightbox-hint{bottom:10px;font-size:10px}}
+@media(hover:none){.gallery-card::before{opacity:.9}.gallery-card:hover img{transform:none}}
 .gallery-card .caption{
   position:absolute;
   left:14px;
@@ -392,8 +402,11 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
 
 <div id="lightbox" class="lightbox" aria-hidden="true">
 <button id="closeLightbox" aria-label="Cerrar">×</button>
+<button id="lightboxPrev" class="lightbox-nav lightbox-prev" aria-label="Fotografía anterior">‹</button>
 <img id="lightboxImage" src="" alt="">
+<button id="lightboxNext" class="lightbox-nav lightbox-next" aria-label="Fotografía siguiente">›</button>
 <div id="lightboxTitle" class="lightbox-title"></div>
+<div class="lightbox-hint">Desliza para navegar</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -550,24 +563,36 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
   const lightboxImage = document.getElementById('lightboxImage');
   const lightboxTitle = document.getElementById('lightboxTitle');
   const closeLightbox = document.getElementById('closeLightbox');
-
-  function openLightbox(url,title){
-    lightboxImage.src = url;
-    lightboxImage.alt = title || window.TPNG_I18N.t('photoAlt');
-    lightboxTitle.textContent = title || '';
+  const lightboxPrev = document.getElementById('lightboxPrev');
+  const lightboxNext = document.getElementById('lightboxNext');
+  let galleryItems=[];
+  let currentIndex=0;
+  function showLightbox(index){
+    if(!galleryItems.length)return;
+    currentIndex=(index+galleryItems.length)%galleryItems.length;
+    const item=galleryItems[currentIndex];
+    lightboxImage.src=item.url;
+    lightboxImage.alt=item.title || window.TPNG_I18N.t('photoAlt');
+    lightboxTitle.textContent=item.title || '';
     lightbox.classList.add('open');
     lightbox.setAttribute('aria-hidden','false');
     document.body.style.overflow='hidden';
   }
-  function close(){
-    lightbox.classList.remove('open');
-    lightbox.setAttribute('aria-hidden','true');
-    lightboxImage.src='';
-    document.body.style.overflow='';
+  function openLightbox(url,title){
+    const i=galleryItems.findIndex(x=>x.url===url && x.title===title);
+    showLightbox(i<0?0:i);
   }
+  function close(){lightbox.classList.remove('open');lightbox.setAttribute('aria-hidden','true');lightboxImage.src='';document.body.style.overflow='';}
+  function nextPhoto(){showLightbox(currentIndex+1)}
+  function prevPhoto(){showLightbox(currentIndex-1)}
   closeLightbox.addEventListener('click',close);
+  lightboxNext.addEventListener('click',e=>{e.stopPropagation();nextPhoto()});
+  lightboxPrev.addEventListener('click',e=>{e.stopPropagation();prevPhoto()});
   lightbox.addEventListener('click',e=>{if(e.target===lightbox)close();});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close();if(lightbox.classList.contains('open')&&e.key==='ArrowRight')nextPhoto();if(lightbox.classList.contains('open')&&e.key==='ArrowLeft')prevPhoto();});
+  let touchStartX=0;
+  lightbox.addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].clientX},{passive:true});
+  lightbox.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>=50)(dx<0?nextPhoto:prevPhoto)();},{passive:true});
 
   async function loadGallery(){
     try{
@@ -585,25 +610,25 @@ footer{padding:35px 0;color:#777;font-size:13px;text-align:center}
       }
 
       status.textContent='';
+      galleryItems=[];
       data.forEach(item=>{
         let url=item.image_url;
-        if(!url && item.storage_path){
-          url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
-        }
-        if(!url) return;
-
+        if(!url && item.storage_path){url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;}
+        if(!url)return;
+        const title=item.title||'';
+        galleryItems.push({url,title});
         const card=document.createElement('article');
         card.className='gallery-card';
+        card.setAttribute('role','button');
+        card.setAttribute('tabindex','0');
+        card.setAttribute('aria-label',title||window.TPNG_I18N.t('photoAlt'));
         const img=document.createElement('img');
-        img.src=url;
-        img.alt=item.title || window.TPNG_I18N.t('photoFallback');
-        img.loading='lazy'; img.decoding='async';
-        const caption=document.createElement('div');
-        caption.className='caption';
-        caption.textContent=item.title || '';
-        card.appendChild(img);
-        if(item.title) card.appendChild(caption);
-        card.addEventListener('click',()=>openLightbox(url,item.title||''));
+        img.src=url;img.alt=title||window.TPNG_I18N.t('photoFallback');img.loading='lazy';img.decoding='async';
+        const caption=document.createElement('div');caption.className='caption';caption.textContent=title;
+        card.appendChild(img);if(title)card.appendChild(caption);
+        const itemIndex=galleryItems.length-1;
+        card.addEventListener('click',()=>showLightbox(itemIndex));
+        card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showLightbox(itemIndex)}});
         gallery.appendChild(card);
       });
     }catch(err){
