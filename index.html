@@ -1152,6 +1152,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     const speed=options.speed ?? 0.032;
     const direction=options.direction ?? -1;
     const groupSelector=options.groupSelector || '.marquee-group';
+    const pauseOnHover=options.pauseOnHover !== false;
 
     const groupWidth=()=>{
       const group=track.querySelector(groupSelector);
@@ -1241,8 +1242,13 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       pause(700);
     },{passive:false});
 
-    viewport.addEventListener('mouseenter',()=>pause(500));
-    viewport.addEventListener('mouseleave',()=>pause(250));
+    // Hover on desktop must NOT stop the client marquee.
+    // A transformed image can remain under the pointer while the track moves,
+    // which can otherwise make the browser repeatedly fire enter/leave events.
+    if(pauseOnHover){
+      viewport.addEventListener('mouseenter',()=>pause(500));
+      viewport.addEventListener('mouseleave',()=>pause(250));
+    }
 
     document.addEventListener('visibilitychange',()=>{
       if(!document.hidden){
@@ -1365,7 +1371,7 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       clientGalleryController=setupMarquee(
         clientGalleryMarquee,
         clientGalleryGrid,
-        {speed:0.030,direction:-1,groupSelector:'.client-gallery-group'}
+        {speed:0.030,direction:-1,groupSelector:'.client-gallery-group',pauseOnHover:false}
       );
       const loopWidth=clientGalleryMarquee.querySelector('.client-gallery-group')?.getBoundingClientRect().width || 0;
       if(loopWidth) clientGalleryMarquee.scrollLeft=loopWidth;
