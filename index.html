@@ -1248,6 +1248,8 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     let momentum=0;
     let resumeTimer=0;
     let clickBlockedUntil=0;
+    let hasUserInteracted=false;
+    const captureMouseOnDown=options.captureMouseOnDown !== false;
     let destroyed=false;
 
     const getGroupWidth=()=>{
@@ -1316,6 +1318,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 
     const beginDrag=e=>{
       if(e.pointerType==='mouse' && e.button!==0)return;
+      hasUserInteracted=true;
       if(pauseOnHover)pause();
       dragging=true;
       startX=e.clientX;
@@ -1324,7 +1327,9 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       lastMoveTime=performance.now();
       momentum=0;
       viewport.classList.add('is-dragging');
-      try{viewport.setPointerCapture(e.pointerId)}catch{}
+      if(e.pointerType!=='mouse' || captureMouseOnDown){
+        try{viewport.setPointerCapture(e.pointerId)}catch{}
+      }
     };
 
     const moveDrag=e=>{
@@ -1352,7 +1357,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     };
 
     const onPointerEnter=e=>{
-      if(e.pointerType==='mouse' && pauseOnHover)pause();
+      if(e.pointerType==='mouse' && pauseOnHover && hasUserInteracted)pause();
     };
     const onPointerLeave=e=>{
       if(e.pointerType==='mouse' && !dragging && pauseOnHover){
@@ -1470,17 +1475,23 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       const media=document.createElement('video');
       media.src=item.url;
       media.muted=true;
+      media.defaultMuted=true;
       media.playsInline=true;
       media.autoplay=true;
       media.loop=true;
       media.preload='auto';
       media.setAttribute('autoplay','');
       media.setAttribute('playsinline','');
+      media.setAttribute('muted','');
       media.setAttribute('aria-label',item.title || 'Video');
-      const playPromise=media.play();
-      if(playPromise?.catch)playPromise.catch(()=>{});
       media.tabIndex=-1;
       card.appendChild(media);
+      const playVideo=()=>{
+        const playPromise=media.play();
+        if(playPromise?.catch)playPromise.catch(()=>{});
+      };
+      if(media.readyState>=2)playVideo();
+      else media.addEventListener('loadeddata',playVideo,{once:true});
     }else{
       const img=document.createElement('img');
       img.src=item.url;
@@ -1693,7 +1704,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       recentMarqueeController=setupMarquee(
         galleryViewport,
         gallery,
-        {speed:0.032,direction:-1,groupSelector:'.marquee-group',pauseOnHover:true,holdWhileLightbox:true}
+        {speed:0.032,direction:-1,groupSelector:'.marquee-group',pauseOnHover:true,holdWhileLightbox:true,captureMouseOnDown:false}
       );
       const loopWidth=galleryViewport.querySelector('.marquee-group')?.getBoundingClientRect().width || 0;
       if(loopWidth)galleryViewport.scrollLeft=loopWidth;
