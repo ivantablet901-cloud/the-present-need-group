@@ -1088,6 +1088,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   let transitionTimer=null;
   let clientGalleryController=null;
   let recentMarqueeController=null;
+  let lightboxResumeController=null;
 
   function getSupabase(){
     if(!supabaseClient) throw new Error('Falta configurar Supabase en config.js');
@@ -1104,11 +1105,21 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     lightboxVideo.hidden=!video;
     lightboxVideo.pause();
     lightboxVideo.removeAttribute('src');
+    lightboxVideo.removeAttribute('autoplay');
     lightboxVideo.load();
 
     if(video){
       lightboxVideo.src=item.url;
+      lightboxVideo.muted=true;
+      lightboxVideo.playsInline=true;
+      lightboxVideo.controls=true;
+      lightboxVideo.autoplay=true;
+      lightboxVideo.loop=true;
+      lightboxVideo.setAttribute('autoplay','');
+      lightboxVideo.setAttribute('playsinline','');
       lightboxVideo.load();
+      const playPromise=lightboxVideo.play();
+      if(playPromise?.catch)playPromise.catch(()=>{});
     }else{
       lightboxImage.src=item.url;
     }
@@ -1160,10 +1171,16 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     lightboxImage.hidden=false;
     lightboxVideo.pause();
     lightboxVideo.removeAttribute('src');
+    lightboxVideo.removeAttribute('autoplay');
     lightboxVideo.load();
     lightboxVideo.hidden=true;
     lightboxItems=fullGalleryItems;
     currentIndex=0;
+    if(lightboxResumeController){
+      const controller=lightboxResumeController;
+      lightboxResumeController=null;
+      controller.resume();
+    }
     document.body.style.overflow=clientGalleryModal.classList.contains('open') ? 'hidden' : '';
   }
 
@@ -1219,6 +1236,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     const direction=options.direction ?? -1;
     const groupSelector=options.groupSelector || '.marquee-group';
     const pauseOnHover=options.pauseOnHover !== false;
+    const holdWhileLightbox=options.holdWhileLightbox === true;
 
     let frame=0;
     let lastTime=0;
@@ -1337,7 +1355,10 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       if(e.pointerType==='mouse' && pauseOnHover)pause();
     };
     const onPointerLeave=e=>{
-      if(e.pointerType==='mouse' && !dragging && pauseOnHover)resume();
+      if(e.pointerType==='mouse' && !dragging && pauseOnHover){
+        if(holdWhileLightbox && lightbox.classList.contains('open'))return;
+        resume();
+      }
     };
     const onPointerDown=beginDrag;
     const onPointerMove=moveDrag;
@@ -1396,14 +1417,17 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     return {
       start,
       stop,
+      pause,
+      resume,
       wrap,
       shouldIgnoreClick:()=>Date.now()<clickBlockedUntil
     };
   }
 
-  function bindMediaTrack(track,selector,getItems,getController){
+  function bindMediaTrack(track,selector,getItems,getController,options={}){
     if(!track || track.dataset.mediaBound==='true')return;
     track.dataset.mediaBound='true';
+    const pauseOnOpen=options.pauseOnOpen === true;
 
     track.addEventListener('click',e=>{
       const card=e.target.closest(selector);
@@ -1415,7 +1439,13 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       }
       const items=getItems();
       const index=Number(card.dataset.index);
-      if(Number.isInteger(index))openLightbox(items,index);
+      if(Number.isInteger(index)){
+        if(pauseOnOpen && controller){
+          controller.pause();
+          lightboxResumeController=controller;
+        }
+        openLightbox(items,index);
+      }
     });
 
     track.addEventListener('keydown',e=>{
@@ -1441,8 +1471,14 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       media.src=item.url;
       media.muted=true;
       media.playsInline=true;
-      media.preload='metadata';
+      media.autoplay=true;
+      media.loop=true;
+      media.preload='auto';
+      media.setAttribute('autoplay','');
+      media.setAttribute('playsinline','');
       media.setAttribute('aria-label',item.title || 'Video');
+      const playPromise=media.play();
+      if(playPromise?.catch)playPromise.catch(()=>{});
       media.tabIndex=-1;
       card.appendChild(media);
     }else{
@@ -1657,12 +1693,12 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       recentMarqueeController=setupMarquee(
         galleryViewport,
         gallery,
-        {speed:0.032,direction:-1,groupSelector:'.marquee-group',pauseOnHover:false}
+        {speed:0.032,direction:-1,groupSelector:'.marquee-group',pauseOnHover:true,holdWhileLightbox:true}
       );
       const loopWidth=galleryViewport.querySelector('.marquee-group')?.getBoundingClientRect().width || 0;
       if(loopWidth)galleryViewport.scrollLeft=loopWidth;
       recentMarqueeController.wrap();
-      bindMediaTrack(gallery,'.gallery-card',()=>fullGalleryItems,()=>recentMarqueeController);
+      bindMediaTrack(gallery,'.gallery-card',()=>fullGalleryItems,()=>recentMarqueeController,{pauseOnOpen:true});
       lightboxItems=fullGalleryItems;
     }catch(err){
       console.error(err);
