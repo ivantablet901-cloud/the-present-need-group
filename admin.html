@@ -99,27 +99,12 @@ h2{font-size:24px;letter-spacing:-.8px}
 .recent-loop-thumb .recent-loop-title{position:absolute;left:0;right:0;bottom:0;padding:14px 5px 5px;background:linear-gradient(transparent,rgba(0,0,0,.88));color:#fff;font-size:9px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .recent-loop-empty{padding:12px;color:var(--muted2);font-size:10px}
 @media(max-width:750px){.recent-loop-thumbs{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.gallery-list{display:block}
-.gallery-item{display:flex;align-items:center;gap:15px;border:0;border-top:1px solid #333;border-radius:0;background:transparent;overflow:visible;padding:15px 0}
-.gallery-item img,.gallery-item video{width:88px;height:62px;object-fit:cover;display:block;cursor:pointer;border-radius:4px;background:#070707}
-.gallery-info{padding:0;flex:1}.gallery-title{font-size:13px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gallery-actions{display:flex;justify-content:flex-end}.gallery-actions .btn{padding:12px 18px;font-size:12px;border-radius:4px}
-
 .request{border-top:1px solid #333;padding:18px 0}.request:first-child{border-top:0}
 .request-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
 .request h3{margin:0 0 6px;font-size:18px}.request p{margin:5px 0}.request a:hover{color:#fff}
-.request .message-box{margin-top:12px;padding:12px;background:#0d0d0d;border:1px solid #2b2b2b;border-radius:4px;white-space:pre-wrap;color:#ccc}
 .request-status{margin:10px 0;padding:10px;background:#0d0d0d;border:1px solid #333;color:#fff;border-radius:4px;width:100%;box-sizing:border-box}
-.request-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
 .request-status select{padding:9px 11px;font-size:12px}
 .empty{padding:28px 0;text-align:center;color:var(--muted)}
-
-
-.image-preview{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;padding:24px}
-.image-preview.open{display:flex}
-.image-preview img{max-width:90vw;max-height:85vh;width:auto;height:auto;object-fit:contain;border:1px solid rgba(255,255,255,.12);box-shadow:0 20px 70px rgba(0,0,0,.5)}
-.image-preview button{position:absolute;top:18px;right:20px;width:44px;height:44px;border:1px solid #444;background:#111;color:#fff;border-radius:50%;font-size:25px;cursor:pointer}
-.image-preview button:hover{background:#fff;color:#111}
 
 
 /* Quote requests — clearer dashboard presentation */
@@ -229,81 +214,13 @@ h2{font-size:24px;letter-spacing:-.8px}
   background:#4a2020;
 }
 
-/* Gallery thumbnails stay small */
-.gallery-item img,.gallery-item video{
-  width:60px;
-  height:42px;
-  object-fit:cover;
-  display:block;
-  cursor:pointer;
-  border-radius:4px;
-}
-
-/* Make the original JS-generated gallery delete button match the design */
-.gallery-item .danger{
-  background:#351818;
-  color:#fff;
-  border:0;
-  border-radius:4px;
-  padding:9px 13px;
-  font-size:11px;
-}
-.gallery-item .danger:hover{background:#4a2020}
-
 @media(max-width:650px){
   .upload-grid{grid-template-columns:1fr}
   .request-summary{grid-template-columns:repeat(2,1fr)}
   .summary-card:first-child{grid-column:span 2}
   .request-head{flex-direction:row}
   .request-head .danger{padding:8px 11px}
-  .gallery-item img,.gallery-item video{width:88px;height:62px}
 }
-
-
-/* Compact gallery thumbnails */
-#list .item{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  padding:12px 0;
-  border-top:1px solid #333;
-  min-width:0;
-}
-#list .item:first-child{border-top:0}
-#list .item img,#list .item video{
-  width:60px;
-  height:42px;
-  flex:0 0 72px;
-  object-fit:cover;
-  display:block;
-  border-radius:5px;
-  cursor:pointer;
-  border:1px solid rgba(255,255,255,.08);
-  transition:transform .2s ease,border-color .2s ease;
-}
-#list .item img:hover,#list .item video:hover{
-  transform:scale(1.04);
-  border-color:rgba(255,255,255,.3);
-}
-#list .item > div{
-  flex:1;
-  min-width:0;
-  font-size:13px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-#list .item .danger{
-  flex:0 0 auto;
-  padding:9px 13px;
-  font-size:11px;
-  border-radius:4px;
-  background:#351818;
-  color:#fff;
-  border:0;
-}
-#list .item .danger:hover{background:#4a2020}
-
 
 
 /* Clients & Brands management */
@@ -548,11 +465,6 @@ h2{font-size:24px;letter-spacing:-.8px}
   <video id="galleryLightboxVideo" playsinline controls></video>
 </div>
 
-<div id="imagePreview" class="image-preview" aria-hidden="true">
-  <button id="closeImagePreview" type="button" aria-label="Close">×</button>
-  <img id="previewImage" src="" alt="">
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script>
 const c=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY),$=x=>document.getElementById(x);
 
@@ -595,30 +507,33 @@ galleryLightbox.addEventListener('click',e=>{
   if(e.target===galleryLightbox) closeGalleryLightboxFn();
 });
 
-const imagePreview=$('imagePreview');
-const previewImage=$('previewImage');
-const closeImagePreview=$('closeImagePreview');
-function openImagePreview(url,title){
-  previewImage.src=url;
-  previewImage.alt=title||'Gallery image';
-  imagePreview.classList.add('open');
-  imagePreview.setAttribute('aria-hidden','false');
-  document.body.style.overflow='hidden';
-}
-function closeImagePreviewFn(){
-  imagePreview.classList.remove('open');
-  imagePreview.setAttribute('aria-hidden','true');
-  previewImage.src='';
-  document.body.style.overflow='';
-}
-closeImagePreview.addEventListener('click',closeImagePreviewFn);
-imagePreview.addEventListener('click',e=>{if(e.target===imagePreview)closeImagePreviewFn();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeImagePreviewFn();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeGalleryLightboxFn();});
 
 
 let galleryUploadFiles=[];
+let galleryPreviewUrls=[];
 let galleryClients=[];
+let clientUploadFiles=[];
+let clientPreviewUrls=[];
+
+function revokeObjectUrls(urls){
+  urls.forEach(url=>{
+    try{URL.revokeObjectURL(url)}catch(e){}
+  });
+  urls.length=0;
+}
+
+function clearGalleryUploadPreview(){
+  revokeObjectUrls(galleryPreviewUrls);
+  const list=$('galleryUploadList');
+  if(list)list.innerHTML='';
+}
+
+function clearClientUploadPreview(){
+  revokeObjectUrls(clientPreviewUrls);
+  const list=$('clientUploadList');
+  if(list)list.innerHTML='';
+}
 
 function galleryClientOptions(selectedId=''){
   let html='<option value="">General portfolio / no client</option>';
@@ -638,6 +553,7 @@ function refreshGalleryClientSelector(){
 function renderGalleryUploadList(){
   const list=$('galleryUploadList');
   if(!list)return;
+  revokeObjectUrls(galleryPreviewUrls);
   list.innerHTML='';
   const defaultTitle=String($('title')?.value||'').trim();
   const defaultClient=$('galleryDefaultClient')?.value||'';
@@ -647,6 +563,7 @@ function renderGalleryUploadList(){
     row.className='gallery-upload-row';
 
     const mediaUrl=URL.createObjectURL(f);
+    galleryPreviewUrls.push(mediaUrl);
     const isVideo=f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(f.name);
     const media=isVideo ? document.createElement('video') : document.createElement('img');
     media.src=mediaUrl;
@@ -696,16 +613,17 @@ $('msg').textContent='';
 }
 async function logout(){await c.auth.signOut()}
 
-let clientUploadFiles=[];
 function renderClientUploadList(){
   const list=$('clientUploadList');
   if(!list)return;
+  revokeObjectUrls(clientPreviewUrls);
   list.innerHTML='';
   const base=Number($('clientDefaultOrder')?.value||1);
   clientUploadFiles.forEach((f,i)=>{
     const row=document.createElement('div');
     row.className='client-upload-row';
     const mediaUrl=URL.createObjectURL(f);
+    clientPreviewUrls.push(mediaUrl);
     const isVideo=f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(f.name);
     const media=isVideo ? document.createElement('video') : document.createElement('img');
     media.src=mediaUrl;
@@ -729,7 +647,7 @@ function renderClientUploadList(){
     order.dataset.index=i;
     order.value=base+i;
     order.title='Display order';
-    row.appendChild(img);row.appendChild(name);row.appendChild(order);list.appendChild(row);
+    row.appendChild(media);row.appendChild(name);row.appendChild(order);list.appendChild(row);
   });
 }
 $('clientFiles')?.addEventListener('change',e=>{
@@ -763,29 +681,72 @@ async function uploadClients(){
     const f=files[i];
     if(f.size>6*1024*1024){$('clientStatus').textContent='La imagen "'+f.name+'" supera el límite de 6 MB.';return}
     if(!['image/jpeg','image/png','image/webp'].includes(f.type)){$('clientStatus').textContent='La imagen "'+f.name+'" no es un formato permitido.';return}
-    if(!rows[i]){renderClientUploadList()}
+    if(!rows[i])renderClientUploadList();
   }
+
   const finalRows=Array.from(document.querySelectorAll('.client-upload-row'));
   $('clientStatus').textContent='';
+  const uploadedPaths=[];
   let published=0;
+
   for(let i=0;i<files.length;i++){
     const f=files[i];
     const name=(finalRows[i]?.querySelector('.client-name-input')?.value||'').trim() || f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ');
     const order=Math.max(1,Number(finalRows[i]?.querySelector('.client-order')?.value||i+1));
     const path='clients/'+crypto.randomUUID()+'-'+f.name.toLowerCase().replace(/[^a-z0-9._-]/g,'-');
     $('clientStatus').textContent='Subiendo '+(i+1)+' de '+files.length+'...';
+
     const u=await c.storage.from('gallery').upload(path,f,{contentType:f.type});
-    if(u.error){$('clientStatus').textContent=u.error.message;return}
+    if(u.error){
+      const rollback=await rollbackClientBatch(uploadedPaths);
+      $('clientStatus').textContent='No se pudo completar la carga: '+u.error.message+(rollback.failed?' Se detectaron '+rollback.failed+' error(es) durante la reversión; revisa Storage/Clients & Brands.':' Los archivos anteriores se revirtieron.');
+      return;
+    }
+
     const url=c.storage.from('gallery').getPublicUrl(path).data.publicUrl;
     const d=await c.from('client_logos').insert({name:name,image_url:url,storage_path:path,sort_order:order});
-    if(d.error){await c.storage.from('gallery').remove([path]);$('clientStatus').textContent=d.error.message;return}
+    if(d.error){
+      const failedStorageCleanup=await c.storage.from('gallery').remove([path]);
+      const rollback=await rollbackClientBatch(uploadedPaths);
+      $('clientStatus').textContent='No se pudo publicar "'+name+'": '+d.error.message+(failedStorageCleanup.error?' No se pudo limpiar el archivo fallido de Storage: '+failedStorageCleanup.error.message+'.':'')+(rollback.failed?' Se detectaron '+rollback.failed+' error(es) durante la reversión; revisa Storage/Clients & Brands.':' Los archivos anteriores se revirtieron.');
+      return;
+    }
+
+    uploadedPaths.push(path);
     published++;
   }
+
   $('clientStatus').textContent=published===1?'Cliente publicado.':published+' clientes publicados.';
   clientUploadFiles=[];
   if($('clientFiles'))$('clientFiles').value='';
-  if($('clientUploadList'))$('clientUploadList').innerHTML='';
+  clearClientUploadPreview();
   await refreshClients();
+}
+
+async function rollbackClientBatch(paths){
+  let failed=0;
+  for(const path of [...paths].reverse()){
+    const found=await c.from('client_logos').select('*').eq('storage_path',path).maybeSingle();
+    if(found.error){failed++;continue}
+
+    if(found.data){
+      const restorePayload={...found.data};
+      delete restorePayload.id;
+      const del=await c.from('client_logos').delete().eq('storage_path',path);
+      if(del.error){failed++;continue}
+
+      const storage=await c.storage.from('gallery').remove([path]);
+      if(storage.error){
+        const restore=await c.from('client_logos').insert(restorePayload);
+        failed++;
+        if(restore.error)console.error('Client rollback restore error:',restore.error);
+      }
+    }else{
+      const storage=await c.storage.from('gallery').remove([path]);
+      if(storage.error)failed++;
+    }
+  }
+  return {failed};
 }
 
 async function removeClientLogo(id,path){
@@ -793,13 +754,39 @@ async function removeClientLogo(id,path){
   if(!path){alert('No se encontró la ruta de Storage de este cliente.');return}
   const btn=document.querySelector('#clientLogoList .btn.danger[data-client-id="'+id+'"]');
   if(btn){btn.disabled=true;btn.textContent='Eliminando...'}
+
   try{
-    const storageResult=await c.storage.from('gallery').remove([path]);
-    if(storageResult.error){alert('No se pudo eliminar la imagen de Supabase Storage:\n\n'+storageResult.error.message);if(btn){btn.disabled=false;btn.textContent='Eliminar'};return}
+    const existing=await c.from('client_logos').select('*').eq('id',id).maybeSingle();
+    if(existing.error || !existing.data){
+      throw new Error(existing.error?.message||'No se encontró el registro del cliente.');
+    }
+
     const dbResult=await c.from('client_logos').delete().eq('id',id);
-    if(dbResult.error){alert('La imagen fue eliminada de Storage, pero no se pudo eliminar su registro de Clients & Brands:\n\n'+dbResult.error.message);if(btn){btn.disabled=false;btn.textContent='Eliminar'};await refreshClients();return}
+    if(dbResult.error){
+      throw new Error('No se pudo eliminar el registro de Clients & Brands: '+dbResult.error.message);
+    }
+
+    const storageResult=await c.storage.from('gallery').remove([path]);
+    if(storageResult.error){
+      const restorePayload={...existing.data};
+      delete restorePayload.id;
+      const restore=await c.from('client_logos').insert(restorePayload);
+      if(restore.error){
+        alert('La imagen sigue en Storage, pero no se pudo completar ni la limpieza ni la restauración del registro:\n\n'+storageResult.error.message+'\n\nRestauración: '+restore.error.message);
+      }else{
+        alert('No se pudo eliminar la imagen de Supabase Storage. El cliente fue restaurado para evitar dejar un registro incompleto.\n\n'+storageResult.error.message);
+      }
+      if(btn){btn.disabled=false;btn.textContent='Eliminar'}
+      await refreshClients();
+      return;
+    }
+
     await refreshClients();
-  }catch(e){console.error(e);alert('Ocurrió un error al eliminar el cliente:\n\n'+(e.message||String(e)));if(btn){btn.disabled=false;btn.textContent='Eliminar'}}
+  }catch(e){
+    console.error('Client delete error:',e);
+    alert('Ocurrió un error al eliminar el cliente:\n\n'+(e.message||String(e)));
+    if(btn){btn.disabled=false;btn.textContent='Eliminar'}
+  }
 }
 
 document.addEventListener('click',function(e){
@@ -813,7 +800,7 @@ async function refresh(){
   await refreshClients();
   let r=await c.from('gallery').select('*').order('created_at',{ascending:false});
   if(r.error){
-    $('list').innerHTML='<p class="muted">No se pudieron cargar las fotografías: '+escapeHtml(r.error.message)+'</p>';
+    $('list').innerHTML='<p class="muted">No se pudieron cargar los archivos: '+escapeHtml(r.error.message)+'</p>';
     await refreshRequests();
     return;
   }
@@ -873,7 +860,7 @@ async function refresh(){
     return '<div class="item">'+media+'<div><div>'+title+'</div><select class="gallery-client-picker" onchange="updatePhotoClient('+x.id+',this.value)" aria-label="Client or brand"><option value="">General portfolio / no client</option>'+options+'</select></div><button class="danger" data-photo-id="'+x.id+'" data-photo-path="'+escapeHtml(x.storage_path||'')+'">Eliminar</button></div>';
   }).join('');
 
-  $('list').innerHTML=rows||'<p class="muted">No hay fotografías.</p>';
+  $('list').innerHTML=rows||'<p class="muted">No hay archivos.</p>';
   await refreshRequests();
 }
 
@@ -970,7 +957,7 @@ async function upload(){
     const isVideo=f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(f.name);
     const maxSize=isVideo ? 50*1024*1024 : 6*1024*1024;
     if(f.size>maxSize){
-      $('status').textContent=(isVideo?'El video ':'La foto "'+f.name+'" ')+'supera el límite de '+(isVideo?'50 MB':'6 MB')+'.';
+      $('status').textContent=(isVideo?'El video "'+f.name+'" ':'La foto "'+f.name+'" ')+'supera el límite de '+(isVideo?'50 MB':'6 MB')+'.';
       return;
     }
     const allowedImage=['image/jpeg','image/png','image/webp'].includes(f.type) || /\.(jpg|jpeg|png|webp)$/i.test(f.name);
@@ -981,6 +968,7 @@ async function upload(){
     }
   }
 
+  const uploadedPaths=[];
   let uploaded=0;
   for(let i=0;i<files.length;i++){
     const f=files[i];
@@ -992,7 +980,11 @@ async function upload(){
     $('status').textContent='Subiendo '+(uploaded+1)+' de '+files.length+'...';
 
     const u=await c.storage.from('gallery').upload(path,f,{contentType:f.type});
-    if(u.error){$('status').textContent=u.error.message;return}
+    if(u.error){
+      const rollback=await rollbackGalleryBatch(uploadedPaths);
+      $('status').textContent='No se pudo completar la carga: '+u.error.message+(rollback.failed?' Se detectaron '+rollback.failed+' error(es) durante la reversión; revisa la galería y Storage.':' Los archivos anteriores se revirtieron.');
+      return;
+    }
 
     const url=c.storage.from('gallery').getPublicUrl(path).data.publicUrl;
     const d=await c.from('gallery').insert({
@@ -1003,10 +995,12 @@ async function upload(){
     });
 
     if(d.error){
-      await c.storage.from('gallery').remove([path]);
-      $('status').textContent=d.error.message;
+      const failedStorageCleanup=await c.storage.from('gallery').remove([path]);
+      const rollback=await rollbackGalleryBatch(uploadedPaths);
+      $('status').textContent='No se pudo publicar "'+(title||f.name)+'": '+d.error.message+(failedStorageCleanup.error?' No se pudo limpiar el archivo fallido de Storage: '+failedStorageCleanup.error.message+'.':'')+(rollback.failed?' Se detectaron '+rollback.failed+' error(es) durante la reversión; revisa la galería y Storage.':' Los archivos anteriores se revirtieron.');
       return;
     }
+    uploadedPaths.push(path);
     uploaded++;
   }
 
@@ -1014,14 +1008,40 @@ async function upload(){
   galleryUploadFiles=[];
   $('title').value='';
   $('file').value='';
-  $('galleryUploadList').innerHTML='';
+  clearGalleryUploadPreview();
   await refresh();
 }
 
+async function rollbackGalleryBatch(paths){
+  let failed=0;
+  for(const path of [...paths].reverse()){
+    const found=await c.from('gallery').select('*').eq('storage_path',path).maybeSingle();
+    if(found.error){failed++;continue}
+
+    if(found.data){
+      const restorePayload={...found.data};
+      delete restorePayload.id;
+      const del=await c.from('gallery').delete().eq('storage_path',path);
+      if(del.error){failed++;continue}
+
+      const storage=await c.storage.from('gallery').remove([path]);
+      if(storage.error){
+        const restore=await c.from('gallery').insert(restorePayload);
+        failed++;
+        if(restore.error)console.error('Gallery rollback restore error:',restore.error);
+      }
+    }else{
+      const storage=await c.storage.from('gallery').remove([path]);
+      if(storage.error)failed++;
+    }
+  }
+  return {failed};
+}
+
 async function removeItem(id,path){
-  if(!confirm('¿Eliminar esta fotografía?'))return;
+  if(!confirm('¿Eliminar este archivo de la galería?'))return;
   if(!path){
-    alert('No se encontró la ruta de Storage de esta fotografía.');
+    alert('No se encontró la ruta de Storage de este archivo.');
     return;
   }
 
@@ -1032,31 +1052,35 @@ async function removeItem(id,path){
   }
 
   try{
-    // 1) Delete the physical file from Supabase Storage first.
-    const storageResult=await c.storage.from('gallery').remove([path]);
-    if(storageResult.error){
-      console.error('Storage delete error:',storageResult.error);
-      alert('No se pudo eliminar la imagen de Supabase Storage:\n\n'+storageResult.error.message);
-      if(btn){btn.disabled=false;btn.textContent='Eliminar';}
-      return;
+    const existing=await c.from('gallery').select('*').eq('id',id).maybeSingle();
+    if(existing.error || !existing.data){
+      throw new Error(existing.error?.message||'No se encontró el registro de la galería.');
     }
 
-    // 2) Only after Storage succeeds, delete the Gallery database record.
     const dbResult=await c.from('gallery').delete().eq('id',id);
     if(dbResult.error){
-      console.error('Gallery database delete error:',dbResult.error);
-      alert('La imagen fue eliminada de Storage, pero no se pudo eliminar su registro de Gallery:\n\n'+dbResult.error.message);
+      throw new Error('No se pudo eliminar el registro de la galería: '+dbResult.error.message);
+    }
+
+    const storageResult=await c.storage.from('gallery').remove([path]);
+    if(storageResult.error){
+      const restorePayload={...existing.data};
+      delete restorePayload.id;
+      const restore=await c.from('gallery').insert(restorePayload);
+      if(restore.error){
+        alert('La imagen sigue en Storage, pero no se pudo completar ni la limpieza ni la restauración del registro:\n\n'+storageResult.error.message+'\n\nRestauración: '+restore.error.message);
+      }else{
+        alert('No se pudo eliminar la imagen de Supabase Storage. El archivo fue restaurado en la galería para evitar dejar un registro incompleto.\n\n'+storageResult.error.message);
+      }
       if(btn){btn.disabled=false;btn.textContent='Eliminar';}
       await refresh();
       return;
     }
 
-    // 3) Refresh the gallery so the deleted item disappears immediately.
     await refresh();
-
   }catch(e){
     console.error('Gallery delete error:',e);
-    alert('Ocurrió un error al eliminar la fotografía:\n\n'+(e.message||String(e)));
+    alert('Ocurrió un error al eliminar el archivo:\n\n'+(e.message||String(e)));
     if(btn){btn.disabled=false;btn.textContent='Eliminar';}
   }
 }
