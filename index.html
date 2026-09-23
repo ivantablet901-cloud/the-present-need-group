@@ -1652,21 +1652,49 @@ const lightboxPrev = document.getElementById('lightboxPrev');
           indicator.textContent=isVideoUrl(item.url)?'Ver video  ↗':'Ver fotografía  ↗';
           card.appendChild(indicator);
 
+          let touchStartX=0;
+          let touchStartY=0;
+          let touchMoved=false;
+          let suppressClickUntil=0;
+
           const open=()=>{
-            if(duplicate)return;
             showLightbox(index);
           };
-          card.addEventListener('click',e=>{
-            e.preventDefault();
-            e.stopPropagation();
-            open();
+
+          card.addEventListener('pointerdown',e=>{
+            if(e.pointerType==='touch'){
+              touchStartX=e.clientX;
+              touchStartY=e.clientY;
+              touchMoved=false;
+            }
           });
+
+          card.addEventListener('pointermove',e=>{
+            if(e.pointerType==='touch' && (Math.abs(e.clientX-touchStartX)>6 || Math.abs(e.clientY-touchStartY)>6)){
+              touchMoved=true;
+            }
+          });
+
           card.addEventListener('pointerup',e=>{
             if(e.pointerType==='touch'){
+              e.stopPropagation();
+              if(!touchMoved){
+                e.preventDefault();
+                suppressClickUntil=Date.now()+450;
+                open();
+              }
+            }
+          });
+
+          card.addEventListener('click',e=>{
+            if(Date.now()<suppressClickUntil){
               e.preventDefault();
               e.stopPropagation();
-              open();
+              return;
             }
+            e.preventDefault();
+            e.stopPropagation();
+            if(e.detail>0) open();
           });
           if(!duplicate){
             card.addEventListener('keydown',e=>{
