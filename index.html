@@ -1653,10 +1653,21 @@ const lightboxPrev = document.getElementById('lightboxPrev');
           card.appendChild(indicator);
 
           const open=()=>{
-            if(duplicate || (recentMarqueeController && recentMarqueeController.isIgnoringClick()))return;
+            if(duplicate)return;
             showLightbox(index);
           };
-          card.addEventListener('click',open);
+          card.addEventListener('click',e=>{
+            e.preventDefault();
+            e.stopPropagation();
+            open();
+          });
+          card.addEventListener('pointerup',e=>{
+            if(e.pointerType==='touch'){
+              e.preventDefault();
+              e.stopPropagation();
+              open();
+            }
+          });
           if(!duplicate){
             card.addEventListener('keydown',e=>{
               if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}
