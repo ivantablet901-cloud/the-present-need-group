@@ -290,6 +290,31 @@ h2{font-size:24px;letter-spacing:-.8px}
   .gallery-client-picker{width:150px;max-width:45vw;padding:7px 8px;font-size:10px}
 }
 
+/* Published media rows: keep the delete action parallel to the media thumbnail. */
+#list .item{
+  display:grid;
+  grid-template-columns:88px minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+  padding:10px 0;
+  border-top:1px solid var(--line);
+}
+#list .item:first-child{border-top:0}
+#list .item > div:not(.admin-media-thumb){min-width:0}
+#list .item .danger{
+  justify-self:end;
+  background:#8f1d1d;
+  color:#fff;
+  border:1px solid #b52a2a;
+  border-radius:4px;
+  padding:8px 12px;
+  font-size:11px;
+  line-height:1;
+  cursor:pointer;
+  white-space:nowrap;
+}
+#list .item .danger:hover{background:#b42323}
+
 /* Published media thumbnails: photos and videos use the same compact size. */
 #list .item img,#list .item video{
   width:88px;
@@ -351,12 +376,15 @@ h2{font-size:24px;letter-spacing:-.8px}
 .gallery-lightbox button:hover{background:#fff;color:#111}
 
 @media(max-width:650px){
+  #list .item{
+    grid-template-columns:60px minmax(0,1fr) auto;
+    gap:10px;
+  }
   #list .item img,#list .item video{
     width:60px;
     height:42px;
-    flex-basis:62px;
+    flex-basis:60px;
   }
-  #list .item{gap:10px}
   #list .item .danger{padding:8px 10px}
 }
 
