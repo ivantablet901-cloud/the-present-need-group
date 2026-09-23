@@ -1263,13 +1263,18 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       if(!width)return;
 
       if(desktopMode){
-        // Desktop stays centered on the middle copy. This prevents the
-        // scroll position from ever reaching the physical left wall.
+        // Desktop uses the middle copy as a safe operating zone. Keep the
+        // scroll position away from the browser's physical edges so the
+        // automatic loop can never get trapped at scrollLeft = 0.
         const min=width;
         const max=width*2;
         let position=viewport.scrollLeft;
-        if(position<min || position>=max){
-          position=min + ((((position-min)%width)+width)%width);
+
+        // Normalize any position outside the middle copy, including values
+        // produced after the browser clamps scrollLeft at an edge.
+        if(position < min || position >= max){
+          const offset=((position-min)%width+width)%width;
+          position=min+offset;
           viewport.scrollLeft=position;
         }
         return;
@@ -1740,8 +1745,12 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
         {speed:0.032,direction:-1,groupSelector:'.marquee-group',pauseOnHover:true,holdWhileLightbox:true,captureMouseOnDown:false}
       );
       const loopWidth=galleryViewport.querySelector('.marquee-group')?.getBoundingClientRect().width || 0;
-      if(loopWidth)galleryViewport.scrollLeft=loopWidth;
-      recentMarqueeController.wrap();
+      if(loopWidth){
+        // Start inside the middle copy. Do not wait for a pointer or wheel
+        // event to establish the initial desktop loop position.
+        galleryViewport.scrollLeft=loopWidth;
+        recentMarqueeController.wrap();
+      }
       recentMarqueeController.start();
       bindMediaTrack(gallery,'.gallery-card',()=>fullGalleryItems,()=>recentMarqueeController,{pauseOnOpen:true});
       lightboxItems=fullGalleryItems;
