@@ -481,38 +481,6 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 }
 .gallery-empty{border:1px dashed var(--line);padding:50px 20px;text-align:center;color:var(--muted)}
 
-.lightbox-nav{
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  width:46px;
-  height:46px;
-  border:1px solid rgba(255,255,255,.16);
-  background:rgba(12,12,12,.42);
-  color:rgba(255,255,255,.88);
-  border-radius:50%;
-  font-size:24px;
-  line-height:1;
-  cursor:pointer;
-  z-index:4;
-  transition:background .25s ease,border-color .25s ease,transform .25s ease,opacity .25s ease;
-  opacity:.78;
-}
-.lightbox-nav:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.36);transform:translateY(-50%) scale(1.03);opacity:1}
-.lightbox-prev{left:42px}.lightbox-next{right:42px}
-.lightbox-hint{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.58);font-size:11px;letter-spacing:.5px;pointer-events:none}
-@media(max-width:650px){
-  .gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-  .gallery-card{border-radius:8px}
-  .gallery-card .view-indicator{width:32px;height:32px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:15px;letter-spacing:0;background:rgba(0,0,0,.28)}
-  .gallery-card:active{transform:scale(.985)}
-  .lightbox{padding:16px 8px}
-  .lightbox img,.lightbox video{max-width:94vw;max-height:82vh}
-  .lightbox-nav{width:36px;height:36px;font-size:19px;background:rgba(10,10,10,.30);border-color:rgba(255,255,255,.13);opacity:.68}
-  .lightbox-prev{left:10px}.lightbox-next{right:10px}
-  .lightbox-hint{bottom:9px;font-size:10px}
-}
-@media(hover:none){.gallery-card:hover img{transform:none}}
 
 
 /* Efecto premium: brillo de borde sutil y elegante, sin movimiento */
@@ -569,15 +537,8 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   .card, .contactbox, .tag, .gallery-card, .btn { transition:none; }
 }
 
-/* Visor de fotografía */
-.lightbox{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.94);display:none;align-items:center;justify-content:center;padding:24px}
-.lightbox.open{display:flex}
-.lightbox img{max-width:95vw;max-height:90vh;width:auto;height:auto;object-fit:contain}
-.lightbox video{max-width:95vw;max-height:90vh;width:auto;height:auto;object-fit:contain;background:#000}
-.lightbox video[hidden]{display:none}
-.lightbox-title{position:absolute;left:20px;bottom:18px;right:20px;text-align:center;color:#ddd;font-size:14px}
 
-.contact{display:grid;grid-template-columns:.78fr 1.22fr;gap:58px;align-items:start}.contact-section-inner{display:grid;grid-template-columns:.78fr 1.22fr;gap:58px;align-items:start}.contact-intro{padding-top:6px}.contact-intro h2{max-width:500px;margin-bottom:18px}.contact-lead{max-width:470px;color:var(--muted);font-size:17px;line-height:1.65}.contact-details{display:grid;gap:8px;margin-top:28px;font-size:14px}.contact-details a{color:var(--text);transition:color .25s ease}.contact-details a:hover{color:#fff}.contact-details span{color:var(--muted)}.contactbox{border:1px solid var(--line);padding:26px;background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012));border-radius:10px}.contact-form-head{margin-bottom:4px}.contact-form-head h3{font-size:25px;margin-bottom:5px}.contact-form-head p:not(.eyebrow){color:var(--muted);font-size:13px}.contact-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}.contact-form label{display:grid;gap:6px;color:var(--muted);font-size:12px}.contact-form label:nth-of-type(5),.contact-form label:nth-of-type(6),.contact-form .btn,.contact-form .form-status{grid-column:1 / -1}.contact-form input,.contact-form select,.contact-form textarea{width:100%;padding:11px 13px;border:1px solid var(--line);background:#0d0d0d;color:var(--text);border-radius:5px;font:inherit;outline:none}.contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{border-color:var(--silver)}.contact-form textarea{min-height:92px;resize:vertical}.contact-form .btn{border:none;cursor:pointer;width:100%}.form-status{font-size:13px;color:var(--muted);min-height:20px}.form-status.success{color:#d8d6d1}.form-status.error{color:#f0aaa3}.contact-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.contact-actions .btn.secondary{margin-left:0;padding:10px 16px;font-size:12px}
+.contact{display:grid;grid-template-columns:.78fr 1.22fr;gap:58px;align-items:start}.contact-section-inner{display:grid;grid-template-columns:.78fr 1.22fr;gap:58px;align-items:start}.contact-intro{padding-top:6px}.contact-intro h2{max-width:500px;margin-bottom:18px}.contact-lead{max-width:470px;color:var(--muted);font-size:17px;line-height:1.65}.contact-details{display:grid;gap:8px;margin-top:28px;font-size:14px}.contact-details a{color:var(--text);transition:color .25s ease}.contact-details a:hover{color:#fff}.contact-details span{color:var(--muted)}.contactbox{border:1px solid var(--line);padding:26px;background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012));border-radius:10px}.contact-form-head{margin-bottom:4px}.contact-form-head h3{font-size:25px;margin-bottom:5px}.contact-form-head p:not(.eyebrow){color:var(--muted);font-size:13px}.contact-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}.contact-form label{display:grid;gap:6px;color:var(--muted);font-size:12px}.contact-form label>span{display:block}.contact-form label:nth-of-type(5),.contact-form label:nth-of-type(6),.contact-form .btn,.contact-form .form-status{grid-column:1 / -1}.contact-form input,.contact-form select,.contact-form textarea{width:100%;padding:11px 13px;border:1px solid var(--line);background:#0d0d0d;color:var(--text);border-radius:5px;font:inherit;outline:none}.contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{border-color:var(--silver)}.contact-form textarea{min-height:92px;resize:vertical}.contact-form .btn{border:none;cursor:pointer;width:100%}.form-status{font-size:13px;color:var(--muted);min-height:20px}.form-status.success{color:#d8d6d1}.form-status.error{color:#f0aaa3}.contact-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.contact-actions .btn.secondary{margin-left:0;padding:10px 16px;font-size:12px}
 /* Mobile navigation */
 .mobile-menu-btn{display:none;width:42px;height:42px;border:1px solid var(--line);background:#111;color:var(--text);border-radius:8px;font-size:20px;line-height:1}
 .mobile-menu{display:none}
@@ -636,31 +597,82 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 .brand span{display:none}
 }
 
-/* Ajuste final del visor: transición suave + título más legible */
+/* Lightbox */
+.lightbox{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:rgba(0,0,0,.94);
+}
+.lightbox.open{display:flex}
 .lightbox img,.lightbox video{
+  width:auto;
+  height:auto;
+  max-width:95vw;
+  max-height:90vh;
+  object-fit:contain;
   transition:opacity .28s ease,transform .32s cubic-bezier(.22,.61,.36,1);
   will-change:opacity,transform;
 }
-.lightbox.lightbox-switch-out-next img,.lightbox.lightbox-switch-out-next video{opacity:0;transform:translateX(-24px) scale(.992);}
-.lightbox.lightbox-switch-out-prev img,.lightbox.lightbox-switch-out-prev video{opacity:0;transform:translateX(24px) scale(.992);}
-.lightbox.lightbox-switch-in img,.lightbox.lightbox-switch-in video{opacity:1;transform:translateX(0) scale(1);}
+.lightbox video{background:#000}
+.lightbox video[hidden]{display:none}
+.lightbox-nav{
+  position:absolute;
+  top:50%;
+  width:46px;
+  height:46px;
+  transform:translateY(-50%);
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(12,12,12,.42);
+  color:rgba(255,255,255,.88);
+  border-radius:50%;
+  font-size:24px;
+  line-height:1;
+  cursor:pointer;
+  z-index:4;
+  opacity:.78;
+  transition:background .25s ease,border-color .25s ease,transform .25s ease,opacity .25s ease,box-shadow .25s ease;
+}
+.lightbox-nav:hover{
+  background:rgba(255,255,255,.10);
+  border-color:rgba(255,255,255,.55);
+  transform:translateY(-50%) scale(1.03);
+  opacity:1;
+  box-shadow:0 0 18px rgba(255,255,255,.14);
+}
+.lightbox-prev{left:42px}.lightbox-next{right:42px}
 .lightbox-title{
+  position:absolute;
+  left:20px;
+  right:20px;
   bottom:52px;
-  font-weight:700;
+  text-align:center;
   color:#fff;
   font-size:14px;
   line-height:1.35;
+  font-weight:700;
   text-shadow:0 2px 14px rgba(0,0,0,.72);
 }
-.lightbox-hint{bottom:14px;}
-@media(max-width:650px){
-  .lightbox-title{bottom:46px;font-size:13px;font-weight:700;left:14px;right:14px;}
-  .lightbox-hint{bottom:12px;font-size:9px;}
+.lightbox-hint{
+  position:absolute;
+  left:50%;
+  bottom:14px;
+  transform:translateX(-50%);
+  color:rgba(255,255,255,.58);
+  font-size:11px;
+  letter-spacing:.5px;
+  pointer-events:none;
 }
+.lightbox.lightbox-switch-out-next img,.lightbox.lightbox-switch-out-next video{opacity:0;transform:translateX(-24px) scale(.992)}
+.lightbox.lightbox-switch-out-prev img,.lightbox.lightbox-switch-out-prev video{opacity:0;transform:translateX(24px) scale(.992)}
+.lightbox.lightbox-switch-in img,.lightbox.lightbox-switch-in video{opacity:1;transform:translateX(0) scale(1)}
 
 /* Stable infinite loops — Recent Work + Client Portfolios */
-.recent-marquee,
-.client-gallery-marquee{
+.recent-marquee,.client-gallery-marquee{
   position:relative;
   width:100%;
   overflow-x:auto;
@@ -677,27 +689,21 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   mask-image:linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%);
   -webkit-mask-image:linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%);
 }
-.recent-marquee::-webkit-scrollbar,
-.client-gallery-marquee::-webkit-scrollbar{display:none}
-.recent-marquee.is-dragging,
-.client-gallery-marquee.is-dragging{cursor:grabbing}
-.recent-marquee img,.recent-marquee video,
-.client-gallery-marquee img,.client-gallery-marquee video{
+.recent-marquee::-webkit-scrollbar,.client-gallery-marquee::-webkit-scrollbar{display:none}
+.recent-marquee.is-dragging,.client-gallery-marquee.is-dragging{cursor:grabbing}
+.recent-marquee img,.recent-marquee video,.client-gallery-marquee img,.client-gallery-marquee video{
   -webkit-user-drag:none;
   user-drag:none;
   pointer-events:none;
 }
-.gallery-track,
-.client-gallery-grid{
+.gallery-track,.client-gallery-grid{
   display:flex !important;
   width:max-content;
   min-width:max-content;
   gap:0;
   align-items:stretch;
-  will-change:scroll-position;
 }
-.marquee-group,
-.client-gallery-group{
+.marquee-group,.client-gallery-group{
   display:flex;
   flex:0 0 auto;
   gap:18px;
@@ -723,26 +729,25 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   margin:0;
 }
 @media(max-width:650px){
-  .recent-marquee,
-  .client-gallery-marquee{
+  .recent-marquee,.client-gallery-marquee{
     padding-bottom:8px;
     mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
     -webkit-mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
   }
-  .marquee-group,
-  .client-gallery-group{gap:10px;padding-right:10px}
-  .gallery-track .gallery-card{
-    flex-basis:clamp(190px,56vw,250px);
-    width:clamp(190px,56vw,250px)
-  }
-  .client-gallery-grid .client-gallery-card{
-    flex-basis:clamp(210px,70vw,280px);
-    width:clamp(210px,70vw,280px)
-  }
+  .marquee-group,.client-gallery-group{gap:10px;padding-right:10px}
+  .gallery-track .gallery-card{flex-basis:clamp(190px,56vw,250px);width:clamp(190px,56vw,250px)}
+  .client-gallery-grid .client-gallery-card{flex-basis:clamp(210px,70vw,280px);width:clamp(210px,70vw,280px)}
+  .lightbox{padding:16px 8px}
+  .lightbox img,.lightbox video{max-width:94vw;max-height:82vh}
+  .lightbox-nav{width:36px;height:36px;font-size:19px;background:rgba(10,10,10,.30);border-color:rgba(255,255,255,.13);opacity:.68}
+  .lightbox-prev{left:10px}.lightbox-next{right:10px}
+  .lightbox-title{left:14px;right:14px;bottom:46px;font-size:13px}
+  .lightbox-hint{bottom:12px;font-size:9px}
 }
+@media(hover:none){.gallery-card:hover img{transform:none}}
 @media(prefers-reduced-motion:reduce){
-  .recent-marquee,
-  .client-gallery-marquee{scroll-behavior:auto !important}
+  .lightbox img,.lightbox video{transition:none}
+  .recent-marquee,.client-gallery-marquee{scroll-behavior:auto !important}
 }
 
 </style>
@@ -797,7 +802,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     </div>
   </div>
   <a class="hero-scroll" href="#servicios" aria-label="Scroll to explore">
-    <span>Scroll to explore</span>
+    <span data-i18n="scrollExplore">Scroll to explore</span>
     <span>↓</span>
   </a>
 </section>
@@ -836,16 +841,16 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 <div class="contactbox contact-formbox">
 <div class="contact-form-head"><p class="eyebrow" data-i18n="quoteEyebrow">Start a project</p><h3 data-i18n="quoteTitle">Request a quote</h3><p data-i18n="quoteText">Share a few details and we’ll get back to you.</p></div>
 <form id="quoteForm" class="contact-form" aria-label="Quote request form">
-  <label data-i18n-label="nameLabel">Name
+  <label><span data-i18n="nameLabel">Name</span>
     <input type="text" name="name" autocomplete="name" required>
   </label>
-  <label data-i18n-label="phoneLabel">Phone
+  <label><span data-i18n="phoneLabel">Phone</span>
     <input type="tel" name="phone" autocomplete="tel">
   </label>
-  <label data-i18n-label="emailLabel">Email
+  <label><span data-i18n="emailLabel">Email</span>
     <input type="email" name="email" autocomplete="email" required>
   </label>
-  <label data-i18n-label="serviceLabel">Service
+  <label><span data-i18n="serviceLabel">Service</span>
     <select name="service" required>
       <option value="">Select a service</option>
       <option value="Photography">Photography</option>
@@ -855,10 +860,10 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       <option value="Other">Other</option>
     </select>
   </label>
-  <label data-i18n-label="dateLabel">Event/project date
+  <label><span data-i18n="dateLabel">Event/project date</span>
     <input type="date" name="project_date">
   </label>
-  <label data-i18n-label="messageLabel">Message
+  <label><span data-i18n="messageLabel">Message</span>
     <textarea name="message" placeholder="Tell us about your project..." required></textarea>
   </label>
   <button class="btn" type="submit" data-i18n="sendButton">Send request</button>
@@ -876,12 +881,12 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 <footer>© 2026 The Present Need Group. All rights reserved.</footer>
 
 <div id="lightbox" class="lightbox" aria-hidden="true">
-<button id="lightboxPrev" class="lightbox-nav lightbox-prev" aria-label="Fotografía anterior">‹</button>
+<button id="lightboxPrev" class="lightbox-nav lightbox-prev" aria-label="Previous photo">‹</button>
 <img id="lightboxImage" src="" alt="">
 <video id="lightboxVideo" controls playsinline preload="metadata" aria-label="Video"></video>
-<button id="lightboxNext" class="lightbox-nav lightbox-next" aria-label="Fotografía siguiente">›</button>
+<button id="lightboxNext" class="lightbox-nav lightbox-next" aria-label="Next photo">›</button>
 <div id="lightboxTitle" class="lightbox-title"></div>
-<div class="lightbox-hint">Desliza o usa la rueda para navegar</div>
+<div class="lightbox-hint" data-i18n="lightboxHint">Swipe or use the wheel to navigate</div>
 </div>
 
 <div id="clientGalleryModal" class="client-gallery-modal" aria-hidden="true">
@@ -911,7 +916,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       heroEyebrow:"Photography • Video • Multimedia",
       heroTitle:"We create content that captures the present.",
       heroText:"Photography, video and multimedia content for people, brands and projects in New York, New Jersey and Pennsylvania.",
-      quoteButton:"Request a quote", viewWork:"View our work",
+      quoteButton:"Request a quote", viewWork:"View our work", scrollExplore:"Scroll to explore",
       servicesEyebrow:"What we do", servicesTitle:"Our services",
       photoTitle:"Photography", photoText:"Sessions, events, portraits, products and visual content for different projects.",
       videoTitle:"Video", videoText:"Video recording and production for events, businesses, social media and personal projects.",
@@ -935,7 +940,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       sending:"Sending request...",
       success:"Request sent! We’ll get in touch with you soon.",
       formError:"The request could not be sent. You can contact us by WhatsApp or email.",
-      close:"Close", photoAlt:"Photograph", photoFallback:"The Present Need Group photograph",
+      close:"Close", photoAlt:"Photograph", photoFallback:"The Present Need Group photograph", previousPhoto:"Previous photo", nextPhoto:"Next photo", lightboxHint:"Swipe or use the wheel to navigate", mobileMenuOpen:"Open menu", mobileMenuClose:"Close menu",
       clientWorkEyebrow:"Client portfolio", clientWorkSubtitle:"Selected work for this client.", clientClose:"Close",
       clientNoPhotos:"No photos have been assigned to this client yet.", clientLoading:"Loading this client's work..."
     },
@@ -944,7 +949,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       heroEyebrow:"Fotografía • Video • Multimedia",
       heroTitle:"Creamos contenido que captura el presente.",
       heroText:"Fotografía, video y contenido multimedia para personas, marcas y proyectos en New York, New Jersey y Pennsylvania.",
-      quoteButton:"Solicitar cotización", viewWork:"Ver trabajos",
+      quoteButton:"Solicitar cotización", viewWork:"Ver trabajos", scrollExplore:"Desliza para explorar",
       servicesEyebrow:"Qué hacemos", servicesTitle:"Nuestros servicios",
       photoTitle:"Fotografía", photoText:"Sesiones, eventos, retratos, productos y contenido visual para diferentes proyectos.",
       videoTitle:"Video", videoText:"Grabación y producción de videos para eventos, negocios, redes sociales y proyectos personales.",
@@ -953,8 +958,8 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       aboutText:"Somos un equipo enfocado en crear fotografía, video y contenido multimedia con una estética limpia, moderna y profesional.",
       clientsEyebrow:"Clientes y marcas", clientsTitle:"Clientes con los que hemos trabajado", clientsText:"Una selección de personas, negocios y marcas para los que hemos tenido la oportunidad de crear.",
       galleryEyebrow:"Portafolio", galleryTitle:"Trabajos recientes",
-      contactEyebrow:"Hablemos", contactTitle:"¿Tienes un proyecto?",
-      contactBoxTitle:"Contacto", quoteTitle:"Solicita una cotización",
+      contactEyebrow:"Hablemos", contactTitle:"¿Tienes un proyecto?", contactText:"Cuéntanos qué estás buscando y hagámoslo realidad.",
+      quoteEyebrow:"Inicia un proyecto", contactBoxTitle:"Contacto", quoteTitle:"Solicita una cotización",
       quoteText:"Cuéntanos qué necesitas y nos pondremos en contacto contigo.",
       sendButton:"Enviar solicitud",
       directEmail:"Email directo",
@@ -968,7 +973,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       sending:"Enviando solicitud...",
       success:"¡Solicitud enviada! Nos pondremos en contacto contigo pronto.",
       formError:"No se pudo enviar la solicitud. Puedes contactarnos por WhatsApp o email.",
-      close:"Cerrar", photoAlt:"Fotografía", photoFallback:"Fotografía de The Present Need Group",
+      close:"Cerrar", photoAlt:"Fotografía", photoFallback:"Fotografía de The Present Need Group", previousPhoto:"Fotografía anterior", nextPhoto:"Fotografía siguiente", lightboxHint:"Desliza o usa la rueda para navegar", mobileMenuOpen:"Abrir menú", mobileMenuClose:"Cerrar menú",
       clientWorkEyebrow:"Portafolio del cliente", clientWorkSubtitle:"Trabajos seleccionados para este cliente.", clientClose:"Cerrar",
       clientNoPhotos:"Todavía no hay fotografías asignadas a este cliente.", clientLoading:"Cargando los trabajos de este cliente..."
     }
@@ -982,40 +987,43 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     document.documentElement.lang = currentLang;
 
     document.querySelectorAll('[data-i18n]').forEach(el=>{
-      const key = el.getAttribute('data-i18n');
-      if(translations[currentLang][key]) el.textContent = translations[currentLang][key];
+      const key=el.getAttribute('data-i18n');
+      const value=translations[currentLang][key];
+      if(value) el.textContent=value;
     });
 
-    document.querySelectorAll('[data-i18n-label]').forEach(label=>{
-      const key = label.getAttribute('data-i18n-label');
-      const text = translations[currentLang][key];
-      if(!text) return;
-      const input = label.querySelector('input,select,textarea');
-      label.childNodes[0].nodeValue = text + '\\n    ';
-    });
-
-    const serviceSelect = document.querySelector('select[name="service"]');
+    const serviceSelect=document.querySelector('select[name="service"]');
     if(serviceSelect){
-      const options = currentLang === 'es'
+      const options=currentLang==='es'
         ? [["","Selecciona un servicio"],["Photography","Fotografía"],["Video","Video"],["Multimedia Content","Contenido multimedia"],["Photography + Video","Fotografía + Video"],["Other","Otro"]]
         : [["","Select a service"],["Photography","Photography"],["Video","Video"],["Multimedia Content","Multimedia Content"],["Photography + Video","Photography + Video"],["Other","Other"]];
-      options.forEach((item,i)=>{
-        if(serviceSelect.options[i]){
-          serviceSelect.options[i].value = item[0];
-          serviceSelect.options[i].textContent = item[1];
-        }
+      options.forEach(([value,text],index)=>{
+        const option=serviceSelect.options[index];
+        if(option){option.value=value;option.textContent=text;}
       });
     }
 
-    const message = document.querySelector('textarea[name="message"]');
-    if(message) message.placeholder = translations[currentLang].messagePlaceholder;
+    const message=document.querySelector('textarea[name="message"]');
+    if(message) message.placeholder=translations[currentLang].messagePlaceholder;
 
-    const form = document.getElementById('quoteForm');
-    if(form) form.setAttribute('aria-label', currentLang === 'es' ? 'Formulario de solicitud de cotización' : 'Quote request form');
+    const form=document.getElementById('quoteForm');
+    if(form) form.setAttribute('aria-label',currentLang==='es' ? 'Formulario de solicitud de cotización' : 'Quote request form');
+
+    const menuBtn=document.getElementById('mobileMenuBtn');
+    if(menuBtn){
+      const isOpen=menuBtn.getAttribute('aria-expanded')==='true';
+      menuBtn.setAttribute('aria-label',translations[currentLang][isOpen?'mobileMenuClose':'mobileMenuOpen']);
+    }
+
+    const prev=document.getElementById('lightboxPrev');
+    const next=document.getElementById('lightboxNext');
+    if(prev) prev.setAttribute('aria-label',translations[currentLang].previousPhoto);
+    if(next) next.setAttribute('aria-label',translations[currentLang].nextPhoto);
 
     document.querySelectorAll('.lang-btn').forEach(btn=>{
-      btn.classList.toggle('active', btn.dataset.lang === currentLang);
-      btn.setAttribute('aria-pressed', btn.dataset.lang === currentLang ? 'true' : 'false');
+      const active=btn.dataset.lang===currentLang;
+      btn.classList.toggle('active',active);
+      btn.setAttribute('aria-pressed',active?'true':'false');
     });
   }
 
@@ -1040,40 +1048,52 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     const open=menu.classList.toggle('open');
     btn.setAttribute('aria-expanded',open ? 'true' : 'false');
     btn.textContent=open ? '×' : '☰';
+    btn.setAttribute('aria-label',window.TPNG_I18N.t(open ? 'mobileMenuClose' : 'mobileMenuOpen'));
   });
   menu.querySelectorAll('a').forEach(link=>{
     link.addEventListener('click',()=>{
       menu.classList.remove('open');
       btn.setAttribute('aria-expanded','false');
       btn.textContent='☰';
+      btn.setAttribute('aria-label',window.TPNG_I18N.t('mobileMenuOpen'));
     });
   });
 })();
 </script>
 <script>
 (function(){
-  const gallery = document.getElementById('gallery');
-  const status = document.getElementById('galleryStatus');
-  const lightbox = document.getElementById('lightbox');
-  const lightboxImage = document.getElementById('lightboxImage');
-  const lightboxVideo = document.getElementById('lightboxVideo');
-  const lightboxTitle = document.getElementById('lightboxTitle');
-const lightboxPrev = document.getElementById('lightboxPrev');
-  const lightboxNext = document.getElementById('lightboxNext');
-  let galleryItems=[];
-  let fullGalleryItems=[];
-  let currentIndex=0;
-  let lightboxContext='recent';
-  let clientPortfolioItems=[];
-  let transitionTimer=null;
+  const gallery=document.getElementById('gallery');
+  const status=document.getElementById('galleryStatus');
+  const lightbox=document.getElementById('lightbox');
+  const lightboxImage=document.getElementById('lightboxImage');
+  const lightboxVideo=document.getElementById('lightboxVideo');
+  const lightboxTitle=document.getElementById('lightboxTitle');
+  const lightboxPrev=document.getElementById('lightboxPrev');
+  const lightboxNext=document.getElementById('lightboxNext');
   const clientGalleryModal=document.getElementById('clientGalleryModal');
   const clientGalleryTitle=document.getElementById('clientGalleryTitle');
   const clientGalleryMarquee=document.getElementById('clientGalleryMarquee');
   const clientGalleryGrid=document.getElementById('clientGalleryGrid');
   const clientGalleryStatus=document.getElementById('clientGalleryStatus');
   const clientGalleryClose=document.getElementById('clientGalleryClose');
+
+  const supabaseClient=window.SUPABASE_URL && window.SUPABASE_ANON_KEY && window.supabase
+    ? window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY)
+    : null;
+
+  let fullGalleryItems=[];
+  let lightboxItems=[];
+  let currentClientPhotos=[];
+  let currentIndex=0;
+  let transitionTimer=null;
   let clientGalleryController=null;
   let recentMarqueeController=null;
+
+  function getSupabase(){
+    if(!supabaseClient) throw new Error('Falta configurar Supabase en config.js');
+    return supabaseClient;
+  }
+
   function isVideoUrl(url){
     return /\.(mp4|webm|ogg|mov|m4v)(?:$|[?#])/i.test(url || '');
   }
@@ -1085,25 +1105,26 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     lightboxVideo.pause();
     lightboxVideo.removeAttribute('src');
     lightboxVideo.load();
+
     if(video){
       lightboxVideo.src=item.url;
-      lightboxVideo.currentTime=0;
       lightboxVideo.load();
     }else{
       lightboxImage.src=item.url;
     }
+
     lightboxImage.alt=item.title || window.TPNG_I18N.t('photoAlt');
     lightboxTitle.textContent=item.title || '';
   }
 
   function showLightbox(index,direction=0){
-    if(!galleryItems.length)return;
-    const nextIndex=(index+galleryItems.length)%galleryItems.length;
-    const item=galleryItems[nextIndex];
+    if(!lightboxItems.length)return;
+    const nextIndex=(index+lightboxItems.length)%lightboxItems.length;
+    const item=lightboxItems[nextIndex];
     const alreadyOpen=lightbox.classList.contains('open');
+    currentIndex=nextIndex;
 
     if(!alreadyOpen){
-      currentIndex=nextIndex;
       renderLightboxItem(item);
       lightbox.classList.add('open','lightbox-switch-in');
       lightbox.setAttribute('aria-hidden','false');
@@ -1112,29 +1133,26 @@ const lightboxPrev = document.getElementById('lightboxPrev');
       return;
     }
 
-    currentIndex=nextIndex;
     clearTimeout(transitionTimer);
     lightbox.classList.remove('lightbox-switch-in','lightbox-switch-out-next','lightbox-switch-out-prev');
     void lightbox.offsetWidth;
-    lightbox.classList.add(direction>=0?'lightbox-switch-out-next':'lightbox-switch-out-prev');
+    lightbox.classList.add(direction>=0 ? 'lightbox-switch-out-next' : 'lightbox-switch-out-prev');
 
     transitionTimer=setTimeout(()=>{
       renderLightboxItem(item);
       lightbox.classList.remove('lightbox-switch-out-next','lightbox-switch-out-prev');
       lightbox.classList.add('lightbox-switch-in');
-      requestAnimationFrame(()=>{
-        requestAnimationFrame(()=>lightbox.classList.remove('lightbox-switch-in'));
-      });
+      requestAnimationFrame(()=>requestAnimationFrame(()=>lightbox.classList.remove('lightbox-switch-in')));
     },180);
   }
-  function openLightbox(url,title,context='recent',items=null,index=null){
-    const source=items || fullGalleryItems;
-    galleryItems=source;
-    lightboxContext=context;
-    const i=index ?? source.findIndex(x=>x.url===url && x.title===title);
-    showLightbox(i<0?0:i);
+
+  function openLightbox(items,index){
+    if(!items?.length)return;
+    lightboxItems=items;
+    showLightbox(index);
   }
-  function close(){
+
+  function closeLightbox(){
     clearTimeout(transitionTimer);
     lightbox.classList.remove('open','lightbox-switch-in','lightbox-switch-out-next','lightbox-switch-out-prev');
     lightbox.setAttribute('aria-hidden','true');
@@ -1144,53 +1162,63 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     lightboxVideo.removeAttribute('src');
     lightboxVideo.load();
     lightboxVideo.hidden=true;
-    lightboxContext='recent';
-    galleryItems=fullGalleryItems;
-    if(clientGalleryModal.classList.contains('open')){
-      document.body.style.overflow='hidden';
-    }else{
-      document.body.style.overflow='';
-    }
+    lightboxItems=fullGalleryItems;
+    currentIndex=0;
+    document.body.style.overflow=clientGalleryModal.classList.contains('open') ? 'hidden' : '';
   }
+
   function nextPhoto(){showLightbox(currentIndex+1,1)}
   function prevPhoto(){showLightbox(currentIndex-1,-1)}
+
   lightboxNext.addEventListener('click',e=>{e.stopPropagation();nextPhoto()});
   lightboxPrev.addEventListener('click',e=>{e.stopPropagation();prevPhoto()});
+
   let wheelDelta=0;
-  let wheelLock=false;
+  let wheelLocked=false;
   lightbox.addEventListener('wheel',e=>{
-    if(!lightbox.classList.contains('open')) return;
+    if(!lightbox.classList.contains('open'))return;
     e.preventDefault();
-    wheelDelta += e.deltaY;
-    if(wheelLock || Math.abs(wheelDelta)<42) return;
-    const direction=wheelDelta>0?1:-1;
+    wheelDelta+=e.deltaY;
+    if(wheelLocked || Math.abs(wheelDelta)<42)return;
+    const direction=wheelDelta>0 ? 1 : -1;
     wheelDelta=0;
-    wheelLock=true;
-    direction>0?nextPhoto():prevPhoto();
-    setTimeout(()=>{wheelLock=false;},420);
+    wheelLocked=true;
+    direction>0 ? nextPhoto() : prevPhoto();
+    setTimeout(()=>{wheelLocked=false},420);
   },{passive:false});
-  lightbox.addEventListener('click',e=>{if(e.target===lightbox)close();});
-  document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'){
-      if(clientGalleryModal.classList.contains('open')&&!lightbox.classList.contains('open')){
-        closeClientGallery();
-        return;
-      }
-      close();
-    }
-    if(lightbox.classList.contains('open')&&e.key==='ArrowRight')nextPhoto();
-    if(lightbox.classList.contains('open')&&e.key==='ArrowLeft')prevPhoto();
-  });
+
   let touchStartX=0;
   lightbox.addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].clientX},{passive:true});
-  lightbox.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>=45)(dx<0?nextPhoto:prevPhoto)();},{passive:true});
+  lightbox.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-touchStartX;
+    if(Math.abs(dx)>=45)(dx<0 ? nextPhoto : prevPhoto)();
+  },{passive:true});
 
+  lightbox.addEventListener('click',e=>{
+    if(e.target===lightbox)closeLightbox();
+  });
 
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      if(lightbox.classList.contains('open')){
+        closeLightbox();
+      }else if(clientGalleryModal.classList.contains('open')){
+        closeClientGallery();
+      }
+      return;
+    }
+    if(!lightbox.classList.contains('open'))return;
+    if(e.key==='ArrowRight')nextPhoto();
+    if(e.key==='ArrowLeft')prevPhoto();
+  });
 
-  // Unified continuous marquee controller for Recent Work + Client Portfolios.
-  // Hover/touch pauses the loop so media cards can be clicked reliably. Drag and wheel remain available.
-  function setupMarquee(viewport, track, options={}){
-    if(!viewport || !track) return null;
+  function setupMarquee(viewport,track,options={}){
+    if(!viewport || !track)return null;
+
+    const speed=options.speed ?? 0.032;
+    const direction=options.direction ?? -1;
+    const groupSelector=options.groupSelector || '.marquee-group';
+    const pauseOnHover=options.pauseOnHover !== false;
 
     let frame=0;
     let lastTime=0;
@@ -1199,196 +1227,275 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     let startScroll=0;
     let lastX=0;
     let lastMoveTime=0;
-    let velocity=0;
-    let wheelVelocity=0;
-    let ignoreClickUntil=0;
-    let pausedByInteraction=false;
+    let momentum=0;
     let resumeTimer=0;
+    let clickBlockedUntil=0;
     let destroyed=false;
 
-    const speed=options.speed ?? 0.032;
-    const direction=options.direction ?? -1;
-    const groupSelector=options.groupSelector || '.marquee-group';
-    const continuousAutoplay=options.continuousAutoplay === true;
-
-    const groupWidth=()=>{
+    const getGroupWidth=()=>{
       const group=track.querySelector(groupSelector);
       return group ? group.getBoundingClientRect().width : 0;
     };
 
     const wrap=()=>{
-      const w=groupWidth();
-      if(!w) return;
-      while(viewport.scrollLeft <= 0.5) viewport.scrollLeft += w;
-      while(viewport.scrollLeft >= w + 0.5) viewport.scrollLeft -= w;
+      const width=getGroupWidth();
+      if(!width)return;
+      while(viewport.scrollLeft<=0)viewport.scrollLeft+=width;
+      while(viewport.scrollLeft>=width)viewport.scrollLeft-=width;
     };
 
-    const tick=(time)=>{
-      if(destroyed) return;
-      if(!lastTime) lastTime=time;
+    const stopMomentum=()=>{momentum=0};
+
+    const tick=time=>{
+      if(destroyed)return;
+      if(!lastTime)lastTime=time;
       const dt=Math.min(time-lastTime,40);
       lastTime=time;
 
-      if(!document.hidden && track.firstElementChild){
-        if(!dragging && !pausedByInteraction){
-          // Pause while the pointer/finger is over the carousel so cards can be clicked reliably.
-          viewport.scrollLeft += direction * speed * dt;
-
-          // Continue the user's drag with a smooth deceleration.
-          if(Math.abs(velocity)>0.01){
-            viewport.scrollLeft -= velocity * dt;
-            velocity *= Math.pow(0.0015,dt/1000);
-            if(Math.abs(velocity)<0.01) velocity=0;
-          }
-
-          // Trackpad / wheel momentum.
-          if(Math.abs(wheelVelocity)>0.01){
-            viewport.scrollLeft += wheelVelocity * dt;
-            wheelVelocity *= Math.pow(0.0008,dt/1000);
-            if(Math.abs(wheelVelocity)<0.01) wheelVelocity=0;
-          }
-
+      if(!document.hidden && track.firstElementChild && !dragging){
+        const autoVelocity=pausedByHover ? 0 : direction*speed;
+        const velocity=autoVelocity+momentum;
+        if(Math.abs(velocity)>0.001){
+          viewport.scrollLeft+=velocity*dt;
           wrap();
         }
+        if(Math.abs(momentum)>0.01){
+          momentum*=Math.pow(0.0018,dt/1000);
+          if(Math.abs(momentum)<0.01)momentum=0;
+        }
       }
-
       frame=requestAnimationFrame(tick);
     };
 
+    let pausedByHover=false;
+
     const start=()=>{
-      if(destroyed || frame || !track.firstElementChild) return;
+      if(destroyed || frame || !track.firstElementChild)return;
       lastTime=0;
       frame=requestAnimationFrame(tick);
     };
 
     const pause=()=>{
-      pausedByInteraction=true;
-      if(resumeTimer){clearTimeout(resumeTimer);resumeTimer=0;}
+      pausedByHover=true;
+      stopMomentum();
     };
 
     const resume=()=>{
-      if(destroyed) return;
-      pausedByInteraction=false;
+      if(destroyed)return;
+      pausedByHover=false;
       lastTime=performance.now();
       wrap();
       start();
     };
 
-    const resumeSoon=(delay=350)=>{
-      if(resumeTimer) clearTimeout(resumeTimer);
-      resumeTimer=setTimeout(()=>{resumeTimer=0;resume();},delay);
+    const resumeSoon=(delay=400)=>{
+      clearTimeout(resumeTimer);
+      resumeTimer=setTimeout(()=>{
+        resumeTimer=0;
+        resume();
+      },delay);
     };
 
     const beginDrag=e=>{
-      if(e.pointerType==='mouse' && e.button!==0) return;
-      pause();
+      if(e.pointerType==='mouse' && e.button!==0)return;
+      if(pauseOnHover)pause();
       dragging=true;
       startX=e.clientX;
       startScroll=viewport.scrollLeft;
       lastX=e.clientX;
       lastMoveTime=performance.now();
-      velocity=0;
+      momentum=0;
       viewport.classList.add('is-dragging');
-      try{viewport.setPointerCapture(e.pointerId);}catch{}
+      try{viewport.setPointerCapture(e.pointerId)}catch{}
     };
 
     const moveDrag=e=>{
-      if(!dragging) return;
+      if(!dragging)return;
       const now=performance.now();
       const dx=e.clientX-startX;
       const dt=Math.max(8,now-lastMoveTime);
       const delta=e.clientX-lastX;
-      const instantVelocity=delta/dt;
 
-      if(Math.abs(dx)>6) ignoreClickUntil=Date.now()+500;
+      if(Math.abs(dx)>6)clickBlockedUntil=Date.now()+450;
       viewport.scrollLeft=startScroll-dx;
-      velocity=velocity*0.68 + instantVelocity*0.32;
+      momentum=(-delta/dt)*0.32 + momentum*0.68;
       lastX=e.clientX;
       lastMoveTime=now;
       wrap();
     };
 
     const endDrag=()=>{
-      if(!dragging) return;
+      if(!dragging)return;
       dragging=false;
       viewport.classList.remove('is-dragging');
-      // Keep the release momentum, but give the click/tap a short window before resuming.
-      velocity=Math.max(-2.4,Math.min(2.4,velocity));
+      momentum=Math.max(-2.4,Math.min(2.4,momentum));
       wrap();
-      resumeSoon(350);
+      resumeSoon(420);
     };
 
-    // Desktop: Recent Work keeps its autoplay running while the mouse is over it.
-    // Other carousels keep their existing behavior.
-    viewport.addEventListener('pointerenter',e=>{
-      if(e.pointerType==='mouse' && !continuousAutoplay) pause();
-    });
-    viewport.addEventListener('pointerleave',e=>{
-      if(e.pointerType==='mouse' && !dragging && !continuousAutoplay) resume();
-    });
-
-    // Phone/tablet: touching the carousel freezes it while the finger is on it.
-    viewport.addEventListener('pointerdown',beginDrag);
-    viewport.addEventListener('pointermove',moveDrag);
-    viewport.addEventListener('pointerup',e=>{
+    const onPointerEnter=e=>{
+      if(e.pointerType==='mouse' && pauseOnHover)pause();
+    };
+    const onPointerLeave=e=>{
+      if(e.pointerType==='mouse' && !dragging && pauseOnHover)resume();
+    };
+    const onPointerDown=beginDrag;
+    const onPointerMove=moveDrag;
+    const onPointerUp=e=>{
       endDrag();
-      if(e.pointerType==='touch' || e.pointerType==='pen') resumeSoon(500);
-    });
-    viewport.addEventListener('pointercancel',()=>{
-      endDrag();
-      resumeSoon(250);
-    });
-    viewport.addEventListener('lostpointercapture',()=>{
-      endDrag();
-      resumeSoon(250);
-    });
-
-    viewport.addEventListener('wheel',e=>{
-      if(!track.firstElementChild) return;
+      if(e.pointerType==='touch' || e.pointerType==='pen')resumeSoon(520);
+    };
+    const onPointerCancel=()=>{endDrag();resumeSoon(260)};
+    const onLostPointerCapture=()=>{endDrag();resumeSoon(260)};
+    const onWheel=e=>{
+      if(!track.firstElementChild)return;
       const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      if(!amount) return;
+      if(!amount)return;
       e.preventDefault();
-      wheelVelocity=Math.max(-3.2,Math.min(3.2,wheelVelocity + amount*0.035));
+      momentum=Math.max(-3.2,Math.min(3.2,momentum+amount*0.035));
       wrap();
-    },{passive:false});
-
-    document.addEventListener('visibilitychange',()=>{
+      start();
+    };
+    const onVisibilityChange=()=>{
       if(!document.hidden){
         lastTime=performance.now();
         wrap();
         start();
       }
-    });
-
-    // Safety restart only if the animation frame itself disappears.
-    const watchdog=setInterval(()=>{
-      if(destroyed){clearInterval(watchdog);return;}
-      if(!frame && !document.hidden && track.firstElementChild) start();
-      wrap();
-    },1000);
-
-    const destroy=()=>{
-      destroyed=true;
-      if(frame) cancelAnimationFrame(frame);
-      frame=0;
-      if(resumeTimer) clearTimeout(resumeTimer);
-      resumeTimer=0;
-      clearInterval(watchdog);
     };
 
+    viewport.addEventListener('pointerenter',onPointerEnter);
+    viewport.addEventListener('pointerleave',onPointerLeave);
+    viewport.addEventListener('pointerdown',onPointerDown);
+    viewport.addEventListener('pointermove',onPointerMove);
+    viewport.addEventListener('pointerup',onPointerUp);
+    viewport.addEventListener('pointercancel',onPointerCancel);
+    viewport.addEventListener('lostpointercapture',onLostPointerCapture);
+    viewport.addEventListener('wheel',onWheel,{passive:false});
+    document.addEventListener('visibilitychange',onVisibilityChange);
+
+    const stop=()=>{
+      destroyed=true;
+      if(frame)cancelAnimationFrame(frame);
+      frame=0;
+      clearTimeout(resumeTimer);
+      resumeTimer=0;
+      viewport.removeEventListener('pointerenter',onPointerEnter);
+      viewport.removeEventListener('pointerleave',onPointerLeave);
+      viewport.removeEventListener('pointerdown',onPointerDown);
+      viewport.removeEventListener('pointermove',onPointerMove);
+      viewport.removeEventListener('pointerup',onPointerUp);
+      viewport.removeEventListener('pointercancel',onPointerCancel);
+      viewport.removeEventListener('lostpointercapture',onLostPointerCapture);
+      viewport.removeEventListener('wheel',onWheel);
+      document.removeEventListener('visibilitychange',onVisibilityChange);
+      viewport.classList.remove('is-dragging');
+    };
+
+    start();
     return {
       start,
-      stop:destroy,
-      pause,
-      resume,
+      stop,
       wrap,
-      isIgnoringClick(){return Date.now()<ignoreClickUntil;}
+      shouldIgnoreClick:()=>Date.now()<clickBlockedUntil
     };
+  }
+
+  function bindMediaTrack(track,selector,getItems,getController){
+    if(!track || track.dataset.mediaBound==='true')return;
+    track.dataset.mediaBound='true';
+
+    track.addEventListener('click',e=>{
+      const card=e.target.closest(selector);
+      if(!card || !track.contains(card))return;
+      const controller=getController();
+      if(controller?.shouldIgnoreClick()){
+        e.preventDefault();
+        return;
+      }
+      const items=getItems();
+      const index=Number(card.dataset.index);
+      if(Number.isInteger(index))openLightbox(items,index);
+    });
+
+    track.addEventListener('keydown',e=>{
+      const card=e.target.closest(selector);
+      if(!card || (e.key!=='Enter' && e.key!==' '))return;
+      e.preventDefault();
+      const items=getItems();
+      const index=Number(card.dataset.index);
+      if(Number.isInteger(index))openLightbox(items,index);
+    });
+  }
+
+  function createMediaCard(item,index,options={}){
+    const card=document.createElement('article');
+    card.className=options.cardClass || 'gallery-card';
+    card.dataset.index=index;
+    card.setAttribute('role','button');
+    card.setAttribute('tabindex',options.duplicate ? '-1' : '0');
+    card.setAttribute('aria-label',item.title || window.TPNG_I18N.t(options.altKey || 'photoAlt'));
+
+    if(isVideoUrl(item.url)){
+      const media=document.createElement('video');
+      media.src=item.url;
+      media.muted=true;
+      media.playsInline=true;
+      media.preload='metadata';
+      media.setAttribute('aria-label',item.title || 'Video');
+      media.tabIndex=-1;
+      card.appendChild(media);
+    }else{
+      const img=document.createElement('img');
+      img.src=item.url;
+      img.alt=item.title || window.TPNG_I18N.t(options.altKey || 'photoFallback');
+      img.loading=options.duplicate ? 'eager' : 'lazy';
+      img.decoding='async';
+      card.appendChild(img);
+    }
+
+    if(item.title){
+      const caption=document.createElement('div');
+      caption.className=options.captionClass || (options.client ? 'client-photo-caption' : 'caption');
+      caption.textContent=item.title;
+      card.appendChild(caption);
+    }
+
+    if(!options.client){
+      const indicator=document.createElement('span');
+      indicator.className='view-indicator';
+      indicator.textContent=isVideoUrl(item.url) ? 'Ver video  ↗' : 'Ver fotografía  ↗';
+      card.appendChild(indicator);
+    }
+    return card;
+  }
+
+  function appendGroups(track,items,groupClass,fillTarget,cardClass,options={}){
+    track.innerHTML='';
+    const addGroup=duplicate=>{
+      const group=document.createElement('div');
+      group.className=groupClass;
+      if(duplicate)group.setAttribute('aria-hidden','true');
+      items.forEach((item,index)=>group.appendChild(createMediaCard(item,index,{...options,duplicate,cardClass})));
+      track.appendChild(group);
+    };
+
+    addGroup(false);
+    addGroup(true);
+    addGroup(true);
+
+    let copies=3;
+    while(track.scrollWidth < fillTarget.clientWidth*3 && copies<10){
+      addGroup(true);
+      copies++;
+    }
   }
 
   async function openClientGallery(clientId,clientName){
     if(!clientGalleryModal || !clientGalleryGrid || !clientGalleryMarquee)return;
-    if(clientGalleryController) clientGalleryController.stop();
+    if(clientGalleryController)clientGalleryController.stop();
+
+    clientGalleryController=null;
     clientGalleryTitle.textContent=clientName || '';
     clientGalleryGrid.innerHTML='';
     clientGalleryStatus.textContent=window.TPNG_I18N.t('clientLoading');
@@ -1397,19 +1504,20 @@ const lightboxPrev = document.getElementById('lightboxPrev');
     document.body.style.overflow='hidden';
 
     try{
-      if(!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) throw new Error('Falta configurar Supabase en config.js');
-      const client=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
+      const client=getSupabase();
       const {data,error}=await client.from('gallery')
         .select('id,title,image_url,storage_path,created_at')
         .eq('client_id',clientId)
         .order('created_at',{ascending:false});
-      if(error) throw error;
+      if(error)throw error;
 
       const photos=[];
-      (data||[]).forEach(item=>{
+      (data || []).forEach(item=>{
         let url=item.image_url;
-        if(!url && item.storage_path) url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
-        if(url) photos.push({url,title:item.title||''});
+        if(!url && item.storage_path){
+          url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
+        }
+        if(url)photos.push({url,title:item.title || ''});
       });
 
       clientGalleryStatus.textContent='';
@@ -1418,84 +1526,18 @@ const lightboxPrev = document.getElementById('lightboxPrev');
         return;
       }
 
-      const appendGroup=(duplicate=false)=>{
-        const group=document.createElement('div');
-        group.className='client-gallery-group';
-        if(duplicate) group.setAttribute('aria-hidden','true');
+      currentClientPhotos=photos;
+      appendGroups(clientGalleryGrid,currentClientPhotos,'client-gallery-group',clientGalleryMarquee,'client-gallery-card',{client:true,altKey:'photoFallback'});
 
-        photos.forEach((item,i)=>{
-          const card=document.createElement('article');
-          card.className='client-gallery-card';
-          card.setAttribute('role','button');
-          card.setAttribute('tabindex',duplicate?'-1':'0');
-          card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoFallback'));
-
-          const video=isVideoUrl(item.url);
-          if(video){
-            const media=document.createElement('video');
-            media.src=item.url;
-            media.muted=true;
-            media.playsInline=true;
-            media.preload='metadata';
-            media.setAttribute('aria-label',item.title || 'Video');
-            media.tabIndex=-1;
-            card.appendChild(media);
-          }else{
-            const img=document.createElement('img');
-            img.src=item.url;
-            img.alt=item.title || window.TPNG_I18N.t('photoFallback');
-            img.loading=duplicate?'eager':'lazy';
-            img.decoding='async';
-            card.appendChild(img);
-          }
-
-          if(item.title){
-            const cap=document.createElement('div');
-            cap.className='client-photo-caption';
-            cap.textContent=item.title;
-            card.appendChild(cap);
-          }
-
-          const openPhoto=()=>{
-            if(duplicate || (clientGalleryController && clientGalleryController.isIgnoringClick()))return;
-            galleryItems=photos;
-            clientPortfolioItems=photos;
-            lightboxContext='client';
-            showLightbox(i);
-          };
-          card.addEventListener('click',openPhoto);
-          if(!duplicate){
-            card.addEventListener('keydown',e=>{
-              if(e.key==='Enter'||e.key===' '){e.preventDefault();openPhoto();}
-            });
-          }
-          group.appendChild(card);
-        });
-        clientGalleryGrid.appendChild(group);
-        return group;
-      };
-
-      // Build enough identical groups to keep the loop filled on phones and desktop.
-      appendGroup(false);
-      appendGroup(true);
-      appendGroup(true);
-      let copies=3;
-      while(clientGalleryGrid.scrollWidth < clientGalleryMarquee.clientWidth*3 && copies<10){
-        appendGroup(true);
-        copies++;
-      }
-
-      // Client portfolio uses the same controller as Recent Work.
-      // Hover/touch pauses it; drag/touch/wheel remain available.
       clientGalleryController=setupMarquee(
         clientGalleryMarquee,
         clientGalleryGrid,
-        {speed:0.032,direction:-1,groupSelector:'.client-gallery-group'}
+        {speed:0.032,direction:-1,groupSelector:'.client-gallery-group',pauseOnHover:true}
       );
       const loopWidth=clientGalleryMarquee.querySelector('.client-gallery-group')?.getBoundingClientRect().width || 0;
-      if(loopWidth) clientGalleryMarquee.scrollLeft=loopWidth;
+      if(loopWidth)clientGalleryMarquee.scrollLeft=loopWidth;
       clientGalleryController.wrap();
-      clientGalleryController.start();
+      bindMediaTrack(clientGalleryGrid,'.client-gallery-card',()=>currentClientPhotos,()=>clientGalleryController);
     }catch(err){
       console.error(err);
       clientGalleryStatus.textContent=window.TPNG_I18N.t('galleryError');
@@ -1503,13 +1545,13 @@ const lightboxPrev = document.getElementById('lightboxPrev');
   }
 
   function closeClientGallery(){
-    if(clientGalleryController) clientGalleryController.stop();
+    if(clientGalleryController)clientGalleryController.stop();
     clientGalleryController=null;
     clientGalleryModal.classList.remove('open');
     clientGalleryModal.setAttribute('aria-hidden','true');
     clientGalleryGrid.innerHTML='';
     clientGalleryStatus.textContent='';
-    if(!lightbox.classList.contains('open')) document.body.style.overflow='';
+    if(!lightbox.classList.contains('open'))document.body.style.overflow='';
   }
 
   clientGalleryClose.addEventListener('click',closeClientGallery);
@@ -1519,34 +1561,35 @@ const lightboxPrev = document.getElementById('lightboxPrev');
 
   async function loadClients(){
     const grid=document.getElementById('clientsGrid');
-    const status=document.getElementById('clientsStatus');
-    if(!grid || !status) return;
+    const clientsStatus=document.getElementById('clientsStatus');
+    if(!grid || !clientsStatus)return;
+
     try{
-      if(!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) throw new Error('Falta configurar Supabase en config.js');
-      const client=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
+      const client=getSupabase();
       const {data,error}=await client.from('client_logos')
         .select('id,name,image_url,storage_path,sort_order,created_at')
         .order('sort_order',{ascending:true})
         .order('created_at',{ascending:false});
-      if(error) throw error;
+      if(error)throw error;
 
       grid.innerHTML='';
       if(!data || !data.length){
-        status.textContent='';
+        clientsStatus.textContent='';
         return;
       }
-      status.textContent='';
 
       data.forEach(item=>{
         let url=item.image_url;
-        if(!url && item.storage_path) url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
-        if(!url) return;
+        if(!url && item.storage_path){
+          url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
+        }
+        if(!url)return;
 
         const card=document.createElement('article');
         card.className='client-card';
         card.setAttribute('role','button');
         card.setAttribute('tabindex','0');
-        card.setAttribute('aria-label',(item.name||'Client')+' — '+window.TPNG_I18N.t('galleryTitle'));
+        card.setAttribute('aria-label',(item.name || 'Client')+' — '+window.TPNG_I18N.t('galleryTitle'));
 
         const img=document.createElement('img');
         img.className='client-logo';
@@ -1559,50 +1602,48 @@ const lightboxPrev = document.getElementById('lightboxPrev');
         name.textContent=item.name || '';
 
         card.appendChild(img);
-        if(item.name) card.appendChild(name);
+        if(item.name)card.appendChild(name);
 
-        const open=()=>openClientGallery(item.id,item.name||'');
+        const open=()=>openClientGallery(item.id,item.name || '');
         card.addEventListener('click',open);
         card.addEventListener('keydown',e=>{
-          if(e.key==='Enter'||e.key===' '){
+          if(e.key==='Enter' || e.key===' '){
             e.preventDefault();
             open();
           }
         });
-
         grid.appendChild(card);
       });
+      clientsStatus.textContent='';
     }catch(err){
       console.error(err);
-      status.textContent='';
+      clientsStatus.textContent='';
     }
   }
-  loadClients();
 
   async function loadGallery(){
     const RECENT_LIMIT=10;
     const galleryViewport=document.getElementById('galleryViewport');
+
     try{
-      if(!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) throw new Error('Falta configurar Supabase en config.js');
-      const client=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
+      const client=getSupabase();
       const {data,error}=await client.from('gallery')
         .select('id,title,image_url,storage_path,created_at')
         .order('created_at',{ascending:false})
         .limit(RECENT_LIMIT);
-      if(error) throw error;
+      if(error)throw error;
 
+      if(recentMarqueeController)recentMarqueeController.stop();
+      recentMarqueeController=null;
       gallery.innerHTML='';
-      if(!data || !data.length){
-        status.textContent=window.TPNG_I18N.t('galleryEmpty');
-        return;
-      }
 
-      status.textContent='';
       fullGalleryItems=[];
-      data.forEach(item=>{
+      (data || []).forEach(item=>{
         let url=item.image_url;
-        if(!url && item.storage_path) url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
-        if(url) fullGalleryItems.push({url,title:item.title||''});
+        if(!url && item.storage_path){
+          url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
+        }
+        if(url)fullGalleryItems.push({url,title:item.title || ''});
       });
 
       if(!fullGalleryItems.length){
@@ -1610,187 +1651,65 @@ const lightboxPrev = document.getElementById('lightboxPrev');
         return;
       }
 
-      const appendGroup=(duplicate=false)=>{
-        const group=document.createElement('div');
-        group.className='marquee-group';
-        if(duplicate) group.setAttribute('aria-hidden','true');
-        fullGalleryItems.forEach((item,index)=>{
-          const card=document.createElement('article');
-          card.className='gallery-card';
-          card.setAttribute('role','button');
-          card.setAttribute('tabindex',duplicate?'-1':'0');
-          card.setAttribute('aria-label',item.title || window.TPNG_I18N.t('photoAlt'));
+      status.textContent='';
+      appendGroups(gallery,fullGalleryItems,'marquee-group',galleryViewport,'gallery-card',{altKey:'photoAlt'});
 
-          const video=isVideoUrl(item.url);
-          if(video){
-            const media=document.createElement('video');
-            media.src=item.url;
-            media.muted=true;
-            media.playsInline=true;
-            media.preload='metadata';
-            media.setAttribute('aria-label',item.title || 'Video');
-            media.tabIndex=-1;
-            card.appendChild(media);
-          }else{
-            const img=document.createElement('img');
-            img.src=item.url;
-            img.alt=item.title || window.TPNG_I18N.t('photoFallback');
-            img.loading=duplicate?'eager':'lazy';
-            img.decoding='async';
-            card.appendChild(img);
-          }
-
-          if(item.title){
-            const caption=document.createElement('div');
-            caption.className='caption';
-            caption.textContent=item.title;
-            card.appendChild(caption);
-          }
-
-          const indicator=document.createElement('span');
-          indicator.className='view-indicator';
-          indicator.textContent=isVideoUrl(item.url)?'Ver video  ↗':'Ver fotografía  ↗';
-          card.appendChild(indicator);
-
-          let touchStartX=0;
-          let touchStartY=0;
-          let touchMoved=false;
-          let suppressClickUntil=0;
-
-          const open=()=>{
-            showLightbox(index);
-          };
-
-          card.addEventListener('pointerdown',e=>{
-            if(e.pointerType==='touch'){
-              touchStartX=e.clientX;
-              touchStartY=e.clientY;
-              touchMoved=false;
-            }
-          });
-
-          card.addEventListener('pointermove',e=>{
-            if(e.pointerType==='touch' && (Math.abs(e.clientX-touchStartX)>6 || Math.abs(e.clientY-touchStartY)>6)){
-              touchMoved=true;
-            }
-          });
-
-          card.addEventListener('pointerup',e=>{
-            if(e.pointerType==='touch'){
-              e.stopPropagation();
-              if(!touchMoved){
-                e.preventDefault();
-                suppressClickUntil=Date.now()+450;
-                open();
-              }
-            }
-          });
-
-          card.addEventListener('click',e=>{
-            if(Date.now()<suppressClickUntil){
-              e.preventDefault();
-              e.stopPropagation();
-              return;
-            }
-            e.preventDefault();
-            e.stopPropagation();
-            if(e.detail>0) open();
-          });
-          if(!duplicate){
-            card.addEventListener('keydown',e=>{
-              if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}
-            });
-          }
-          group.appendChild(card);
-        });
-        gallery.appendChild(group);
-        return group;
-      };
-
-      // Use the same loop structure as Client Portfolios for identical drag/momentum behavior.
-      appendGroup(false);
-      appendGroup(true);
-      appendGroup(true);
-      let copies=3;
-      while(gallery.scrollWidth < galleryViewport.clientWidth*3 && copies<10){
-        appendGroup(true);
-        copies++;
-      }
-
-      galleryItems=fullGalleryItems;
-      if(recentMarqueeController) recentMarqueeController.stop();
       recentMarqueeController=setupMarquee(
         galleryViewport,
         gallery,
-        {speed:0.032,direction:-1,groupSelector:'.marquee-group',continuousAutoplay:true}
+        {speed:0.032,direction:-1,groupSelector:'.marquee-group',pauseOnHover:false}
       );
       const loopWidth=galleryViewport.querySelector('.marquee-group')?.getBoundingClientRect().width || 0;
-      if(loopWidth) galleryViewport.scrollLeft=loopWidth;
+      if(loopWidth)galleryViewport.scrollLeft=loopWidth;
       recentMarqueeController.wrap();
-      recentMarqueeController.start();
+      bindMediaTrack(gallery,'.gallery-card',()=>fullGalleryItems,()=>recentMarqueeController);
+      lightboxItems=fullGalleryItems;
     }catch(err){
       console.error(err);
       status.textContent=window.TPNG_I18N.t('galleryError');
     }
   }
-  loadGallery();
 
-  const quoteForm = document.getElementById('quoteForm');
-  const quoteStatus = document.getElementById('quoteStatus');
+  const quoteForm=document.getElementById('quoteForm');
+  const quoteStatus=document.getElementById('quoteStatus');
 
-  if (quoteForm) {
-    quoteForm.addEventListener('submit', async (e) => {
+  if(quoteForm){
+    quoteForm.addEventListener('submit',async e=>{
       e.preventDefault();
-      quoteStatus.className = 'form-status';
-      quoteStatus.textContent = window.TPNG_I18N.t('sending');
+      quoteStatus.className='form-status';
+      quoteStatus.textContent=window.TPNG_I18N.t('sending');
 
-      try {
-        if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
-          throw new Error('Falta configurar Supabase en config.js');
-        }
-
-        const client = window.supabase.createClient(
-          window.SUPABASE_URL,
-          window.SUPABASE_ANON_KEY
-        );
-
-        const formData = new FormData(quoteForm);
-        const payload = {
-          name: String(formData.get('name') || '').trim(),
-          phone: String(formData.get('phone') || '').trim() || null,
-          email: String(formData.get('email') || '').trim(),
-          service: String(formData.get('service') || '').trim() || null,
-          project_date: String(formData.get('project_date') || '').trim() || null,
-          message: String(formData.get('message') || '').trim()
+      try{
+        const client=getSupabase();
+        const formData=new FormData(quoteForm);
+        const payload={
+          name:String(formData.get('name') || '').trim(),
+          phone:String(formData.get('phone') || '').trim() || null,
+          email:String(formData.get('email') || '').trim(),
+          service:String(formData.get('service') || '').trim() || null,
+          project_date:String(formData.get('project_date') || '').trim() || null,
+          message:String(formData.get('message') || '').trim()
         };
 
-        const { error } = await client
-          .from('contact_requests')
-          .insert([payload]);
+        const {error}=await client.from('contact_requests').insert([payload]);
+        if(error)throw error;
 
-        if (error) throw error;
-        
-        const { error: emailError } = await client.functions.invoke(
-  'send-quote-email',
-  {
-    body: payload
-  }
-);
-
-if (emailError) {
-  console.error('La solicitud se guardó, pero el email no pudo enviarse:', emailError);
-}
+        const {error:emailError}=await client.functions.invoke('send-quote-email',{body:payload});
+        if(emailError)console.error('La solicitud se guardó, pero el email no pudo enviarse:',emailError);
 
         quoteForm.reset();
-        quoteStatus.className = 'form-status success';
-        quoteStatus.textContent = window.TPNG_I18N.t('success');
-      } catch (err) {
+        quoteStatus.className='form-status success';
+        quoteStatus.textContent=window.TPNG_I18N.t('success');
+      }catch(err){
         console.error(err);
-        quoteStatus.className = 'form-status error';
-        quoteStatus.textContent = window.TPNG_I18N.t('formError');
+        quoteStatus.className='form-status error';
+        quoteStatus.textContent=window.TPNG_I18N.t('formError');
       }
     });
   }
+
+  loadClients();
+  loadGallery();
 })();
 </script>
 </body>
