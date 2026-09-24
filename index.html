@@ -298,41 +298,25 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   .client-name{font-size:10px}
 }
 
-/* Client portfolio modal */
-.client-gallery-modal{
-  position:fixed;
-  inset:0;
-  z-index:120;
+/* Client portfolio — inline section */
+.client-portfolio-section{
   display:none;
-  align-items:center;
-  justify-content:center;
-  padding:28px 20px;
-  background:rgba(4,4,4,.96);
+  margin-top:42px;
+  padding-top:34px;
+  border-top:1px solid var(--line);
+  scroll-margin-top:105px;
 }
-.client-gallery-modal.open{display:flex}
-.client-gallery-modal-inner{
-  width:min(1080px,94vw);
-  max-height:90vh;
-  overflow:auto;
-  padding:10px 4px 18px;
-}
-.client-gallery-modal-head{
+.client-portfolio-section.open{display:block;animation:clientPortfolioIn .45s ease both}
+@keyframes clientPortfolioIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.client-portfolio-head{
   display:flex;
   align-items:flex-end;
   justify-content:space-between;
   gap:20px;
   margin-bottom:22px;
 }
-.client-gallery-modal-head h3{
-  font-size:clamp(24px,4vw,36px);
-  line-height:1.1;
-  margin:0;
-}
-.client-gallery-modal-head p{
-  color:var(--muted);
-  font-size:12px;
-  margin-top:6px;
-}
+.client-portfolio-head h3{font-size:clamp(24px,4vw,36px);line-height:1.1;margin:0}
+.client-portfolio-head p{color:var(--muted);font-size:12px;margin-top:6px}
 .client-gallery-close{
   border:1px solid var(--line);
   background:rgba(255,255,255,.035);
@@ -343,61 +327,19 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   cursor:pointer;
   transition:.25s ease;
 }
-.client-gallery-close:hover{
-  background:rgba(255,255,255,.08);
-  border-color:rgba(255,255,255,.25);
-}
-.client-gallery-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:14px;
-}
-.client-gallery-card{
-  position:relative;
-  aspect-ratio:4 / 5;
-  overflow:hidden;
-  border-radius:9px;
-  border:1px solid var(--line);
-  background:#0b0b0b;
-  cursor:pointer;
-  transition:transform .3s ease,border-color .4s ease,box-shadow .4s ease;
-}
-.client-gallery-card:hover{
-  transform:translateY(-2px);
-  border-color:rgba(255,255,255,.3);
-  box-shadow:0 0 22px rgba(255,255,255,.06),0 16px 38px rgba(0,0,0,.22);
-}
-.client-gallery-card img,.client-gallery-card video{
-  width:100%;
-  height:100%;
-  display:block;
-  object-fit:cover;
-  transition:transform .4s ease;
-  pointer-events:none;
-}
+.client-gallery-close:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.25)}
+.client-gallery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.client-gallery-card{position:relative;aspect-ratio:4 / 5;overflow:hidden;border-radius:9px;border:1px solid var(--line);background:#0b0b0b;cursor:pointer;transition:transform .3s ease,border-color .4s ease,box-shadow .4s ease}
+.client-gallery-card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.3);box-shadow:0 0 22px rgba(255,255,255,.06),0 16px 38px rgba(0,0,0,.22)}
+.client-gallery-card img,.client-gallery-card video{width:100%;height:100%;display:block;object-fit:cover;transition:transform .4s ease;pointer-events:none}
 .client-gallery-card video{background:#050505}
 .client-gallery-card:hover img,.client-gallery-card:hover video{transform:scale(1.025)}
-.client-gallery-card .client-photo-caption{
-  position:absolute;
-  left:12px;
-  right:12px;
-  bottom:11px;
-  color:#fff;
-  font-size:12px;
-  font-weight:700;
-  text-shadow:0 2px 12px rgba(0,0,0,.75);
-}
-.client-gallery-empty{
-  padding:45px 20px;
-  border:1px dashed var(--line);
-  color:var(--muted);
-  text-align:center;
-}
+.client-gallery-card .client-photo-caption{position:absolute;left:12px;right:12px;bottom:11px;color:#fff;font-size:12px;font-weight:700;text-shadow:0 2px 12px rgba(0,0,0,.75)}
+.client-gallery-empty{padding:45px 20px;border:1px dashed var(--line);color:var(--muted);text-align:center}
 @media(max-width:650px){
-  .client-gallery-modal{padding:18px 10px}
-  .client-gallery-modal-inner{width:96vw;max-height:91vh}
-  .client-gallery-modal-head{align-items:flex-start;margin-bottom:16px}
-  .client-gallery-modal-head h3{font-size:25px}
+  .client-portfolio-section{margin-top:30px;padding-top:26px;scroll-margin-top:84px}
+  .client-portfolio-head{align-items:flex-start;margin-bottom:16px}
+  .client-portfolio-head h3{font-size:25px}
   .client-gallery-close{padding:8px 11px;font-size:10px}
   .client-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
   .client-gallery-card{border-radius:8px}
@@ -836,6 +778,21 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 <p class="clients-section-intro" data-i18n="clientsText">A selection of people, businesses and brands we've had the opportunity to create for.</p>
 <div id="clientsStatus" class="clients-status"></div>
 <div id="clientsGrid" class="clients-grid"></div>
+
+<div id="clientPortfolioSection" class="client-portfolio-section" aria-hidden="true">
+  <div class="client-portfolio-head">
+    <div>
+      <p class="eyebrow" data-i18n="clientWorkEyebrow">Client portfolio</p>
+      <h3 id="clientGalleryTitle"></h3>
+      <p data-i18n="clientWorkSubtitle">Selected work for this client.</p>
+    </div>
+    <button id="clientGalleryClose" class="client-gallery-close" type="button" data-i18n="clientClose">Close</button>
+  </div>
+  <div id="clientGalleryStatus" class="clients-status"></div>
+  <div id="clientGalleryMarquee" class="client-gallery-marquee" aria-label="Client portfolio photos">
+    <div id="clientGalleryGrid" class="client-gallery-grid"></div>
+  </div>
+</div>
 </div></section>
 <section id="contacto"><div class="container contact-section-inner"><div class="contact-intro"><p class="eyebrow" data-i18n="contactEyebrow">Let’s create something</p><h2 data-i18n="contactTitle">Have a project in mind?</h2><p class="contact-lead" data-i18n="contactText">Tell us what you’re looking for and let’s bring it to life.</p><div class="contact-details"><a href="tel:+19295053399">929-505-3399</a><a href="mailto:ivantablet901@gmail.com">ivantablet901@gmail.com</a><span>New York · New Jersey · Pennsylvania</span></div></div>
 <div class="contactbox contact-formbox">
@@ -889,22 +846,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 <div class="lightbox-hint" data-i18n="lightboxHint">Swipe or use the wheel to navigate</div>
 </div>
 
-<div id="clientGalleryModal" class="client-gallery-modal" aria-hidden="true">
-  <div class="client-gallery-modal-inner">
-    <div class="client-gallery-modal-head">
-      <div>
-        <p class="eyebrow" data-i18n="clientWorkEyebrow">Client portfolio</p>
-        <h3 id="clientGalleryTitle"></h3>
-        <p data-i18n="clientWorkSubtitle">Selected work for this client.</p>
-      </div>
-      <button id="clientGalleryClose" class="client-gallery-close" type="button" data-i18n="clientClose">Close</button>
-    </div>
-    <div id="clientGalleryStatus" class="clients-status"></div>
-    <div id="clientGalleryMarquee" class="client-gallery-marquee" aria-label="Client portfolio photos">
-      <div id="clientGalleryGrid" class="client-gallery-grid"></div>
-    </div>
-  </div>
-</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
@@ -1070,7 +1012,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   const lightboxTitle=document.getElementById('lightboxTitle');
   const lightboxPrev=document.getElementById('lightboxPrev');
   const lightboxNext=document.getElementById('lightboxNext');
-  const clientGalleryModal=document.getElementById('clientGalleryModal');
+  const clientPortfolioSection=document.getElementById('clientPortfolioSection');
   const clientGalleryTitle=document.getElementById('clientGalleryTitle');
   const clientGalleryMarquee=document.getElementById('clientGalleryMarquee');
   const clientGalleryGrid=document.getElementById('clientGalleryGrid');
@@ -1199,7 +1141,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       lightboxResumeController=null;
       controller.resume();
     }
-    document.body.style.overflow=clientGalleryModal.classList.contains('open') ? 'hidden' : '';
+    if(!clientPortfolioSection?.classList.contains('open'))document.body.style.overflow='';
   }
 
   function nextPhoto(){showLightbox(currentIndex+1,1)}
@@ -1237,8 +1179,6 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     if(e.key==='Escape'){
       if(lightbox.classList.contains('open')){
         closeLightbox();
-      }else if(clientGalleryModal.classList.contains('open')){
-        closeClientGallery();
       }
       return;
     }
@@ -1586,16 +1526,20 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   }
 
   async function openClientGallery(clientId,clientName){
-    if(!clientGalleryModal || !clientGalleryGrid || !clientGalleryMarquee)return;
+    if(!clientPortfolioSection || !clientGalleryGrid || !clientGalleryMarquee)return;
     if(clientGalleryController)clientGalleryController.stop();
 
     clientGalleryController=null;
     clientGalleryTitle.textContent=clientName || '';
     clientGalleryGrid.innerHTML='';
     clientGalleryStatus.textContent=window.TPNG_I18N.t('clientLoading');
-    clientGalleryModal.classList.add('open');
-    clientGalleryModal.setAttribute('aria-hidden','false');
-    document.body.style.overflow='hidden';
+    clientPortfolioSection.classList.add('open');
+    clientPortfolioSection.setAttribute('aria-hidden','false');
+
+    // Move the page to the selected client's portfolio instead of opening a modal.
+    requestAnimationFrame(()=>{
+      clientPortfolioSection.scrollIntoView({behavior:'smooth',block:'start'});
+    });
 
     try{
       const client=getSupabase();
@@ -1641,16 +1585,15 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   function closeClientGallery(){
     if(clientGalleryController)clientGalleryController.stop();
     clientGalleryController=null;
-    clientGalleryModal.classList.remove('open');
-    clientGalleryModal.setAttribute('aria-hidden','true');
     clientGalleryGrid.innerHTML='';
     clientGalleryStatus.textContent='';
-    if(!lightbox.classList.contains('open'))document.body.style.overflow='';
+    clientGalleryTitle.textContent='';
+    clientPortfolioSection.classList.remove('open');
+    clientPortfolioSection.setAttribute('aria-hidden','true');
   }
 
-  clientGalleryClose.addEventListener('click',closeClientGallery);
-  clientGalleryModal.addEventListener('click',e=>{
-    if(e.target===clientGalleryModal)closeClientGallery();
+  clientGalleryClose.addEventListener('click',()=>{
+    closeClientGallery();
   });
 
   async function loadClients(){
