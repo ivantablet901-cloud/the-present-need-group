@@ -1390,7 +1390,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       if(smoothWheel){
         // Blend wheel input into the same animation frame as the marquee.
         // This prevents each wheel event from causing an abrupt jump.
-        wheelTarget=Math.max(-0.55,Math.min(0.55,wheelTarget+amount*0.0018));
+        wheelTarget=Math.max(-0.7975,Math.min(0.7975,wheelTarget+amount*0.00261));
         clearTimeout(resumeTimer);
         resumeTimer=0;
         pausedByHover=false;
