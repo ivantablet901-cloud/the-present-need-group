@@ -1089,6 +1089,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   let clientGalleryController=null;
   let recentMarqueeController=null;
   let lightboxResumeController=null;
+  let lightboxAudioOnVideo=false;
 
   function getSupabase(){
     if(!supabaseClient) throw new Error('Falta configurar Supabase en config.js');
@@ -1110,7 +1111,10 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 
     if(video){
       lightboxVideo.src=item.url;
-      lightboxVideo.muted=true;
+      lightboxVideo.muted=!lightboxAudioOnVideo;
+      lightboxVideo.defaultMuted=!lightboxAudioOnVideo;
+      if(lightboxAudioOnVideo)lightboxVideo.removeAttribute('muted');
+      else lightboxVideo.setAttribute('muted','');
       lightboxVideo.playsInline=true;
       lightboxVideo.controls=true;
       lightboxVideo.autoplay=true;
@@ -1119,7 +1123,19 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       lightboxVideo.setAttribute('playsinline','');
       lightboxVideo.load();
       const playPromise=lightboxVideo.play();
-      if(playPromise?.catch)playPromise.catch(()=>{});
+      if(playPromise?.catch){
+        playPromise.catch(()=>{
+          // If the browser blocks autoplay with sound, fall back to muted
+          // playback so opening the video never fails.
+          if(lightboxAudioOnVideo){
+            lightboxVideo.muted=true;
+            lightboxVideo.defaultMuted=true;
+            lightboxVideo.setAttribute('muted','');
+            const fallback=lightboxVideo.play();
+            if(fallback?.catch)fallback.catch(()=>{});
+          }
+        });
+      }
     }else{
       lightboxImage.src=item.url;
     }
@@ -1157,9 +1173,10 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     },180);
   }
 
-  function openLightbox(items,index){
+  function openLightbox(items,index,options={}){
     if(!items?.length)return;
     lightboxItems=items;
+    lightboxAudioOnVideo=options.audioOnVideo === true;
     showLightbox(index);
   }
 
@@ -1175,6 +1192,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     lightboxVideo.load();
     lightboxVideo.hidden=true;
     lightboxItems=fullGalleryItems;
+    lightboxAudioOnVideo=false;
     currentIndex=0;
     if(lightboxResumeController){
       const controller=lightboxResumeController;
@@ -1466,7 +1484,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
           controller.pause();
           lightboxResumeController=controller;
         }
-        openLightbox(items,index);
+        openLightbox(items,index,{audioOnVideo:options.audioOnVideo === true});
       }
     });
 
@@ -1721,7 +1739,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       recentMarqueeController=setupMarquee(
         galleryViewport,
         gallery,
-        {speed:0.032,direction:-1,groupSelector:'.marquee-group',pauseOnHover:true,holdWhileLightbox:true,captureMouseOnDown:false,smoothWheel:true}
+        {speed:0.032,direction:-1,groupSelector:'.marquee-group',pauseOnHover:true,holdWhileLightbox:true,captureMouseOnDown:false,smoothWheel:true,audioOnVideo:true}
       );
       const loopWidth=galleryViewport.querySelector('.marquee-group')?.getBoundingClientRect().width || 0;
       if(loopWidth){
