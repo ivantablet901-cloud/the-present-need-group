@@ -357,6 +357,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   width:100%;height:100%;display:block;object-fit:cover;transition:transform .4s ease;pointer-events:none;
 }
 .client-gallery-card video{background:#050505}
+.client-gallery-card{cursor:pointer;pointer-events:auto}
 .client-gallery-card:hover img,.client-gallery-card:hover video{transform:scale(1.025)}
 .client-gallery-card .client-photo-caption{
   position:absolute;left:12px;right:12px;bottom:11px;color:#fff;font-size:12px;font-weight:700;text-shadow:0 2px 12px rgba(0,0,0,.75);pointer-events:none;
@@ -696,12 +697,6 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   width:clamp(260px,25vw,330px);
   margin:0;
 }
-.client-gallery-marquee{
-  touch-action:pan-x;
-  cursor:grab;
-}
-.client-gallery-card{pointer-events:auto;}
-.client-gallery-card img,.client-gallery-card video{pointer-events:none;}
 @media(max-width:650px){
   .recent-marquee,.client-gallery-marquee{
     padding-bottom:8px;
@@ -788,14 +783,6 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 <article class="card"><span class="number">03</span><h3 data-i18n="mediaTitle">Multimedia Content</h3><p data-i18n="mediaText">Visual content designed for social media, brands and digital presence.</p></article>
 </div></div></section>
 
-<section id="nosotros"><div class="container about">
-<div><p class="eyebrow" data-i18n="aboutEyebrow">The Present Need Group</p><h2 data-i18n="aboutTitle">Your idea. Our camera. The present moment.</h2></div>
-<div><p data-i18n="aboutText">We are a team focused on creating photography, video and multimedia content with a clean, modern and professional aesthetic.</p>
-<div class="locations"><span class="tag">New York</span><span class="tag">New Jersey</span><span class="tag">Pennsylvania</span></div></div>
-</div></section>
-
-
-
 <section id="galeria"><div class="container">
 <p class="eyebrow" data-i18n="galleryEyebrow">Portfolio</p><h2 data-i18n="galleryTitle">Recent work</h2>
 <div id="galleryStatus" class="status">Loading photographs...</div>
@@ -826,7 +813,6 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     </div>
   </div>
 </section>
-
 <section id="contacto"><div class="container contact-section-inner"><div class="contact-intro"><p class="eyebrow" data-i18n="contactEyebrow">Let’s create something</p><h2 data-i18n="contactTitle">Have a project in mind?</h2><p class="contact-lead" data-i18n="contactText">Tell us what you’re looking for and let’s bring it to life.</p><div class="contact-details"><a href="tel:+19295053399">929-505-3399</a><a href="mailto:ivantablet901@gmail.com">ivantablet901@gmail.com</a><span>New York · New Jersey · Pennsylvania</span></div></div>
 <div class="contactbox contact-formbox">
 <div class="contact-form-head"><p class="eyebrow" data-i18n="quoteEyebrow">Start a project</p><h3 data-i18n="quoteTitle">Request a quote</h3><p data-i18n="quoteText">Share a few details and we’ll get back to you.</p></div>
@@ -1438,42 +1424,36 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   }
 
   function bindMediaTrack(track,selector,getItems,getController,options={}){
-    if(!track)return;
-    const pauseOnOpen=options.pauseOnOpen === true;
-
-    // One delegated listener per track. It always reads the current item list,
-    // so replacing a client's cards never leaves the old portfolio handlers behind.
-    if(track.dataset.mediaBound==='true')return;
+    if(!track || track.dataset.mediaBound==='true')return;
     track.dataset.mediaBound='true';
-
-    const openFromCard=(card,e)=>{
-      if(!card || !track.contains(card))return;
-      const controller=getController();
-      if(controller?.shouldIgnoreClick && controller.shouldIgnoreClick()){
-        e?.preventDefault();
-        return;
-      }
-      const items=getItems() || [];
-      const index=Number(card.dataset.index);
-      if(!Number.isInteger(index) || !items.length)return;
-      if(pauseOnOpen && controller?.pause){
-        controller.pause();
-        lightboxResumeController=controller;
-      }
-      openLightbox(items,index);
-    };
+    const pauseOnOpen=options.pauseOnOpen === true;
 
     track.addEventListener('click',e=>{
       const card=e.target.closest(selector);
-      if(card)openFromCard(card,e);
+      if(!card || !track.contains(card))return;
+      const controller=getController();
+      if(controller?.shouldIgnoreClick()){
+        e.preventDefault();
+        return;
+      }
+      const items=getItems();
+      const index=Number(card.dataset.index);
+      if(Number.isInteger(index)){
+        if(pauseOnOpen && controller){
+          controller.pause();
+          lightboxResumeController=controller;
+        }
+        openLightbox(items,index);
+      }
     });
 
     track.addEventListener('keydown',e=>{
-      if(e.key!=='Enter' && e.key!==' ')return;
       const card=e.target.closest(selector);
-      if(!card)return;
+      if(!card || (e.key!=='Enter' && e.key!==' '))return;
       e.preventDefault();
-      openFromCard(card,e);
+      const items=getItems();
+      const index=Number(card.dataset.index);
+      if(Number.isInteger(index))openLightbox(items,index);
     });
   }
 
@@ -1557,6 +1537,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 
     let destroyed=false;
     let dragging=false;
+    let moved=false;
     let startX=0;
     let startScroll=0;
     let clickBlockedUntil=0;
@@ -1567,7 +1548,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       return group ? group.getBoundingClientRect().width : 0;
     };
 
-    const wrap=()=>{
+    const normalize=()=>{
       if(destroyed || wrapLock)return;
       const width=getGroupWidth();
       if(!width)return;
@@ -1582,34 +1563,43 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       }
     };
 
-    const onScroll=()=>wrap();
+    const onScroll=()=>normalize();
+
     const onWheel=e=>{
       const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
       if(!amount)return;
       e.preventDefault();
       viewport.scrollLeft += amount;
-      wrap();
+      normalize();
     };
+
     const onPointerDown=e=>{
-      if(e.pointerType==='mouse' && e.button!==0)return;
+      if(e.pointerType!=='mouse' || e.button!==0)return;
       dragging=true;
+      moved=false;
       startX=e.clientX;
       startScroll=viewport.scrollLeft;
       viewport.classList.add('is-dragging');
       try{viewport.setPointerCapture(e.pointerId)}catch{}
     };
+
     const onPointerMove=e=>{
       if(!dragging)return;
       const dx=e.clientX-startX;
-      if(Math.abs(dx)>6)clickBlockedUntil=Date.now()+350;
+      if(Math.abs(dx)>6){
+        moved=true;
+        clickBlockedUntil=Date.now()+120;
+      }
       viewport.scrollLeft=startScroll-dx;
-      wrap();
+      normalize();
     };
+
     const endDrag=()=>{
       if(!dragging)return;
       dragging=false;
       viewport.classList.remove('is-dragging');
-      wrap();
+      if(moved)clickBlockedUntil=Date.now()+80;
+      normalize();
     };
 
     viewport.addEventListener('scroll',onScroll,{passive:true});
@@ -1623,8 +1613,12 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     requestAnimationFrame(()=>{
       if(destroyed)return;
       const width=getGroupWidth();
-      if(width)viewport.scrollLeft=width;
-      wrap();
+      if(width){
+        // Start in the middle copy so the user has the same amount of loop
+        // space in either direction on desktop and mobile.
+        viewport.scrollLeft=width;
+        normalize();
+      }
     });
 
     return {
@@ -1640,7 +1634,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
         viewport.classList.remove('is-dragging');
       },
       shouldIgnoreClick:()=>Date.now()<clickBlockedUntil,
-      wrap
+      wrap:normalize
     };
   }
 
@@ -1681,7 +1675,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       currentClientPhotos=photos;
       appendGroups(clientGalleryGrid,currentClientPhotos,'client-gallery-group',clientGalleryMarquee,'client-gallery-card',{client:true,altKey:'photoFallback'});
       clientGalleryController=setupClientManualLoop(clientGalleryMarquee,clientGalleryGrid);
-      bindMediaTrack(clientGalleryGrid,'.client-gallery-card',()=>currentClientPhotos,()=>clientGalleryController,{pauseOnOpen:false});
+      bindMediaTrack(clientGalleryGrid,'.client-gallery-card',()=>currentClientPhotos,()=>clientGalleryController);
       clientPortfolio.scrollIntoView({behavior:'smooth',block:'start'});
     }catch(err){
       console.error(err);
