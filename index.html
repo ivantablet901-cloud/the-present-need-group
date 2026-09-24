@@ -1240,7 +1240,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     const smoothWheel=options.smoothWheel === true;
 
     let frame=0,lastTime=0,dragging=false,startX=0,startScroll=0;
-    let lastX=0,lastMoveTime=0,momentum=0,wheelMomentum=0,resumeTimer=0,clickBlockedUntil=0;
+    let lastX=0,lastMoveTime=0,momentum=0,wheelMomentum=0,wheelTarget=0,resumeTimer=0,clickBlockedUntil=0;
     const captureMouseOnDown=options.captureMouseOnDown !== false;
     let destroyed=false,pausedByHover=false;
 
@@ -1277,7 +1277,17 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
           momentum*=Math.pow(0.0018,dt/1000);
           if(Math.abs(momentum)<0.01)momentum=0;
         }
-        if(Math.abs(wheelMomentum)>0.005){
+        if(smoothWheel){
+          // Ease the wheel velocity toward the user's input instead of
+          // applying each wheel event as an abrupt jump.
+          const blend=1-Math.exp(-dt/75);
+          wheelMomentum+=(wheelTarget-wheelMomentum)*blend;
+          wheelTarget*=Math.pow(0.018,dt/1000);
+          if(Math.abs(wheelMomentum)<0.002 && Math.abs(wheelTarget)<0.002){
+            wheelMomentum=0;
+            wheelTarget=0;
+          }
+        }else if(Math.abs(wheelMomentum)>0.005){
           wheelMomentum*=Math.pow(0.10,dt/1000);
           if(Math.abs(wheelMomentum)<0.005)wheelMomentum=0;
         }
@@ -1380,7 +1390,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       if(smoothWheel){
         // Blend wheel input into the same animation frame as the marquee.
         // This prevents each wheel event from causing an abrupt jump.
-        wheelMomentum=Math.max(-1.35,Math.min(1.35,wheelMomentum+amount*0.006));
+        wheelTarget=Math.max(-0.55,Math.min(0.55,wheelTarget+amount*0.0018));
         clearTimeout(resumeTimer);
         resumeTimer=0;
         pausedByHover=false;
