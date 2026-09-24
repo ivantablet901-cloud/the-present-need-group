@@ -1237,9 +1237,10 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     const groupSelector=options.groupSelector || '.marquee-group';
     const pauseOnHover=options.pauseOnHover !== false;
     const holdWhileLightbox=options.holdWhileLightbox === true;
+    const smoothWheel=options.smoothWheel === true;
 
     let frame=0,lastTime=0,dragging=false,startX=0,startScroll=0;
-    let lastX=0,lastMoveTime=0,momentum=0,resumeTimer=0,clickBlockedUntil=0;
+    let lastX=0,lastMoveTime=0,momentum=0,wheelMomentum=0,resumeTimer=0,clickBlockedUntil=0;
     const captureMouseOnDown=options.captureMouseOnDown !== false;
     let destroyed=false,pausedByHover=false;
 
@@ -1267,7 +1268,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       lastTime=time;
 
       if(!document.hidden && track.firstElementChild && !dragging){
-        const velocity=(pausedByHover ? 0 : direction*speed)+momentum;
+        const velocity=(pausedByHover ? 0 : direction*speed)+momentum+wheelMomentum;
         if(Math.abs(velocity)>0.001){
           viewport.scrollLeft+=velocity*dt;
           wrap();
@@ -1275,6 +1276,10 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
         if(Math.abs(momentum)>0.01){
           momentum*=Math.pow(0.0018,dt/1000);
           if(Math.abs(momentum)<0.01)momentum=0;
+        }
+        if(Math.abs(wheelMomentum)>0.005){
+          wheelMomentum*=Math.pow(0.10,dt/1000);
+          if(Math.abs(wheelMomentum)<0.005)wheelMomentum=0;
         }
       }
       frame=requestAnimationFrame(tick);
@@ -1371,6 +1376,20 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
       if(!amount)return;
       e.preventDefault();
+
+      if(smoothWheel){
+        // Blend wheel input into the same animation frame as the marquee.
+        // This prevents each wheel event from causing an abrupt jump.
+        wheelMomentum=Math.max(-1.35,Math.min(1.35,wheelMomentum+amount*0.006));
+        clearTimeout(resumeTimer);
+        resumeTimer=0;
+        pausedByHover=false;
+        lastTime=performance.now();
+        wrap();
+        start();
+        return;
+      }
+
       momentum=Math.max(-3.2,Math.min(3.2,momentum+amount*0.035));
       resume();
     };
@@ -1692,7 +1711,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       recentMarqueeController=setupMarquee(
         galleryViewport,
         gallery,
-        {speed:0.032,direction:-1,groupSelector:'.marquee-group',pauseOnHover:true,holdWhileLightbox:true,captureMouseOnDown:false}
+        {speed:0.032,direction:-1,groupSelector:'.marquee-group',pauseOnHover:true,holdWhileLightbox:true,captureMouseOnDown:false,smoothWheel:true}
       );
       const loopWidth=galleryViewport.querySelector('.marquee-group')?.getBoundingClientRect().width || 0;
       if(loopWidth){
