@@ -1258,7 +1258,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     const smoothWheel=options.smoothWheel === true;
 
     let frame=0,lastTime=0,dragging=false,startX=0,startScroll=0;
-    let lastX=0,lastMoveTime=0,momentum=0,wheelMomentum=0,wheelTarget=0,resumeTimer=0,clickBlockedUntil=0;
+    let lastX=0,lastMoveTime=0,momentum=0,wheelMomentum=0,wheelTarget=0,resumeTimer=0,clickBlockedUntil=0,wheelActiveUntil=0;
     const captureMouseOnDown=options.captureMouseOnDown !== false;
     let destroyed=false,pausedByHover=false;
 
@@ -1378,14 +1378,14 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     };
 
     const onPointerEnter=e=>{
-      if(e.pointerType==='mouse' && pauseOnHover && !dragging){
+      if(e.pointerType==='mouse' && pauseOnHover && !dragging && performance.now()>=wheelActiveUntil){
         if(holdWhileLightbox && lightbox.classList.contains('open'))return;
         pause();
       }
     };
 
     const onPointerLeave=e=>{
-      if(e.pointerType==='mouse' && !dragging && pauseOnHover){
+      if(e.pointerType==='mouse' && !dragging && pauseOnHover && performance.now()>=wheelActiveUntil){
         if(holdWhileLightbox && lightbox.classList.contains('open'))return;
         resume();
       }
@@ -1408,6 +1408,10 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       if(smoothWheel){
         // Blend wheel input into the same animation frame as the marquee.
         // This prevents each wheel event from causing an abrupt jump.
+        // A wheel gesture must never leave the marquee in the hover-paused
+        // state. Keep the automatic motion alive while the wheel impulse
+        // settles, then let normal hover behavior take over again.
+        wheelActiveUntil=performance.now()+700;
         wheelTarget=Math.max(-1.06,Math.min(1.06,wheelTarget+amount*0.00348));
         clearTimeout(resumeTimer);
         resumeTimer=0;
