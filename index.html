@@ -1339,7 +1339,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       stopMomentum();
       viewport.classList.add('is-dragging');
 
-      try{ viewport.setPointerCapture(pointerId); }catch{}
+      // Pointer capture starts only after real movement, preserving normal mouse clicks.
     };
 
     const moveDrag = event => {
@@ -1350,7 +1350,12 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       const dt = Math.max(8,now - lastMoveTime);
       dragDistance = Math.max(dragDistance,Math.abs(dx));
 
-      if(dragDistance > 6) suppressClickUntil = Date.now() + 450;
+      if(dragDistance > 6){
+        suppressClickUntil = Date.now() + 450;
+        if(pointerId !== null && !viewport.hasPointerCapture(pointerId)){
+          try{ viewport.setPointerCapture(pointerId); }catch{}
+        }
+      }
 
       viewport.scrollLeft = startScroll - dx;
       momentum = (-delta / dt) * 0.32 + momentum * 0.68;
