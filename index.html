@@ -298,47 +298,61 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   .client-name{font-size:10px}
 }
 
-/* Client portfolio — inline, manual-only */
-.client-portfolio-section{
-  padding-top:55px;
-  padding-bottom:95px;
-  border-bottom:1px solid var(--line);
+/* Client portfolio modal */
+.client-gallery-modal{
+  position:fixed;
+  inset:0;
+  z-index:120;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:28px 20px;
+  background:rgba(4,4,4,.96);
 }
-.client-portfolio-head{
+.client-gallery-modal.open{display:flex}
+.client-gallery-modal-inner{
+  width:min(1080px,94vw);
+  max-height:90vh;
+  overflow:auto;
+  padding:10px 4px 18px;
+}
+.client-gallery-modal-head{
   display:flex;
   align-items:flex-end;
   justify-content:space-between;
-  gap:24px;
-  margin-bottom:24px;
+  gap:20px;
+  margin-bottom:22px;
 }
-.client-portfolio-head h3{font-size:clamp(24px,4vw,36px);line-height:1.1;margin:0}
-.client-portfolio-head p{color:var(--muted);font-size:13px;margin-top:7px}
-.client-portfolio-status{color:var(--muted);font-size:13px;min-height:20px;margin-bottom:12px}
-.client-gallery-marquee{
-  position:relative;
-  width:100%;
-  overflow-x:auto;
-  overflow-y:hidden;
-  scrollbar-width:none;
-  -ms-overflow-style:none;
-  overscroll-behavior-x:contain;
-  scroll-behavior:auto !important;
-  cursor:grab;
-  user-select:none;
-  -webkit-user-select:none;
-  touch-action:pan-y;
-  padding:4px 0 12px;
-  mask-image:linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%);
-  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%);
-}
-.client-gallery-marquee::-webkit-scrollbar{display:none}
-.client-gallery-marquee.is-dragging{cursor:grabbing}
-.client-gallery-grid{display:flex !important;width:max-content;min-width:max-content;gap:0;align-items:stretch}
-.client-gallery-group{display:flex;flex:0 0 auto;gap:18px;padding-right:18px}
-.client-gallery-grid .client-gallery-card{
-  flex:0 0 clamp(260px,25vw,330px);
-  width:clamp(260px,25vw,330px);
+.client-gallery-modal-head h3{
+  font-size:clamp(24px,4vw,36px);
+  line-height:1.1;
   margin:0;
+}
+.client-gallery-modal-head p{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:6px;
+}
+.client-gallery-close{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.035);
+  color:var(--text);
+  padding:9px 13px;
+  border-radius:999px;
+  font-size:11px;
+  cursor:pointer;
+  transition:.25s ease;
+}
+.client-gallery-close:hover{
+  background:rgba(255,255,255,.08);
+  border-color:rgba(255,255,255,.25);
+}
+.client-gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+.client-gallery-card{
   position:relative;
   aspect-ratio:4 / 5;
   overflow:hidden;
@@ -354,22 +368,39 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   box-shadow:0 0 22px rgba(255,255,255,.06),0 16px 38px rgba(0,0,0,.22);
 }
 .client-gallery-card img,.client-gallery-card video{
-  width:100%;height:100%;display:block;object-fit:cover;transition:transform .4s ease;pointer-events:none;
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  transition:transform .4s ease;
+  pointer-events:none;
 }
 .client-gallery-card video{background:#050505}
-.client-gallery-card{cursor:pointer;pointer-events:auto}
 .client-gallery-card:hover img,.client-gallery-card:hover video{transform:scale(1.025)}
 .client-gallery-card .client-photo-caption{
-  position:absolute;left:12px;right:12px;bottom:11px;color:#fff;font-size:12px;font-weight:700;text-shadow:0 2px 12px rgba(0,0,0,.75);pointer-events:none;
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:11px;
+  color:#fff;
+  font-size:12px;
+  font-weight:700;
+  text-shadow:0 2px 12px rgba(0,0,0,.75);
 }
-.client-gallery-empty{padding:45px 20px;border:1px dashed var(--line);color:var(--muted);text-align:center}
+.client-gallery-empty{
+  padding:45px 20px;
+  border:1px dashed var(--line);
+  color:var(--muted);
+  text-align:center;
+}
 @media(max-width:650px){
-  .client-portfolio-section{padding-top:42px}
-  .client-portfolio-head{align-items:flex-start;flex-direction:column;gap:8px;margin-bottom:16px}
-  .client-portfolio-head h3{font-size:25px}
-  .client-gallery-marquee{padding-bottom:8px;mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);-webkit-mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%)}
-  .client-gallery-group{gap:10px;padding-right:10px}
-  .client-gallery-grid .client-gallery-card{flex-basis:clamp(210px,70vw,280px);width:clamp(210px,70vw,280px);border-radius:8px}
+  .client-gallery-modal{padding:18px 10px}
+  .client-gallery-modal-inner{width:96vw;max-height:91vh}
+  .client-gallery-modal-head{align-items:flex-start;margin-bottom:16px}
+  .client-gallery-modal-head h3{font-size:25px}
+  .client-gallery-close{padding:8px 11px;font-size:10px}
+  .client-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .client-gallery-card{border-radius:8px}
   .client-gallery-card .client-photo-caption{left:9px;right:9px;bottom:8px;font-size:10px}
 }
 
@@ -566,11 +597,11 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 .brand span{display:none}
 }
 
-/* Lightbox */
+/* Lightbox — always above the client portfolio layer */
 .lightbox{
   position:fixed;
   inset:0;
-  z-index:100;
+  z-index:200;
   display:none;
   align-items:center;
   justify-content:center;
@@ -723,7 +754,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 
 <style id="mobile-blue-touch-fix">
 /* Mobile touch fix only — does not alter carousel movement or lightbox logic. */
-.gallery-card,.client-gallery-card,.client-card,.lightbox,.lightbox-content,.lightbox-nav,.lightbox-close{
+.gallery-card,.client-gallery-card,.client-card,.lightbox,.lightbox-content,.lightbox-nav,.lightbox-close,#clientGalleryClose{
   -webkit-tap-highlight-color:transparent;
 }
 </style>
@@ -783,6 +814,21 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 <article class="card"><span class="number">03</span><h3 data-i18n="mediaTitle">Multimedia Content</h3><p data-i18n="mediaText">Visual content designed for social media, brands and digital presence.</p></article>
 </div></div></section>
 
+<section id="clientes"><div class="container">
+<p class="eyebrow" data-i18n="clientsEyebrow">Clients & Brands</p>
+<h2 data-i18n="clientsTitle">Clients we've worked with</h2>
+<p class="clients-section-intro" data-i18n="clientsText">A selection of people, businesses and brands we've had the opportunity to create for.</p>
+<div id="clientsStatus" class="clients-status"></div>
+<div id="clientsGrid" class="clients-grid"></div>
+</div></section>
+<section id="nosotros"><div class="container about">
+<div><p class="eyebrow" data-i18n="aboutEyebrow">The Present Need Group</p><h2 data-i18n="aboutTitle">Your idea. Our camera. The present moment.</h2></div>
+<div><p data-i18n="aboutText">We are a team focused on creating photography, video and multimedia content with a clean, modern and professional aesthetic.</p>
+<div class="locations"><span class="tag">New York</span><span class="tag">New Jersey</span><span class="tag">Pennsylvania</span></div></div>
+</div></section>
+
+
+
 <section id="galeria"><div class="container">
 <p class="eyebrow" data-i18n="galleryEyebrow">Portfolio</p><h2 data-i18n="galleryTitle">Recent work</h2>
 <div id="galleryStatus" class="status">Loading photographs...</div>
@@ -791,28 +837,6 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 </div>
 </div></section>
 
-<section id="clientes"><div class="container">
-<p class="eyebrow" data-i18n="clientsEyebrow">Clients & Brands</p>
-<h2 data-i18n="clientsTitle">Clients we've worked with</h2>
-<p class="clients-section-intro" data-i18n="clientsText">A selection of people, businesses and brands we've had the opportunity to create for.</p>
-<div id="clientsStatus" class="clients-status"></div>
-<div id="clientsGrid" class="clients-grid"></div>
-</div></section>
-<section id="clientPortfolio" class="client-portfolio-section" hidden>
-  <div class="container">
-    <div class="client-portfolio-head">
-      <div>
-        <p class="eyebrow" data-i18n="clientWorkEyebrow">Client portfolio</p>
-        <h3 id="clientGalleryTitle"></h3>
-        <p data-i18n="clientWorkSubtitle">Selected work for this client.</p>
-      </div>
-    </div>
-    <div id="clientGalleryStatus" class="client-portfolio-status"></div>
-    <div id="clientGalleryMarquee" class="client-gallery-marquee" aria-label="Client portfolio photos">
-      <div id="clientGalleryGrid" class="client-gallery-grid"></div>
-    </div>
-  </div>
-</section>
 <section id="contacto"><div class="container contact-section-inner"><div class="contact-intro"><p class="eyebrow" data-i18n="contactEyebrow">Let’s create something</p><h2 data-i18n="contactTitle">Have a project in mind?</h2><p class="contact-lead" data-i18n="contactText">Tell us what you’re looking for and let’s bring it to life.</p><div class="contact-details"><a href="tel:+19295053399">929-505-3399</a><a href="mailto:ivantablet901@gmail.com">ivantablet901@gmail.com</a><span>New York · New Jersey · Pennsylvania</span></div></div>
 <div class="contactbox contact-formbox">
 <div class="contact-form-head"><p class="eyebrow" data-i18n="quoteEyebrow">Start a project</p><h3 data-i18n="quoteTitle">Request a quote</h3><p data-i18n="quoteText">Share a few details and we’ll get back to you.</p></div>
@@ -865,7 +889,22 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 <div class="lightbox-hint" data-i18n="lightboxHint">Swipe or use the wheel to navigate</div>
 </div>
 
-
+<div id="clientGalleryModal" class="client-gallery-modal" aria-hidden="true">
+  <div class="client-gallery-modal-inner">
+    <div class="client-gallery-modal-head">
+      <div>
+        <p class="eyebrow" data-i18n="clientWorkEyebrow">Client portfolio</p>
+        <h3 id="clientGalleryTitle"></h3>
+        <p data-i18n="clientWorkSubtitle">Selected work for this client.</p>
+      </div>
+      <button id="clientGalleryClose" class="client-gallery-close" type="button" data-i18n="clientClose">Close</button>
+    </div>
+    <div id="clientGalleryStatus" class="clients-status"></div>
+    <div id="clientGalleryMarquee" class="client-gallery-marquee" aria-label="Client portfolio photos">
+      <div id="clientGalleryGrid" class="client-gallery-grid"></div>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
@@ -1023,83 +1062,119 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
 </script>
 <script>
 (function(){
-  const gallery=document.getElementById('gallery');
-  const status=document.getElementById('galleryStatus');
-  const lightbox=document.getElementById('lightbox');
-  const lightboxImage=document.getElementById('lightboxImage');
-  const lightboxVideo=document.getElementById('lightboxVideo');
-  const lightboxTitle=document.getElementById('lightboxTitle');
-  const lightboxPrev=document.getElementById('lightboxPrev');
-  const lightboxNext=document.getElementById('lightboxNext');
-  const clientPortfolio=document.getElementById('clientPortfolio');
-  const clientGalleryTitle=document.getElementById('clientGalleryTitle');
-  const clientGalleryMarquee=document.getElementById('clientGalleryMarquee');
-  const clientGalleryGrid=document.getElementById('clientGalleryGrid');
-  const clientGalleryStatus=document.getElementById('clientGalleryStatus');
+  'use strict';
 
-  const supabaseClient=window.SUPABASE_URL && window.SUPABASE_ANON_KEY && window.supabase
-    ? window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY)
+  const $ = id => document.getElementById(id);
+  const gallery = $('gallery');
+  const galleryViewport = $('galleryViewport');
+  const status = $('galleryStatus');
+
+  const lightbox = $('lightbox');
+  const lightboxImage = $('lightboxImage');
+  const lightboxVideo = $('lightboxVideo');
+  const lightboxTitle = $('lightboxTitle');
+  const lightboxPrev = $('lightboxPrev');
+  const lightboxNext = $('lightboxNext');
+
+  const clientGalleryModal = $('clientGalleryModal');
+  const clientGalleryTitle = $('clientGalleryTitle');
+  const clientGalleryMarquee = $('clientGalleryMarquee');
+  const clientGalleryGrid = $('clientGalleryGrid');
+  const clientGalleryStatus = $('clientGalleryStatus');
+  const clientGalleryClose = $('clientGalleryClose');
+
+  const supabaseClient = window.SUPABASE_URL && window.SUPABASE_ANON_KEY && window.supabase
+    ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY)
     : null;
 
-  let fullGalleryItems=[];
-  let lightboxItems=[];
-  let currentClientPhotos=[];
-  let currentIndex=0;
-  let transitionTimer=null;
-  let clientGalleryController=null;
-  let recentMarqueeController=null;
-  let lightboxResumeController=null;
+  let fullGalleryItems = [];
+  let currentClientPhotos = [];
+  let lightboxItems = [];
+  let currentIndex = 0;
+  let transitionTimer = 0;
+  let lightboxResumeController = null;
+  let recentMarqueeController = null;
+  let clientGalleryController = null;
+  let clientLoadToken = 0;
+  let scrollLockSnapshot = '';
 
   function getSupabase(){
     if(!supabaseClient) throw new Error('Falta configurar Supabase en config.js');
     return supabaseClient;
   }
 
-  function isVideoUrl(url){
-    return /\.(mp4|webm|ogg|mov|m4v)(?:$|[?#])/i.test(url || '');
+  function syncBodyScrollLock(){
+    const locked = lightbox?.classList.contains('open') || clientGalleryModal?.classList.contains('open');
+    if(locked){
+      if(document.body.style.overflow !== 'hidden') scrollLockSnapshot = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+    }else{
+      document.body.style.overflow = scrollLockSnapshot || '';
+      scrollLockSnapshot = '';
+    }
+  }
+
+  function isVideoUrl(url=''){
+    return /\.(mp4|webm|ogg|mov|m4v)(?:$|[?#])/i.test(String(url));
+  }
+
+  function stopLightboxMedia(){
+    lightboxImage.src = '';
+    lightboxImage.hidden = false;
+    lightboxVideo.pause();
+    lightboxVideo.removeAttribute('src');
+    lightboxVideo.removeAttribute('autoplay');
+    lightboxVideo.load();
+    lightboxVideo.hidden = true;
   }
 
   function renderLightboxItem(item){
-    const video=isVideoUrl(item.url);
-    lightboxImage.hidden=video;
-    lightboxVideo.hidden=!video;
+    const video = isVideoUrl(item?.url);
+    lightboxImage.hidden = video;
+    lightboxVideo.hidden = !video;
+    lightboxTitle.textContent = item?.title || '';
+
     lightboxVideo.pause();
     lightboxVideo.removeAttribute('src');
     lightboxVideo.removeAttribute('autoplay');
     lightboxVideo.load();
 
     if(video){
-      lightboxVideo.src=item.url;
-      lightboxVideo.muted=true;
-      lightboxVideo.playsInline=true;
-      lightboxVideo.controls=true;
-      lightboxVideo.autoplay=true;
-      lightboxVideo.loop=true;
+      lightboxVideo.src = item.url;
+      lightboxVideo.muted = true;
+      lightboxVideo.defaultMuted = true;
+      lightboxVideo.autoplay = true;
+      lightboxVideo.loop = true;
+      lightboxVideo.controls = true;
+      lightboxVideo.playsInline = true;
+      lightboxVideo.setAttribute('muted','');
       lightboxVideo.setAttribute('autoplay','');
       lightboxVideo.setAttribute('playsinline','');
       lightboxVideo.load();
-      const playPromise=lightboxVideo.play();
-      if(playPromise?.catch)playPromise.catch(()=>{});
+      const playPromise = lightboxVideo.play();
+      if(playPromise?.catch) playPromise.catch(()=>{});
     }else{
-      lightboxImage.src=item.url;
+      lightboxImage.src = item?.url || '';
+      lightboxImage.alt = item?.title || window.TPNG_I18N.t('photoAlt');
     }
 
-    lightboxImage.alt=item.title || window.TPNG_I18N.t('photoAlt');
-    lightboxTitle.textContent=item.title || '';
+    if(video) lightboxVideo.setAttribute('aria-label', item?.title || 'Video');
+    lightboxImage.alt = item?.title || window.TPNG_I18N.t('photoAlt');
   }
 
-  function showLightbox(index,direction=0){
-    if(!lightboxItems.length)return;
-    const nextIndex=(index+lightboxItems.length)%lightboxItems.length;
-    const item=lightboxItems[nextIndex];
-    const alreadyOpen=lightbox.classList.contains('open');
-    currentIndex=nextIndex;
+  function showLightbox(index, direction=0){
+    if(!lightboxItems.length) return;
+
+    const nextIndex = (index + lightboxItems.length) % lightboxItems.length;
+    const item = lightboxItems[nextIndex];
+    const alreadyOpen = lightbox.classList.contains('open');
+    currentIndex = nextIndex;
 
     if(!alreadyOpen){
       renderLightboxItem(item);
       lightbox.classList.add('open','lightbox-switch-in');
       lightbox.setAttribute('aria-hidden','false');
-      document.body.style.overflow='hidden';
+      syncBodyScrollLock();
       requestAnimationFrame(()=>lightbox.classList.remove('lightbox-switch-in'));
       return;
     }
@@ -1107,9 +1182,9 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     clearTimeout(transitionTimer);
     lightbox.classList.remove('lightbox-switch-in','lightbox-switch-out-next','lightbox-switch-out-prev');
     void lightbox.offsetWidth;
-    lightbox.classList.add(direction>=0 ? 'lightbox-switch-out-next' : 'lightbox-switch-out-prev');
+    lightbox.classList.add(direction >= 0 ? 'lightbox-switch-out-next' : 'lightbox-switch-out-prev');
 
-    transitionTimer=setTimeout(()=>{
+    transitionTimer = window.setTimeout(()=>{
       renderLightboxItem(item);
       lightbox.classList.remove('lightbox-switch-out-next','lightbox-switch-out-prev');
       lightbox.classList.add('lightbox-switch-in');
@@ -1118,406 +1193,367 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
   }
 
   function openLightbox(items,index){
-    if(!items?.length)return;
-    lightboxItems=items;
-    showLightbox(index);
+    if(!Array.isArray(items) || !items.length) return;
+    lightboxItems = items;
+    showLightbox(index,0);
   }
 
   function closeLightbox(){
     clearTimeout(transitionTimer);
+    transitionTimer = 0;
     lightbox.classList.remove('open','lightbox-switch-in','lightbox-switch-out-next','lightbox-switch-out-prev');
     lightbox.setAttribute('aria-hidden','true');
-    lightboxImage.src='';
-    lightboxImage.hidden=false;
-    lightboxVideo.pause();
-    lightboxVideo.removeAttribute('src');
-    lightboxVideo.removeAttribute('autoplay');
-    lightboxVideo.load();
-    lightboxVideo.hidden=true;
-    lightboxItems=fullGalleryItems;
-    currentIndex=0;
-    if(lightboxResumeController){
-      const controller=lightboxResumeController;
-      lightboxResumeController=null;
-      controller.resume();
-    }
-    document.body.style.overflow='';
+    stopLightboxMedia();
+    lightboxItems = fullGalleryItems;
+    currentIndex = 0;
+
+    const controller = lightboxResumeController;
+    lightboxResumeController = null;
+    if(controller) controller.resumeAfterLightbox();
+
+    syncBodyScrollLock();
   }
 
-  function nextPhoto(){showLightbox(currentIndex+1,1)}
-  function prevPhoto(){showLightbox(currentIndex-1,-1)}
+  function nextPhoto(){ showLightbox(currentIndex + 1, 1); }
+  function prevPhoto(){ showLightbox(currentIndex - 1, -1); }
 
-  lightboxNext.addEventListener('click',e=>{e.stopPropagation();nextPhoto()});
-  lightboxPrev.addEventListener('click',e=>{e.stopPropagation();prevPhoto()});
+  lightboxNext?.addEventListener('click',event=>{
+    event.stopPropagation();
+    nextPhoto();
+  });
 
-  let wheelDelta=0;
-  let wheelLocked=false;
-  lightbox.addEventListener('wheel',e=>{
-    if(!lightbox.classList.contains('open'))return;
-    e.preventDefault();
-    wheelDelta+=e.deltaY;
-    if(wheelLocked || Math.abs(wheelDelta)<42)return;
-    const direction=wheelDelta>0 ? 1 : -1;
-    wheelDelta=0;
-    wheelLocked=true;
-    direction>0 ? nextPhoto() : prevPhoto();
-    setTimeout(()=>{wheelLocked=false},420);
+  lightboxPrev?.addEventListener('click',event=>{
+    event.stopPropagation();
+    prevPhoto();
+  });
+
+  let wheelDelta = 0;
+  let wheelLocked = false;
+  lightbox?.addEventListener('wheel',event=>{
+    if(!lightbox.classList.contains('open')) return;
+    event.preventDefault();
+    wheelDelta += event.deltaY;
+    if(wheelLocked || Math.abs(wheelDelta) < 42) return;
+
+    const direction = wheelDelta > 0 ? 1 : -1;
+    wheelDelta = 0;
+    wheelLocked = true;
+    direction > 0 ? nextPhoto() : prevPhoto();
+    window.setTimeout(()=>{ wheelLocked = false; },420);
   },{passive:false});
 
-  let touchStartX=0;
-  lightbox.addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].clientX},{passive:true});
-  lightbox.addEventListener('touchend',e=>{
-    const dx=e.changedTouches[0].clientX-touchStartX;
-    if(Math.abs(dx)>=45)(dx<0 ? nextPhoto : prevPhoto)();
+  let touchStartX = null;
+  let touchStartY = null;
+  lightbox?.addEventListener('touchstart',event=>{
+    const touch = event.changedTouches?.[0];
+    if(!touch) return;
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
   },{passive:true});
 
-  lightbox.addEventListener('click',e=>{
-    if(e.target===lightbox)closeLightbox();
+  lightbox?.addEventListener('touchend',event=>{
+    if(touchStartX === null || touchStartY === null) return;
+    const touch = event.changedTouches?.[0];
+    if(!touch) return;
+    const dx = touch.clientX - touchStartX;
+    const dy = touch.clientY - touchStartY;
+    touchStartX = null;
+    touchStartY = null;
+    if(Math.abs(dx) < 45 || Math.abs(dx) <= Math.abs(dy)) return;
+    dx < 0 ? nextPhoto() : prevPhoto();
+  },{passive:true});
+
+  lightbox?.addEventListener('click',event=>{
+    if(event.target === lightbox) closeLightbox();
   });
 
-  document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'){
-      if(lightbox.classList.contains('open'))closeLightbox();
+  document.addEventListener('keydown',event=>{
+    if(event.key === 'Escape'){
+      if(lightbox.classList.contains('open')) closeLightbox();
+      else if(clientGalleryModal.classList.contains('open')) closeClientGallery();
       return;
     }
-    if(!lightbox.classList.contains('open'))return;
-    if(e.key==='ArrowRight')nextPhoto();
-    if(e.key==='ArrowLeft')prevPhoto();
+    if(!lightbox.classList.contains('open')) return;
+    if(event.key === 'ArrowRight') nextPhoto();
+    if(event.key === 'ArrowLeft') prevPhoto();
   });
 
-  function setupMarquee(viewport,track,options={}){
-    if(!viewport || !track)return null;
+  function createLoopController(viewport,track,options={}){
+    if(!viewport || !track) return null;
 
-    const speed=options.speed ?? 0.032;
-    const direction=options.direction ?? -1;
-    const groupSelector=options.groupSelector || '.marquee-group';
-    const pauseOnHover=options.pauseOnHover !== false;
-    const holdWhileLightbox=options.holdWhileLightbox === true;
-    const desktopMode=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+    const auto = options.auto === true;
+    const direction = options.direction ?? -1;
+    const speed = options.speed ?? 0.032;
+    const enableWheel = options.enableWheel !== false;
+    const enableDrag = options.enableDrag !== false;
+    const groupSelector = options.groupSelector || '.marquee-group';
 
-    let frame=0;
-    let lastTime=0;
-    let dragging=false;
-    let startX=0;
-    let startScroll=0;
-    let lastX=0;
-    let lastMoveTime=0;
-    let momentum=0;
-    let resumeTimer=0;
-    let clickBlockedUntil=0;
-    let hasUserInteracted=false;
-    const captureMouseOnDown=options.captureMouseOnDown !== false;
-    let destroyed=false;
+    let frame = 0;
+    let lastTime = 0;
+    let destroyed = false;
+    let dragging = false;
+    let startX = 0;
+    let startScroll = 0;
+    let lastX = 0;
+    let lastMoveTime = 0;
+    let momentum = 0;
+    let wheelMomentum = 0;
+    let suppressClickUntil = 0;
+    let dragDistance = 0;
+    let pointerId = null;
+    let lightboxPaused = false;
 
-    const getGroupWidth=()=>{
-      const group=track.querySelector(groupSelector);
-      return group ? group.getBoundingClientRect().width : 0;
+    const getGroupWidth = () => track.querySelector(groupSelector)?.getBoundingClientRect().width || 0;
+
+    const normalize = () => {
+      const width = getGroupWidth();
+      if(!width) return;
+
+      let position = viewport.scrollLeft;
+      if(position < width || position >= width * 2){
+        const offset = ((position - width) % width + width) % width;
+        viewport.scrollLeft = width + offset;
+      }
     };
 
-    const wrap=()=>{
-      const width=getGroupWidth();
-      if(!width)return;
+    const stopMomentum = () => {
+      momentum = 0;
+      wheelMomentum = 0;
+    };
 
-      if(desktopMode){
-        // Desktop uses the middle copy as a safe operating zone. Keep the
-        // scroll position away from the browser's physical edges so the
-        // automatic loop can never get trapped at scrollLeft = 0.
-        const min=width;
-        const max=width*2;
-        let position=viewport.scrollLeft;
-
-        // Normalize any position outside the middle copy, including values
-        // produced after the browser clamps scrollLeft at an edge.
-        if(position < min || position >= max){
-          const offset=((position-min)%width+width)%width;
-          position=min+offset;
-          viewport.scrollLeft=position;
-        }
+    const tick = now => {
+      if(destroyed){
+        frame = 0;
         return;
       }
-
-      // Preserve the existing mobile behavior.
-      while(viewport.scrollLeft<=0)viewport.scrollLeft+=width;
-      while(viewport.scrollLeft>=width)viewport.scrollLeft-=width;
-    };
-
-    const stopMomentum=()=>{momentum=0};
-
-    const tick=time=>{
-      if(destroyed)return;
-      if(!lastTime)lastTime=time;
-      const dt=Math.min(time-lastTime,40);
-      lastTime=time;
+      if(!lastTime) lastTime = now;
+      const dt = Math.min(now - lastTime,40);
+      lastTime = now;
 
       if(!document.hidden && track.firstElementChild && !dragging){
-        const autoVelocity=pausedByHover ? 0 : direction*speed;
-        const velocity=autoVelocity+momentum;
-        if(Math.abs(velocity)>0.001){
-          viewport.scrollLeft+=velocity*dt;
-          wrap();
+        const autoVelocity = auto && !lightboxPaused ? direction * speed : 0;
+        const velocity = autoVelocity + momentum + wheelMomentum;
+        if(Math.abs(velocity) > 0.001){
+          viewport.scrollLeft += velocity * dt;
+          normalize();
         }
-        if(Math.abs(momentum)>0.01){
-          momentum*=Math.pow(0.0018,dt/1000);
-          if(Math.abs(momentum)<0.01)momentum=0;
+
+        if(Math.abs(momentum) > 0.01){
+          momentum *= Math.pow(0.0018,dt / 1000);
+          if(Math.abs(momentum) < 0.01) momentum = 0;
+        }
+        if(Math.abs(wheelMomentum) > 0.01){
+          wheelMomentum *= Math.pow(0.00025,dt / 1000);
+          if(Math.abs(wheelMomentum) < 0.01) wheelMomentum = 0;
         }
       }
-      frame=requestAnimationFrame(tick);
+
+      frame = requestAnimationFrame(tick);
     };
 
-    let pausedByHover=false;
-
-    const start=()=>{
-      if(destroyed || frame || !track.firstElementChild)return;
-      lastTime=0;
-      frame=requestAnimationFrame(tick);
+    const start = () => {
+      if(destroyed || frame || !track.firstElementChild) return;
+      lastTime = performance.now();
+      frame = requestAnimationFrame(tick);
     };
 
-    const pause=()=>{
-      pausedByHover=true;
+    const pauseForLightbox = () => {
+      lightboxPaused = true;
       stopMomentum();
     };
 
-    const resume=()=>{
-      if(destroyed)return;
-      pausedByHover=false;
-      lastTime=performance.now();
-      wrap();
+    const resumeAfterLightbox = () => {
+      if(destroyed) return;
+      lightboxPaused = false;
+      normalize();
       start();
     };
 
-    const resumeSoon=(delay=400)=>{
-      clearTimeout(resumeTimer);
-      resumeTimer=setTimeout(()=>{
-        resumeTimer=0;
-        resume();
-      },delay);
-    };
+    const beginDrag = event => {
+      if(!enableDrag) return;
+      if(event.pointerType === 'mouse' && event.button !== 0) return;
 
-    const beginDrag=e=>{
-      if(e.pointerType==='mouse' && e.button!==0)return;
-      hasUserInteracted=true;
-      if(pauseOnHover)pause();
-      dragging=true;
-      startX=e.clientX;
-      startScroll=viewport.scrollLeft;
-      lastX=e.clientX;
-      lastMoveTime=performance.now();
-      momentum=0;
+      pointerId = event.pointerId;
+      dragging = true;
+      dragDistance = 0;
+      startX = event.clientX;
+      startScroll = viewport.scrollLeft;
+      lastX = event.clientX;
+      lastMoveTime = performance.now();
+      stopMomentum();
       viewport.classList.add('is-dragging');
-      if(e.pointerType!=='mouse' || captureMouseOnDown){
-        try{viewport.setPointerCapture(e.pointerId)}catch{}
-      }
+
+      try{ viewport.setPointerCapture(pointerId); }catch{}
     };
 
-    const moveDrag=e=>{
-      if(!dragging)return;
-      const now=performance.now();
-      const dx=e.clientX-startX;
-      const dt=Math.max(8,now-lastMoveTime);
-      const delta=e.clientX-lastX;
+    const moveDrag = event => {
+      if(!dragging) return;
+      const now = performance.now();
+      const dx = event.clientX - startX;
+      const delta = event.clientX - lastX;
+      const dt = Math.max(8,now - lastMoveTime);
+      dragDistance = Math.max(dragDistance,Math.abs(dx));
 
-      if(Math.abs(dx)>6)clickBlockedUntil=Date.now()+450;
-      viewport.scrollLeft=startScroll-dx;
-      momentum=(-delta/dt)*0.32 + momentum*0.68;
-      lastX=e.clientX;
-      lastMoveTime=now;
-      wrap();
+      if(dragDistance > 6) suppressClickUntil = Date.now() + 450;
+
+      viewport.scrollLeft = startScroll - dx;
+      momentum = (-delta / dt) * 0.32 + momentum * 0.68;
+      lastX = event.clientX;
+      lastMoveTime = now;
+      normalize();
     };
 
-    const endDrag=()=>{
-      if(!dragging)return;
-      dragging=false;
+    const endDrag = () => {
+      if(!dragging) return;
+      dragging = false;
+      pointerId = null;
       viewport.classList.remove('is-dragging');
-      momentum=Math.max(-2.4,Math.min(2.4,momentum));
-      wrap();
-      resumeSoon(420);
-    };
-
-    const onPointerEnter=e=>{
-      if(e.pointerType==='mouse' && pauseOnHover && hasUserInteracted)pause();
-    };
-    const onPointerLeave=e=>{
-      if(e.pointerType==='mouse' && !dragging && pauseOnHover){
-        if(holdWhileLightbox && lightbox.classList.contains('open'))return;
-        resume();
-      }
-    };
-    const onPointerDown=beginDrag;
-    const onPointerMove=moveDrag;
-    const onPointerUp=e=>{
-      endDrag();
-      if(e.pointerType==='touch' || e.pointerType==='pen')resumeSoon(520);
-    };
-    const onPointerCancel=()=>{endDrag();resumeSoon(260)};
-    const onLostPointerCapture=()=>{endDrag();resumeSoon(260)};
-    const onWheel=e=>{
-      if(!track.firstElementChild)return;
-      const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      if(!amount)return;
-      e.preventDefault();
-      momentum=Math.max(-3.2,Math.min(3.2,momentum+amount*0.035));
-      wrap();
+      momentum = Math.max(-2.4,Math.min(2.4,momentum));
+      normalize();
       start();
     };
-    const onVisibilityChange=()=>{
+
+    const onPointerDown = beginDrag;
+    const onPointerMove = moveDrag;
+    const onPointerUp = endDrag;
+    const onPointerCancel = endDrag;
+    const onLostPointerCapture = endDrag;
+
+    const onWheel = event => {
+      if(!enableWheel || !track.firstElementChild) return;
+      const amount = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      if(!amount) return;
+      event.preventDefault();
+      wheelMomentum = Math.max(-3.2,Math.min(3.2,wheelMomentum + amount * 0.035));
+      normalize();
+      start();
+    };
+
+    const onVisibilityChange = () => {
       if(!document.hidden){
-        lastTime=performance.now();
-        wrap();
+        normalize();
         start();
       }
     };
 
-    viewport.addEventListener('pointerenter',onPointerEnter);
-    viewport.addEventListener('pointerleave',onPointerLeave);
-    viewport.addEventListener('pointerdown',onPointerDown);
-    viewport.addEventListener('pointermove',onPointerMove);
-    viewport.addEventListener('pointerup',onPointerUp);
-    viewport.addEventListener('pointercancel',onPointerCancel);
-    viewport.addEventListener('lostpointercapture',onLostPointerCapture);
-    viewport.addEventListener('wheel',onWheel,{passive:false});
+    if(enableDrag){
+      viewport.addEventListener('pointerdown',onPointerDown);
+      viewport.addEventListener('pointermove',onPointerMove);
+      viewport.addEventListener('pointerup',onPointerUp);
+      viewport.addEventListener('pointercancel',onPointerCancel);
+      viewport.addEventListener('lostpointercapture',onLostPointerCapture);
+    }
+    if(enableWheel) viewport.addEventListener('wheel',onWheel,{passive:false});
     document.addEventListener('visibilitychange',onVisibilityChange);
 
-    const stop=()=>{
-      destroyed=true;
-      if(frame)cancelAnimationFrame(frame);
-      frame=0;
-      clearTimeout(resumeTimer);
-      resumeTimer=0;
-      viewport.removeEventListener('pointerenter',onPointerEnter);
-      viewport.removeEventListener('pointerleave',onPointerLeave);
-      viewport.removeEventListener('pointerdown',onPointerDown);
-      viewport.removeEventListener('pointermove',onPointerMove);
-      viewport.removeEventListener('pointerup',onPointerUp);
-      viewport.removeEventListener('pointercancel',onPointerCancel);
-      viewport.removeEventListener('lostpointercapture',onLostPointerCapture);
-      viewport.removeEventListener('wheel',onWheel);
-      document.removeEventListener('visibilitychange',onVisibilityChange);
-      viewport.classList.remove('is-dragging');
-    };
-
-    // Desktop browsers can finish the scroll layout one frame after the
-    // gallery is inserted. Start again after layout so the automatic loop
-    // does not wait for the first wheel/pointer interaction.
-    if(desktopMode){
-      requestAnimationFrame(()=>{
-        if(destroyed || !track.firstElementChild)return;
-        const width=getGroupWidth();
-        if(width){
-          const position=viewport.scrollLeft;
-          if(position<width || position>=width*2)viewport.scrollLeft=width;
-          wrap();
-        }
-        lastTime=performance.now();
-        start();
-      });
-    }else{
+    requestAnimationFrame(()=>{
+      if(destroyed || !track.firstElementChild) return;
+      const width = getGroupWidth();
+      if(width) viewport.scrollLeft = width;
+      normalize();
       start();
-    }
+    });
+
     return {
       start,
-      stop,
-      pause,
-      resume,
-      wrap,
-      shouldIgnoreClick:()=>Date.now()<clickBlockedUntil
-    };
-  }
-
-  function bindMediaTrack(track,selector,getItems,getController,options={}){
-    if(!track || track.dataset.mediaBound==='true')return;
-    track.dataset.mediaBound='true';
-    const pauseOnOpen=options.pauseOnOpen === true;
-
-    track.addEventListener('click',e=>{
-      const card=e.target.closest(selector);
-      if(!card || !track.contains(card))return;
-      const controller=getController();
-      if(controller?.shouldIgnoreClick()){
-        e.preventDefault();
-        return;
-      }
-      const items=getItems();
-      const index=Number(card.dataset.index);
-      if(Number.isInteger(index)){
-        if(pauseOnOpen && controller){
-          controller.pause();
-          lightboxResumeController=controller;
+      stop: () => {
+        if(destroyed) return;
+        destroyed = true;
+        if(frame) cancelAnimationFrame(frame);
+        frame = 0;
+        viewport.classList.remove('is-dragging');
+        if(enableDrag){
+          viewport.removeEventListener('pointerdown',onPointerDown);
+          viewport.removeEventListener('pointermove',onPointerMove);
+          viewport.removeEventListener('pointerup',onPointerUp);
+          viewport.removeEventListener('pointercancel',onPointerCancel);
+          viewport.removeEventListener('lostpointercapture',onLostPointerCapture);
         }
-        openLightbox(items,index);
-      }
-    });
-
-    track.addEventListener('keydown',e=>{
-      const card=e.target.closest(selector);
-      if(!card || (e.key!=='Enter' && e.key!==' '))return;
-      e.preventDefault();
-      const items=getItems();
-      const index=Number(card.dataset.index);
-      if(Number.isInteger(index))openLightbox(items,index);
-    });
+        if(enableWheel) viewport.removeEventListener('wheel',onWheel);
+        document.removeEventListener('visibilitychange',onVisibilityChange);
+      },
+      pauseForLightbox,
+      resumeAfterLightbox,
+      shouldIgnoreClick: () => Date.now() < suppressClickUntil,
+      normalize
+    };
   }
 
   function createMediaCard(item,index,options={}){
-    const card=document.createElement('article');
-    card.className=options.cardClass || 'gallery-card';
-    card.dataset.index=index;
+    const card = document.createElement('article');
+    const duplicate = options.duplicate === true;
+    const client = options.client === true;
+
+    card.className = options.cardClass || (client ? 'client-gallery-card' : 'gallery-card');
+    card.dataset.index = String(index);
     card.setAttribute('role','button');
-    card.setAttribute('tabindex',options.duplicate ? '-1' : '0');
+    card.setAttribute('tabindex',duplicate ? '-1' : '0');
     card.setAttribute('aria-label',item.title || window.TPNG_I18N.t(options.altKey || 'photoAlt'));
 
     if(isVideoUrl(item.url)){
-      const media=document.createElement('video');
-      media.src=item.url;
-      media.muted=true;
-      media.defaultMuted=true;
-      media.playsInline=true;
-      media.autoplay=true;
-      media.loop=true;
-      media.preload='auto';
+      const media = document.createElement('video');
+      media.src = item.url;
+      media.muted = true;
+      media.defaultMuted = true;
+      media.playsInline = true;
+      media.autoplay = true;
+      media.loop = true;
+      media.preload = 'auto';
+      media.setAttribute('muted','');
       media.setAttribute('autoplay','');
       media.setAttribute('playsinline','');
-      media.setAttribute('muted','');
       media.setAttribute('aria-label',item.title || 'Video');
-      media.tabIndex=-1;
+      media.tabIndex = -1;
       card.appendChild(media);
-      const playVideo=()=>{
-        const playPromise=media.play();
-        if(playPromise?.catch)playPromise.catch(()=>{});
+
+      const attemptPlay = () => {
+        const promise = media.play();
+        if(promise?.catch) promise.catch(()=>{});
       };
-      if(media.readyState>=2)playVideo();
-      else media.addEventListener('loadeddata',playVideo,{once:true});
+      if(media.readyState >= 2) attemptPlay();
+      else media.addEventListener('loadeddata',attemptPlay,{once:true});
     }else{
-      const img=document.createElement('img');
-      img.src=item.url;
-      img.alt=item.title || window.TPNG_I18N.t(options.altKey || 'photoFallback');
-      img.loading=options.duplicate ? 'eager' : 'lazy';
-      img.decoding='async';
+      const img = document.createElement('img');
+      img.src = item.url;
+      img.alt = item.title || window.TPNG_I18N.t(options.altKey || 'photoFallback');
+      img.loading = duplicate ? 'eager' : 'lazy';
+      img.decoding = 'async';
+      img.draggable = false;
       card.appendChild(img);
     }
 
     if(item.title){
-      const caption=document.createElement('div');
-      caption.className=options.captionClass || (options.client ? 'client-photo-caption' : 'caption');
-      caption.textContent=item.title;
+      const caption = document.createElement('div');
+      caption.className = options.captionClass || (client ? 'client-photo-caption' : 'caption');
+      caption.textContent = item.title;
       card.appendChild(caption);
     }
 
-    if(!options.client){
-      const indicator=document.createElement('span');
-      indicator.className='view-indicator';
-      indicator.textContent=isVideoUrl(item.url) ? 'Ver video  ↗' : 'Ver fotografía  ↗';
+    if(!client){
+      const indicator = document.createElement('span');
+      indicator.className = 'view-indicator';
+      indicator.textContent = isVideoUrl(item.url) ? 'Ver video  ↗' : 'Ver fotografía  ↗';
       card.appendChild(indicator);
     }
+
     return card;
   }
 
-  function appendGroups(track,items,groupClass,fillTarget,cardClass,options={}){
-    track.innerHTML='';
-    const addGroup=duplicate=>{
-      const group=document.createElement('div');
-      group.className=groupClass;
-      if(duplicate)group.setAttribute('aria-hidden','true');
-      items.forEach((item,index)=>group.appendChild(createMediaCard(item,index,{...options,duplicate,cardClass})));
+  function appendGroups(track,items,groupClass,viewport,options={}){
+    track.innerHTML = '';
+    if(!items.length) return;
+
+    const addGroup = duplicate => {
+      const group = document.createElement('div');
+      group.className = groupClass;
+      if(duplicate) group.setAttribute('aria-hidden','true');
+      items.forEach((item,index)=>{
+        group.appendChild(createMediaCard(item,index,{
+          ...options,
+          duplicate,
+          cardClass:options.cardClass
+        }));
+      });
       track.appendChild(group);
     };
 
@@ -1525,293 +1561,284 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     addGroup(true);
     addGroup(true);
 
-    let copies=3;
-    while(track.scrollWidth < fillTarget.clientWidth*3 && copies<10){
+    let copies = 3;
+    const target = Math.max((viewport?.clientWidth || 0) * 3,1);
+    while(track.scrollWidth < target && copies < 12){
       addGroup(true);
       copies++;
     }
   }
 
-  function setupClientManualLoop(viewport,track){
-    if(!viewport || !track)return null;
+  function bindMediaTrack(track,selector,getItems,getController,{pauseOnOpen=true}={}){
+    if(!track || track.dataset.mediaBound === 'true') return;
+    track.dataset.mediaBound = 'true';
 
-    let destroyed=false;
-    let dragging=false;
-    let moved=false;
-    let startX=0;
-    let startScroll=0;
-    let clickBlockedUntil=0;
-    let wrapLock=false;
+    const activate = event => {
+      const card = event.target.closest(selector);
+      if(!card || !track.contains(card)) return;
 
-    const getGroupWidth=()=>{
-      const group=track.querySelector('.client-gallery-group');
-      return group ? group.getBoundingClientRect().width : 0;
-    };
-
-    const normalize=()=>{
-      if(destroyed || wrapLock)return;
-      const width=getGroupWidth();
-      if(!width)return;
-      const min=width;
-      const max=width*2;
-      const position=viewport.scrollLeft;
-      if(position < min || position >= max){
-        const offset=((position-min)%width+width)%width;
-        wrapLock=true;
-        viewport.scrollLeft=min+offset;
-        wrapLock=false;
-      }
-    };
-
-    const onScroll=()=>normalize();
-
-    const onWheel=e=>{
-      const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      if(!amount)return;
-      e.preventDefault();
-      viewport.scrollLeft += amount;
-      normalize();
-    };
-
-    const onPointerDown=e=>{
-      if(e.pointerType!=='mouse' || e.button!==0)return;
-      dragging=true;
-      moved=false;
-      startX=e.clientX;
-      startScroll=viewport.scrollLeft;
-      viewport.classList.add('is-dragging');
-      try{viewport.setPointerCapture(e.pointerId)}catch{}
-    };
-
-    const onPointerMove=e=>{
-      if(!dragging)return;
-      const dx=e.clientX-startX;
-      if(Math.abs(dx)>6){
-        moved=true;
-        clickBlockedUntil=Date.now()+120;
-      }
-      viewport.scrollLeft=startScroll-dx;
-      normalize();
-    };
-
-    const endDrag=()=>{
-      if(!dragging)return;
-      dragging=false;
-      viewport.classList.remove('is-dragging');
-      if(moved)clickBlockedUntil=Date.now()+80;
-      normalize();
-    };
-
-    viewport.addEventListener('scroll',onScroll,{passive:true});
-    viewport.addEventListener('wheel',onWheel,{passive:false});
-    viewport.addEventListener('pointerdown',onPointerDown);
-    viewport.addEventListener('pointermove',onPointerMove);
-    viewport.addEventListener('pointerup',endDrag);
-    viewport.addEventListener('pointercancel',endDrag);
-    viewport.addEventListener('lostpointercapture',endDrag);
-
-    requestAnimationFrame(()=>{
-      if(destroyed)return;
-      const width=getGroupWidth();
-      if(width){
-        // Start in the middle copy so the user has the same amount of loop
-        // space in either direction on desktop and mobile.
-        viewport.scrollLeft=width;
-        normalize();
-      }
-    });
-
-    return {
-      stop(){
-        destroyed=true;
-        viewport.removeEventListener('scroll',onScroll);
-        viewport.removeEventListener('wheel',onWheel);
-        viewport.removeEventListener('pointerdown',onPointerDown);
-        viewport.removeEventListener('pointermove',onPointerMove);
-        viewport.removeEventListener('pointerup',endDrag);
-        viewport.removeEventListener('pointercancel',endDrag);
-        viewport.removeEventListener('lostpointercapture',endDrag);
-        viewport.classList.remove('is-dragging');
-      },
-      shouldIgnoreClick:()=>Date.now()<clickBlockedUntil,
-      wrap:normalize
-    };
-  }
-
-  async function openClientGallery(clientId,clientName){
-    if(!clientPortfolio || !clientGalleryGrid || !clientGalleryMarquee)return;
-    if(clientGalleryController)clientGalleryController.stop();
-
-    clientGalleryController=null;
-    currentClientPhotos=[];
-    clientGalleryTitle.textContent=clientName || '';
-    clientGalleryGrid.innerHTML='';
-    clientGalleryStatus.textContent=window.TPNG_I18N.t('clientLoading');
-    clientPortfolio.hidden=false;
-
-    try{
-      const client=getSupabase();
-      const {data,error}=await client.from('gallery')
-        .select('id,title,image_url,storage_path,created_at')
-        .eq('client_id',clientId)
-        .order('created_at',{ascending:false});
-      if(error)throw error;
-
-      const photos=[];
-      (data || []).forEach(item=>{
-        let url=item.image_url;
-        if(!url && item.storage_path){
-          url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
-        }
-        if(url)photos.push({url,title:item.title || ''});
-      });
-
-      clientGalleryStatus.textContent='';
-      if(!photos.length){
-        clientGalleryStatus.textContent=window.TPNG_I18N.t('clientNoPhotos');
+      const controller = getController();
+      if(controller?.shouldIgnoreClick()){
+        event.preventDefault();
         return;
       }
 
-      currentClientPhotos=photos;
-      appendGroups(clientGalleryGrid,currentClientPhotos,'client-gallery-group',clientGalleryMarquee,'client-gallery-card',{client:true,altKey:'photoFallback'});
-      clientGalleryController=setupClientManualLoop(clientGalleryMarquee,clientGalleryGrid);
-      bindMediaTrack(clientGalleryGrid,'.client-gallery-card',()=>currentClientPhotos,()=>clientGalleryController);
-      clientPortfolio.scrollIntoView({behavior:'smooth',block:'start'});
-    }catch(err){
-      console.error(err);
-      clientGalleryStatus.textContent=window.TPNG_I18N.t('galleryError');
+      const index = Number(card.dataset.index);
+      const items = getItems();
+      if(!Number.isInteger(index) || !items[index]) return;
+
+      if(pauseOnOpen && controller){
+        controller.pauseForLightbox();
+        lightboxResumeController = controller;
+      }
+      openLightbox(items,index);
+    };
+
+    track.addEventListener('click',activate);
+    track.addEventListener('keydown',event=>{
+      if(event.key !== 'Enter' && event.key !== ' ') return;
+      const card = event.target.closest(selector);
+      if(!card || !track.contains(card)) return;
+      event.preventDefault();
+      const controller = getController();
+      if(controller?.shouldIgnoreClick()) return;
+      const index = Number(card.dataset.index);
+      const items = getItems();
+      if(!Number.isInteger(index) || !items[index]) return;
+      if(pauseOnOpen && controller){
+        controller.pauseForLightbox();
+        lightboxResumeController = controller;
+      }
+      openLightbox(items,index);
+    });
+  }
+
+  async function openClientGallery(clientId,clientName){
+    if(!clientGalleryModal || !clientGalleryGrid || !clientGalleryMarquee) return;
+
+    const requestToken = ++clientLoadToken;
+    if(clientGalleryController) clientGalleryController.stop();
+    clientGalleryController = null;
+    currentClientPhotos = [];
+
+    clientGalleryTitle.textContent = clientName || '';
+    clientGalleryGrid.innerHTML = '';
+    clientGalleryStatus.textContent = window.TPNG_I18N.t('clientLoading');
+    clientGalleryModal.classList.add('open');
+    clientGalleryModal.setAttribute('aria-hidden','false');
+    syncBodyScrollLock();
+
+    try{
+      const client = getSupabase();
+      const {data,error} = await client.from('gallery')
+        .select('id,title,image_url,storage_path,created_at')
+        .eq('client_id',clientId)
+        .order('created_at',{ascending:false});
+      if(error) throw error;
+      if(requestToken !== clientLoadToken) return;
+
+      const photos = [];
+      (data || []).forEach(item=>{
+        let url = item.image_url;
+        if(!url && item.storage_path){
+          url = client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
+        }
+        if(url) photos.push({url,title:item.title || ''});
+      });
+
+      clientGalleryStatus.textContent = '';
+      if(!photos.length){
+        clientGalleryStatus.textContent = window.TPNG_I18N.t('clientNoPhotos');
+        return;
+      }
+
+      currentClientPhotos = photos;
+      appendGroups(clientGalleryGrid,currentClientPhotos,'client-gallery-group',clientGalleryMarquee,{
+        client:true,
+        cardClass:'client-gallery-card',
+        altKey:'photoFallback'
+      });
+
+      clientGalleryController = createLoopController(clientGalleryMarquee,clientGalleryGrid,{
+        auto:false,
+        direction:-1,
+        speed:0,
+        groupSelector:'.client-gallery-group',
+        enableWheel:true,
+        enableDrag:true
+      });
+    }catch(error){
+      console.error('Client portfolio error:',error);
+      if(requestToken === clientLoadToken){
+        clientGalleryStatus.textContent = window.TPNG_I18N.t('galleryError');
+      }
     }
   }
 
+  function closeClientGallery(){
+    clientLoadToken++;
+    if(clientGalleryController) clientGalleryController.stop();
+    clientGalleryController = null;
+    currentClientPhotos = [];
+    clientGalleryGrid.innerHTML = '';
+    clientGalleryStatus.textContent = '';
+    clientGalleryModal.classList.remove('open');
+    clientGalleryModal.setAttribute('aria-hidden','true');
+    syncBodyScrollLock();
+  }
+
+  clientGalleryClose?.addEventListener('click',event=>{
+    event.preventDefault();
+    event.stopPropagation();
+    closeClientGallery();
+  });
+
+  clientGalleryModal?.addEventListener('click',event=>{
+    if(event.target === clientGalleryModal) closeClientGallery();
+  });
+
   async function loadClients(){
-    const grid=document.getElementById('clientsGrid');
-    const clientsStatus=document.getElementById('clientsStatus');
-    if(!grid || !clientsStatus)return;
+    const grid = $('clientsGrid');
+    const clientsStatus = $('clientsStatus');
+    if(!grid || !clientsStatus) return;
 
     try{
-      const client=getSupabase();
-      const {data,error}=await client.from('client_logos')
+      const client = getSupabase();
+      const {data,error} = await client.from('client_logos')
         .select('id,name,image_url,storage_path,sort_order,created_at')
         .order('sort_order',{ascending:true})
         .order('created_at',{ascending:false});
-      if(error)throw error;
+      if(error) throw error;
 
-      grid.innerHTML='';
-      if(!data || !data.length){
-        clientsStatus.textContent='';
+      grid.innerHTML = '';
+      if(!data?.length){
+        clientsStatus.textContent = '';
         return;
       }
 
       data.forEach(item=>{
-        let url=item.image_url;
+        let url = item.image_url;
         if(!url && item.storage_path){
-          url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
+          url = client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
         }
-        if(!url)return;
+        if(!url) return;
 
-        const card=document.createElement('article');
-        card.className='client-card';
+        const card = document.createElement('article');
+        card.className = 'client-card';
         card.setAttribute('role','button');
         card.setAttribute('tabindex','0');
-        card.setAttribute('aria-label',(item.name || 'Client')+' — '+window.TPNG_I18N.t('galleryTitle'));
+        card.setAttribute('aria-label',(item.name || 'Client') + ' — ' + window.TPNG_I18N.t('galleryTitle'));
 
-        const img=document.createElement('img');
-        img.className='client-logo';
-        img.src=url;
-        img.alt=item.name || 'Client logo';
-        img.loading='lazy';
+        const img = document.createElement('img');
+        img.className = 'client-logo';
+        img.src = url;
+        img.alt = item.name || 'Client logo';
+        img.loading = 'lazy';
+        img.decoding = 'async';
 
-        const name=document.createElement('div');
-        name.className='client-name';
-        name.textContent=item.name || '';
+        const name = document.createElement('div');
+        name.className = 'client-name';
+        name.textContent = item.name || '';
 
         card.appendChild(img);
-        if(item.name)card.appendChild(name);
+        if(item.name) card.appendChild(name);
 
-        const open=()=>openClientGallery(item.id,item.name || '');
-        card.addEventListener('click',open);
-        card.addEventListener('keydown',e=>{
-          if(e.key==='Enter' || e.key===' '){
-            e.preventDefault();
-            open();
-          }
-        });
+        const activate = event => {
+          if(event.type === 'keydown' && event.key !== 'Enter' && event.key !== ' ') return;
+          if(event.type === 'keydown') event.preventDefault();
+          openClientGallery(item.id,item.name || '');
+        };
+
+        card.addEventListener('click',activate);
+        card.addEventListener('keydown',activate);
         grid.appendChild(card);
       });
-      clientsStatus.textContent='';
-    }catch(err){
-      console.error(err);
-      clientsStatus.textContent='';
+
+      clientsStatus.textContent = '';
+    }catch(error){
+      console.error('Clients error:',error);
+      clientsStatus.textContent = '';
     }
   }
 
   async function loadGallery(){
-    const RECENT_LIMIT=10;
-    const galleryViewport=document.getElementById('galleryViewport');
+    const RECENT_LIMIT = 10;
+    if(!gallery || !galleryViewport || !status) return;
 
     try{
-      const client=getSupabase();
-      const {data,error}=await client.from('gallery')
+      const client = getSupabase();
+      const {data,error} = await client.from('gallery')
         .select('id,title,image_url,storage_path,created_at')
         .order('created_at',{ascending:false})
         .limit(RECENT_LIMIT);
-      if(error)throw error;
+      if(error) throw error;
 
-      if(recentMarqueeController)recentMarqueeController.stop();
-      recentMarqueeController=null;
-      gallery.innerHTML='';
+      if(recentMarqueeController) recentMarqueeController.stop();
+      recentMarqueeController = null;
+      gallery.innerHTML = '';
+      fullGalleryItems = [];
 
-      fullGalleryItems=[];
       (data || []).forEach(item=>{
-        let url=item.image_url;
+        let url = item.image_url;
         if(!url && item.storage_path){
-          url=client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
+          url = client.storage.from('gallery').getPublicUrl(item.storage_path).data.publicUrl;
         }
-        if(url)fullGalleryItems.push({url,title:item.title || ''});
+        if(url) fullGalleryItems.push({url,title:item.title || ''});
       });
 
       if(!fullGalleryItems.length){
-        status.textContent=window.TPNG_I18N.t('galleryEmpty');
+        status.textContent = window.TPNG_I18N.t('galleryEmpty');
         return;
       }
 
-      status.textContent='';
-      appendGroups(gallery,fullGalleryItems,'marquee-group',galleryViewport,'gallery-card',{altKey:'photoAlt'});
+      status.textContent = '';
+      appendGroups(gallery,fullGalleryItems,'marquee-group',galleryViewport,{altKey:'photoAlt',cardClass:'gallery-card'});
 
-      recentMarqueeController=setupMarquee(
-        galleryViewport,
-        gallery,
-        {speed:0.032,direction:-1,groupSelector:'.marquee-group',pauseOnHover:true,holdWhileLightbox:true,captureMouseOnDown:false}
-      );
-      const loopWidth=galleryViewport.querySelector('.marquee-group')?.getBoundingClientRect().width || 0;
-      if(loopWidth){
-        // Start inside the middle copy. Do not wait for a pointer or wheel
-        // event to establish the initial desktop loop position.
-        galleryViewport.scrollLeft=loopWidth;
-        recentMarqueeController.wrap();
-      }
-      recentMarqueeController.start();
-      bindMediaTrack(gallery,'.gallery-card',()=>fullGalleryItems,()=>recentMarqueeController,{pauseOnOpen:true});
-      lightboxItems=fullGalleryItems;
-    }catch(err){
-      console.error(err);
-      status.textContent=window.TPNG_I18N.t('galleryError');
+      recentMarqueeController = createLoopController(galleryViewport,gallery,{
+        auto:true,
+        direction:-1,
+        speed:0.032,
+        groupSelector:'.marquee-group',
+        enableWheel:true,
+        enableDrag:true
+      });
+
+      lightboxItems = fullGalleryItems;
+    }catch(error){
+      console.error('Gallery error:',error);
+      status.textContent = window.TPNG_I18N.t('galleryError');
     }
   }
 
-  const quoteForm=document.getElementById('quoteForm');
-  const quoteStatus=document.getElementById('quoteStatus');
+  bindMediaTrack(
+    gallery,
+    '.gallery-card',
+    ()=>fullGalleryItems,
+    ()=>recentMarqueeController,
+    {pauseOnOpen:true}
+  );
+
+  bindMediaTrack(
+    clientGalleryGrid,
+    '.client-gallery-card',
+    ()=>currentClientPhotos,
+    ()=>clientGalleryController,
+    {pauseOnOpen:true}
+  );
+
+  const quoteForm = $('quoteForm');
+  const quoteStatus = $('quoteStatus');
 
   if(quoteForm){
-    quoteForm.addEventListener('submit',async e=>{
-      e.preventDefault();
-      quoteStatus.className='form-status';
-      quoteStatus.textContent=window.TPNG_I18N.t('sending');
+    quoteForm.addEventListener('submit',async event=>{
+      event.preventDefault();
+      quoteStatus.className = 'form-status';
+      quoteStatus.textContent = window.TPNG_I18N.t('sending');
 
       try{
-        const client=getSupabase();
-        const formData=new FormData(quoteForm);
-        const payload={
+        const client = getSupabase();
+        const formData = new FormData(quoteForm);
+        const payload = {
           name:String(formData.get('name') || '').trim(),
           phone:String(formData.get('phone') || '').trim() || null,
           email:String(formData.get('email') || '').trim(),
@@ -1820,19 +1847,19 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
           message:String(formData.get('message') || '').trim()
         };
 
-        const {error}=await client.from('contact_requests').insert([payload]);
-        if(error)throw error;
+        const {error} = await client.from('contact_requests').insert([payload]);
+        if(error) throw error;
 
-        const {error:emailError}=await client.functions.invoke('send-quote-email',{body:payload});
-        if(emailError)console.error('La solicitud se guardó, pero el email no pudo enviarse:',emailError);
+        const {error:emailError} = await client.functions.invoke('send-quote-email',{body:payload});
+        if(emailError) console.error('La solicitud se guardó, pero el email no pudo enviarse:',emailError);
 
         quoteForm.reset();
-        quoteStatus.className='form-status success';
-        quoteStatus.textContent=window.TPNG_I18N.t('success');
-      }catch(err){
-        console.error(err);
-        quoteStatus.className='form-status error';
-        quoteStatus.textContent=window.TPNG_I18N.t('formError');
+        quoteStatus.className = 'form-status success';
+        quoteStatus.textContent = window.TPNG_I18N.t('success');
+      }catch(error){
+        console.error('Quote form error:',error);
+        quoteStatus.className = 'form-status error';
+        quoteStatus.textContent = window.TPNG_I18N.t('formError');
       }
     });
   }
