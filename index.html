@@ -1614,12 +1614,12 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       clientGalleryController=setupMarquee(
         clientGalleryMarquee,
         clientGalleryGrid,
-        {speed:0.032,direction:-1,groupSelector:'.client-gallery-group',pauseOnHover:true}
+        {speed:0.032,direction:-1,groupSelector:'.client-gallery-group',pauseOnHover:true,holdWhileLightbox:true,captureMouseOnDown:false,smoothWheel:true,audioOnVideo:true}
       );
       const loopWidth=clientGalleryMarquee.querySelector('.client-gallery-group')?.getBoundingClientRect().width || 0;
       if(loopWidth)clientGalleryMarquee.scrollLeft=loopWidth;
       clientGalleryController.wrap();
-      bindMediaTrack(clientGalleryGrid,'.client-gallery-card',()=>currentClientPhotos,()=>clientGalleryController);
+      bindMediaTrack(clientGalleryGrid,'.client-gallery-card',()=>currentClientPhotos,()=>clientGalleryController,{pauseOnOpen:true,audioOnVideo:true});
     }catch(err){
       console.error(err);
       clientGalleryStatus.textContent=window.TPNG_I18N.t('galleryError');
