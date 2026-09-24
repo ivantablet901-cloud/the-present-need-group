@@ -1237,21 +1237,11 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     const groupSelector=options.groupSelector || '.marquee-group';
     const pauseOnHover=options.pauseOnHover !== false;
     const holdWhileLightbox=options.holdWhileLightbox === true;
-    const desktopMode=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
 
-    let frame=0;
-    let lastTime=0;
-    let dragging=false;
-    let startX=0;
-    let startScroll=0;
-    let lastX=0;
-    let lastMoveTime=0;
-    let momentum=0;
-    let resumeTimer=0;
-    let clickBlockedUntil=0;
-    let hasUserInteracted=false;
+    let frame=0,lastTime=0,dragging=false,startX=0,startScroll=0;
+    let lastX=0,lastMoveTime=0,momentum=0,resumeTimer=0,clickBlockedUntil=0;
     const captureMouseOnDown=options.captureMouseOnDown !== false;
-    let destroyed=false;
+    let destroyed=false,pausedByHover=false;
 
     const getGroupWidth=()=>{
       const group=track.querySelector(groupSelector);
@@ -1261,28 +1251,11 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     const wrap=()=>{
       const width=getGroupWidth();
       if(!width)return;
-
-      if(desktopMode){
-        // Desktop uses the middle copy as a safe operating zone. Keep the
-        // scroll position away from the browser's physical edges so the
-        // automatic loop can never get trapped at scrollLeft = 0.
-        const min=width;
-        const max=width*2;
-        let position=viewport.scrollLeft;
-
-        // Normalize any position outside the middle copy, including values
-        // produced after the browser clamps scrollLeft at an edge.
-        if(position < min || position >= max){
-          const offset=((position-min)%width+width)%width;
-          position=min+offset;
-          viewport.scrollLeft=position;
-        }
-        return;
+      const position=viewport.scrollLeft;
+      if(position < width || position >= width*2){
+        const offset=((position-width)%width+width)%width;
+        viewport.scrollLeft=width+offset;
       }
-
-      // Preserve the existing mobile behavior.
-      while(viewport.scrollLeft<=0)viewport.scrollLeft+=width;
-      while(viewport.scrollLeft>=width)viewport.scrollLeft-=width;
     };
 
     const stopMomentum=()=>{momentum=0};
@@ -1294,8 +1267,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       lastTime=time;
 
       if(!document.hidden && track.firstElementChild && !dragging){
-        const autoVelocity=pausedByHover ? 0 : direction*speed;
-        const velocity=autoVelocity+momentum;
+        const velocity=(pausedByHover ? 0 : direction*speed)+momentum;
         if(Math.abs(velocity)>0.001){
           viewport.scrollLeft+=velocity*dt;
           wrap();
@@ -1307,8 +1279,6 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       }
       frame=requestAnimationFrame(tick);
     };
-
-    let pausedByHover=false;
 
     const start=()=>{
       if(destroyed || frame || !track.firstElementChild)return;
@@ -1324,22 +1294,20 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     const resume=()=>{
       if(destroyed)return;
       pausedByHover=false;
-      lastTime=performance.now();
+      clearTimeout(resumeTimer);
+      resumeTimer=0;
       wrap();
+      lastTime=performance.now();
       start();
     };
 
     const resumeSoon=(delay=400)=>{
       clearTimeout(resumeTimer);
-      resumeTimer=setTimeout(()=>{
-        resumeTimer=0;
-        resume();
-      },delay);
+      resumeTimer=setTimeout(()=>{resumeTimer=0;resume();},delay);
     };
 
     const beginDrag=e=>{
       if(e.pointerType==='mouse' && e.button!==0)return;
-      hasUserInteracted=true;
       if(pauseOnHover)pause();
       dragging=true;
       startX=e.clientX;
@@ -1359,10 +1327,9 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       const dx=e.clientX-startX;
       const dt=Math.max(8,now-lastMoveTime);
       const delta=e.clientX-lastX;
-
       if(Math.abs(dx)>6)clickBlockedUntil=Date.now()+450;
       viewport.scrollLeft=startScroll-dx;
-      momentum=(-delta/dt)*0.32 + momentum*0.68;
+      momentum=(-delta/dt)*0.32+momentum*0.68;
       lastX=e.clientX;
       lastMoveTime=now;
       wrap();
@@ -1378,43 +1345,44 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
     };
 
     const onPointerEnter=e=>{
-      if(e.pointerType==='mouse' && pauseOnHover && hasUserInteracted)pause();
+      if(e.pointerType==='mouse' && pauseOnHover && !dragging){
+        if(holdWhileLightbox && lightbox.classList.contains('open'))return;
+        pause();
+      }
     };
+
     const onPointerLeave=e=>{
       if(e.pointerType==='mouse' && !dragging && pauseOnHover){
         if(holdWhileLightbox && lightbox.classList.contains('open'))return;
         resume();
       }
     };
-    const onPointerDown=beginDrag;
-    const onPointerMove=moveDrag;
+
     const onPointerUp=e=>{
       endDrag();
       if(e.pointerType==='touch' || e.pointerType==='pen')resumeSoon(520);
     };
+
     const onPointerCancel=()=>{endDrag();resumeSoon(260)};
     const onLostPointerCapture=()=>{endDrag();resumeSoon(260)};
+
     const onWheel=e=>{
       if(!track.firstElementChild)return;
-      const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
       if(!amount)return;
       e.preventDefault();
       momentum=Math.max(-3.2,Math.min(3.2,momentum+amount*0.035));
-      wrap();
-      start();
+      resume();
     };
+
     const onVisibilityChange=()=>{
-      if(!document.hidden){
-        lastTime=performance.now();
-        wrap();
-        start();
-      }
+      if(!document.hidden && !(holdWhileLightbox && lightbox.classList.contains('open')))resume();
     };
 
     viewport.addEventListener('pointerenter',onPointerEnter);
     viewport.addEventListener('pointerleave',onPointerLeave);
-    viewport.addEventListener('pointerdown',onPointerDown);
-    viewport.addEventListener('pointermove',onPointerMove);
+    viewport.addEventListener('pointerdown',beginDrag);
+    viewport.addEventListener('pointermove',moveDrag);
     viewport.addEventListener('pointerup',onPointerUp);
     viewport.addEventListener('pointercancel',onPointerCancel);
     viewport.addEventListener('lostpointercapture',onLostPointerCapture);
@@ -1429,8 +1397,8 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       resumeTimer=0;
       viewport.removeEventListener('pointerenter',onPointerEnter);
       viewport.removeEventListener('pointerleave',onPointerLeave);
-      viewport.removeEventListener('pointerdown',onPointerDown);
-      viewport.removeEventListener('pointermove',onPointerMove);
+      viewport.removeEventListener('pointerdown',beginDrag);
+      viewport.removeEventListener('pointermove',moveDrag);
       viewport.removeEventListener('pointerup',onPointerUp);
       viewport.removeEventListener('pointercancel',onPointerCancel);
       viewport.removeEventListener('lostpointercapture',onLostPointerCapture);
@@ -1439,32 +1407,14 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       viewport.classList.remove('is-dragging');
     };
 
-    // Desktop browsers can finish the scroll layout one frame after the
-    // gallery is inserted. Start again after layout so the automatic loop
-    // does not wait for the first wheel/pointer interaction.
-    if(desktopMode){
-      requestAnimationFrame(()=>{
-        if(destroyed || !track.firstElementChild)return;
-        const width=getGroupWidth();
-        if(width){
-          const position=viewport.scrollLeft;
-          if(position<width || position>=width*2)viewport.scrollLeft=width;
-          wrap();
-        }
-        lastTime=performance.now();
-        start();
-      });
-    }else{
-      start();
-    }
-    return {
-      start,
-      stop,
-      pause,
-      resume,
-      wrap,
-      shouldIgnoreClick:()=>Date.now()<clickBlockedUntil
-    };
+    requestAnimationFrame(()=>{
+      if(destroyed || !track.firstElementChild)return;
+      const width=getGroupWidth();
+      if(width)viewport.scrollLeft=width;
+      resume();
+    });
+
+    return {start,stop,pause,resume,wrap,shouldIgnoreClick:()=>Date.now()<clickBlockedUntil};
   }
 
   function bindMediaTrack(track,selector,getItems,getController,options={}){
