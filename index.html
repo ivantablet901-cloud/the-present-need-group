@@ -1492,9 +1492,17 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       const card=e.target.closest(selector);
       if(!card || (e.key!=='Enter' && e.key!==' '))return;
       e.preventDefault();
+      const controller=getController();
+      if(controller?.shouldIgnoreClick())return;
       const items=getItems();
       const index=Number(card.dataset.index);
-      if(Number.isInteger(index))openLightbox(items,index);
+      if(Number.isInteger(index)){
+        if(pauseOnOpen && controller){
+          controller.pause();
+          lightboxResumeController=controller;
+        }
+        openLightbox(items,index,{audioOnVideo:options.audioOnVideo === true});
+      }
     });
   }
 
@@ -1749,7 +1757,7 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
         recentMarqueeController.wrap();
       }
       recentMarqueeController.start();
-      bindMediaTrack(gallery,'.gallery-card',()=>fullGalleryItems,()=>recentMarqueeController,{pauseOnOpen:true});
+      bindMediaTrack(gallery,'.gallery-card',()=>fullGalleryItems,()=>recentMarqueeController,{pauseOnOpen:true,audioOnVideo:true});
       lightboxItems=fullGalleryItems;
     }catch(err){
       console.error(err);
