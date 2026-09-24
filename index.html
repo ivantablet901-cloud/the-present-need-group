@@ -1339,7 +1339,12 @@ h2{font-size:clamp(30px,5vw,48px);margin-bottom:40px}
       stopMomentum();
       viewport.classList.add('is-dragging');
 
-      // Pointer capture starts only after real movement, preserving normal mouse clicks.
+      // Touch needs pointer capture immediately so a finger swipe keeps
+      // controlling the carousel even if the finger leaves the viewport.
+      // Mouse waits for real movement so a normal click can reach the media card.
+      if(event.pointerType !== 'mouse') {
+        try{ viewport.setPointerCapture(pointerId); }catch{}
+      }
     };
 
     const moveDrag = event => {
